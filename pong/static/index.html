@@ -1,18 +1,15 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<body>
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-</head>
-
-<body>
     <div class="background">
         <div class="stars" id="stars"></div>
     </div>
@@ -26,21 +23,21 @@
         <h1>BIENVENUE DANS LE PONG 42</h1>
         <div class="input-container">
             <div id="auth-form">
-                <label for="nickname">Enter your nickname:</label>
+                <label for="nickname">Entrez votre pseudo :</label>
                 <input type="text" id="nickname" name="nickname">
-                <button id="check-nickname">Check Nickname</button>
+                <button id="check-nickname">Vérifier le pseudo</button>
             </div>
             <div id="register-form" style="display: none;">
-                <label for="password">Enter your password:</label>
+                <label for="password">Entrez votre mot de passe :</label>
                 <input type="password" id="password" name="password">
-                <label for="confirm-password">Confirm your password:</label>
+                <label for="confirm-password">Confirmez votre mot de passe :</label>
                 <input type="password" id="confirm-password" name="confirm-password">
-                <button id="register">Register</button>
+                <button id="register">S'inscrire</button>
             </div>
             <div id="login-form" style="display: none;">
-                <label for="login-password">Enter your password:</label>
+                <label for="login-password">Entrez votre mot de passe :</label>
                 <input type="password" id="login-password" name="login-password">
-                <button id="login">Login</button>
+                <button id="login">Se connecter</button>
             </div>
         </div>
     </div>
@@ -48,15 +45,15 @@
     <div class="navbar">
         <button class="burger-menu">☰</button>
         <div id="dropdown-menu" class="dropdown-content">
-            <a href="#" data-table="player-list">Players</a>
-            <a href="#" data-table="match-list">Matches</a>
+            <a href="#" data-table="player-list">Joueurs</a>
+            <a href="#" data-table="match-list">Matchs</a>
         </div>
     </div>
 
     <div id="game1" style="display: none;">
-        <div id="gameCode" class="game-code">Game Code : </div>
-        <div id="player1-name" class="name">Player 1</div>
-        <div id="player2-name" class="name">Player 2</div>
+        <div id="gameCode" class="game-code">Code du Jeu : </div>
+        <div id="player1-name" class="name">Joueur 1</div>
+        <div id="player2-name" class="name">Joueur 2</div>
         <div id="game2">
             <div id="player1-score" class="score">0</div>
             <div id="player2-score" class="score">0</div>
@@ -67,22 +64,21 @@
     </div>
 
     <div id="match-list" class="content-list" style="display: none;">
-        <h1>Matches</h1>
+        <h1>Matchs</h1>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Player 1</th>
-                    <th>Player 2</th>
-                    <th>Score Player 1</th>
-                    <th>Score Player 2</th>
-                    <th>Winner</th>
-                    <th>Ball Touches Player 1</th>
-                    <th>Ball Touches Player 2</th>
-                    <th>Duration</th>
+                    <th>Joueur 1</th>
+                    <th>Joueur 2</th>
+                    <th>Score Joueur 1</th>
+                    <th>Score Joueur 2</th>
+                    <th>Gagnant</th>
+                    <th>Touches de Balle Joueur 1</th>
+                    <th>Touches de Balle Joueur 2</th>
+                    <th>Durée</th>
                     <th>Date</th>
-                    <th>Is Tournament</th>
-                    <th>Tournament</th>
+                    <th>Tournoi</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,12 +94,11 @@
                     <td>{{ match.nbr_ball_touch_p2 }}</td>
                     <td>{{ match.duration }}</td>
                     <td>{{ match.date }}</td>
-                    <td>{{ match.is_tournoi }}</td>
                     <td>{{ match.tournoi.name }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="12">No matches found.</td>
+                    <td colspan="12">Aucun match trouvé.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -111,23 +106,23 @@
     </div>
 
     <div id="player-list" class="content-list" style="display:none;">
-        <h1>Players</h1>
+        <h1>Joueurs</h1>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
-                    <th>Total Matches</th>
-                    <th>Total Wins</th>
-                    <th>Win Percentage</th>
-                    <th>Average Match Score</th>
-                    <th>Average Opponent Score</th>
-                    <th>Best Score</th>
-                    <th>Average Ball Touches</th>
-                    <th>Total Duration</th>
-                    <th>Average Duration</th>
-                    <th>Participated Tournaments</th>
-                    <th>Won Tournaments</th>
+                    <th>Nom</th>
+                    <th>Matchs Totaux</th>
+                    <th>Victoires Totales</th>
+                    <th>Pourcentage de Victoires</th>
+                    <th>Score Moyen par Match</th>
+                    <th>Score Moyen Adversaire</th>
+                    <th>Meilleur Score</th>
+                    <th>Touches de Balle Moyennes</th>
+                    <th>Durée Totale</th>
+                    <th>Durée Moyenne</th>
+                    <th>Tournois Participés</th>
+                    <th>Tournois Gagnés</th>
                 </tr>
             </thead>
             <tbody>
@@ -149,11 +144,18 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="13">No players found.</td>
+                    <td colspan="13">Aucun joueur trouvé.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <!-- Ajouter l'interface du Chat -->
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <input type="text" id="chat-input" placeholder="Tapez votre message...">
+        <button id="chat-button">Envoyer</button>
     </div>
 
     <script src="{% static 'game.js' %}"></script>
@@ -171,9 +173,6 @@
         }
 
         setInterval(createTrail, 100);
-        
-
     </script>
 </body>
-
 </html>

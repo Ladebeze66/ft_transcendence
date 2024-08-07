@@ -1,6 +1,5 @@
 /* General styles */
 body,
-
 html {
     font-family: Arial, sans-serif;
     color: #00ffff;
@@ -13,7 +12,6 @@ html {
     justify-content: center;
     height: 100%;
     overflow: hidden;
-
 }
 
 label {
@@ -77,12 +75,10 @@ button:hover {
 
 #player1-name {
     left: 10px;
-    /* Adjust player score position */
 }
 
 #player2-name {
     right: 10px;
-    /* Adjust bot score position */
 }
 
 #game2 {
@@ -93,7 +89,6 @@ button:hover {
     background-color: #000;
     overflow: hidden;
     border: 2px solid white;
-    /* Add red border */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,12 +102,10 @@ button:hover {
 
 #player1-score {
     left: 50px;
-    /* Adjust player score position */
 }
 
 #player2-score {
     right: 50px;
-    /* Adjust bot score position */
 }
 
 .pad {
@@ -309,4 +302,35 @@ button:hover {
 .dropdown-content a:hover {
     background-color: #333; /* Couleur de fond au survol */
     color: #00ffff; /* Couleur du texte au survol */
+}
+
+/* Styles pour le conteneur du chat */
+#chat-container {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+/* Styles pour le journal du chat */
+#chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+/* Styles pour l'entrée de texte du chat */
+#chat-input {
+    width: calc(100% - 50px);
+    padding: 5px;
+}
+
+/* Styles pour le bouton du chat */
+#chat-button {
+    width: 40px;
+    padding: 5px;
 }

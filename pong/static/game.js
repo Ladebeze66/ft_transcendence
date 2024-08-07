@@ -12,14 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
-    //const viewSelector = document.getElementById('view-selector');
-    //const viewPlayersButton = document.getElementById('view-players');
-    //const viewMatchesButton = document.getElementById('view-matches');
     const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
     const dropdownMenu = document.getElementById('dropdown-menu');
-
 
     let socket;
     let token;
@@ -37,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
-
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -209,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player1-name').textContent = `${player1_name}`;
         document.getElementById('player2-name').textContent = `${player2_name}`;
         document.addEventListener('keydown', handleKeyDown);
-
     }
 
     function handleKeyDown(event) {
@@ -248,25 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const player2Score = document.getElementById('player2-score');
         player2Score.textContent = gameState.player2_score;
     }
-
-    // viewSelector.addEventListener('change', function() {
-      //  const selectedView = this.value;
-        
-        // Masquer les deux listes par défaut
-       // playerList.style.display = 'none';
-       // matchList.style.display = 'none';
-
-        // Afficher la liste sélectionnée
-       // if (selectedView === 'player-list') {
-       //     playerList.style.display = 'block';
-       //     fetchPlayers();
-        //} else if (selectedView === 'match-list') {
-        //    matchList.style.display = 'block';
-        //    fetchMatches();
-        //}
-    //}) 
-
-    console.log('Here');
 
     function toggleMenu() {
         console.log('Menu toggled');
@@ -330,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchPlayers(){
+    function fetchPlayers() {
         fetch('/api/player_list/')
             .then(response => response.json())
             .then(data => {
@@ -338,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayPlayers(data.players);
                 }
             })
-            .catch(error => console.error('Error fetching match data:', error));
+            .catch(error => console.error('Error fetching player data:', error));
     }
 
     function displayMatches(matches) {
@@ -390,4 +365,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Initialisation du chat WebSocket
+    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+    chatSocket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const message = data.message;
+        const chatLog = document.getElementById('chat-log');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        chatLog.appendChild(messageElement);
+    };
+
+    chatSocket.onclose = function(event) {
+        console.error('Chat WebSocket closed unexpectedly');
+    };
+
+    const chatInput = document.getElementById('chat-input');
+    const chatButton = document.getElementById('chat-button');
+
+    chatButton.addEventListener('click', () => {
+        const message = chatInput.value;
+        chatSocket.send(JSON.stringify({'message': message}));
+        chatInput.value = '';
+    });
 });
