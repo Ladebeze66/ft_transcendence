@@ -1,0 +1,14 @@
+Modifications Backend
+consumers.py
+Modifiez la classe ChatConsumer pour inclure le nom du joueur dans les messages de chat. Vous devez authentifier les utilisateurs et récupérer leurs informations à partir du token.
+
+Modifications Frontend
+game.js
+Modifiez le fichier JavaScript pour gérer l'affichage des messages avec le nom du joueur :
+
+Modifications du Template HTML
+index.html
+Assurez-vous que le nom du joueur est inclus et affiché dans les messages de chat.
+
+styles.css
+Augmentez la taille du bouton "Envoyer" :

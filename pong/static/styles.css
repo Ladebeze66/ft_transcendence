@@ -331,6 +331,6 @@ button:hover {
 
 /* Styles pour le bouton du chat */
 #chat-button {
-    width: 40px;
-    padding: 5px;
+    width: 165px;
+    padding: 15px;
 }

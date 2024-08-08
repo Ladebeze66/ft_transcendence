@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event fired'); 
+    console.log('DOMContentLoaded event fired');
     const checkNicknameButton = document.getElementById('check-nickname');
     const registerButton = document.getElementById('register');
     const loginButton = document.getElementById('login');
@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdownMenu = document.getElementById('dropdown-menu');
 
     let socket;
+    let chatSocket;
     let token;
     let gameState;
+    let username; // Ajouter cette variable pour stocker le nom d'utilisateur
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -96,11 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
-                    //await createPlayer(nickname);
+                    username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
                     formBlock.style.display = 'none';
                     startWebSocketConnection(token);
+                    startChatWebSocket(); // Initialiser le chat WebSocket après l'inscription
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -133,10 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await authenticateUser(nickname, password);
             if (result) {
+                username = nickname; // Stocker le nom d'utilisateur après la connexion
                 loginForm.style.display = 'none';
                 gameContainer.style.display = 'flex';
                 formBlock.style.display = 'none';
                 startWebSocketConnection(token);
+                startChatWebSocket(); // Initialiser le chat WebSocket après la connexion
             } else {
                 alert('Authentication failed. Please try again.');
             }
@@ -366,27 +371,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialisation du chat WebSocket
-    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+    function startChatWebSocket() {
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
 
-    chatSocket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        const message = data.message;
-        const chatLog = document.getElementById('chat-log');
-        const messageElement = document.createElement('div');
-        messageElement.textContent = message;
-        chatLog.appendChild(messageElement);
-    };
+        chatSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const message = data.message;
+            const chatLog = document.getElementById('chat-log');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            chatLog.appendChild(messageElement);
+        };
 
-    chatSocket.onclose = function(event) {
-        console.error('Chat WebSocket closed unexpectedly');
-    };
+        chatSocket.onclose = function(event) {
+            console.error('Chat WebSocket closed unexpectedly');
+        };
 
-    const chatInput = document.getElementById('chat-input');
-    const chatButton = document.getElementById('chat-button');
+        const chatInput = document.getElementById('chat-input');
+        const chatButton = document.getElementById('chat-button');
 
-    chatButton.addEventListener('click', () => {
-        const message = chatInput.value;
-        chatSocket.send(JSON.stringify({'message': message}));
-        chatInput.value = '';
-    });
+        chatButton.addEventListener('click', () => {
+            const message = chatInput.value;
+            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
+            chatInput.value = '';
+        });
+
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                chatButton.click();
+            }
+        });
+    }
 });
