@@ -1,5 +1,6 @@
 /* General styles */
 body,
+
 html {
     font-family: Arial, sans-serif;
     color: #00ffff;
@@ -13,6 +14,7 @@ html {
     height: 100%;
     overflow: hidden;
 }
+
 
 label {
     margin: 10px 0 5px;
@@ -75,10 +77,12 @@ button:hover {
 
 #player1-name {
     left: 10px;
+    /* Adjust player score position */
 }
 
 #player2-name {
     right: 10px;
+    /* Adjust bot score position */
 }
 
 #game2 {
@@ -89,6 +93,7 @@ button:hover {
     background-color: #000;
     overflow: hidden;
     border: 2px solid white;
+    /* Add red border */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -102,10 +107,12 @@ button:hover {
 
 #player1-score {
     left: 50px;
+    /* Adjust player score position */
 }
 
 #player2-score {
     right: 50px;
+    /* Adjust bot score position */
 }
 
 .pad {
@@ -117,16 +124,22 @@ button:hover {
 
 #player1-pad {
     left: 10px;
+    background-color: #00ffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #00ffff;
 }
 
 #player2-pad {
     right: 10px;
+    background-color: #00ffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #00ffff;
 }
 
 #ball {
     width: 20px;
     height: 20px;
-    background-color: #ffffff;
+    background-color: #00ffff;
     border-radius: 50%;
     position: absolute;
 }
@@ -135,10 +148,12 @@ button:hover {
     position: absolute;
     top: 20px;
     left: 20px;
-    font-size: 3rem;
-    color: #00ffff;
-    text-shadow: 0 0 15px #00ffff;
     z-index: 20;
+}
+
+.logo img {
+    max-width: 100%;
+    height: auto;
 }
 
 .stars {
@@ -246,56 +261,151 @@ button:hover {
     max-width: 80%;
 }
 
-/* Styles pour la barre de navigation */
+
 .navbar {
-    position: absolute; /* Positionne la barre de navigation relativement à son conteneur */
-    top: 10px; /* Ajuste la position du menu déroulant par rapport au haut */
-    right: 10px; /* Ajuste la position du menu déroulant par rapport à la droite */
+    position: absolute;
+    top: 10px;
+    right: 10px;
     padding: 10px;
 }
 
-/* Styles pour le bouton du menu burger */
 .burger-menu {
     font-size: 24px;
     background: none;
     border: none;
-    color: #00ffff; /* Couleur du texte du bouton */
+    color: #00ffff;
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .burger-menu:hover {
-    color: #ffffff; /* Couleur du texte au survol */
+    color: #ffffff;
 }
 
-/* Styles pour le menu déroulant */
+
 .dropdown-content {
     display: none;
     position: absolute;
-    top: 100%; /* Positionne le menu directement sous le bouton */
-    right: 0; /* Aligne le menu avec le bouton */
-    margin-top: 10px; /* Espace entre le bouton et le menu */
-    background-color: #1a1a2e; /* Couleur de fond du menu */
-    color: #ffffff; /* Couleur du texte du menu */
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background-color: #1a1a2e;
+    color: #ffffff;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     z-index: 1;
-    width: max-content; /* Ajuste la largeur du menu en fonction du contenu */
+    width: max-content;
 }
 
-/* Affiche le menu déroulant lorsqu'il est actif */
 .dropdown-content.show {
     display: block;
 }
 
-/* Styles pour les liens du menu déroulant */
+
 .dropdown-content a {
-    color: #ffffff; /* Couleur du texte des liens */
+    color: #ffffff;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Ligne de séparation entre les éléments */
-    transition: background-color 0.3s ease; /* Transition pour le fond au survol */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+
+.dropdown-content a:hover {
+    background-color: #333;
+    color: #00ffff;
+}
+
+.language-switcher {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.language-switcher img {
+    width: 30px;
+    height: 20px;
+    cursor: pointer;
+}
+
+#settings-btn {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 1000;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 18px;
+}
+
+#settings-menu {
+    position: fixed;
+    bottom: 50px;
+    right: 10px;
+    padding: 20px;
+    background-color: rgb(66, 63, 63);
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    z-index: 1000;
+}
+
+#close-settings {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 5px solid #888;
+    width: 80%;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* Styles pour les liens au survol */

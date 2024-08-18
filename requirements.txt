@@ -4,3 +4,4 @@ python-dotenv
 channels
 daphne
 djangorestframework
+web3

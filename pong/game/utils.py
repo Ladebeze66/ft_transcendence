@@ -4,32 +4,35 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
 from channels.db import database_sync_to_async
+#from asgiref.sync import database_sync_to_async
+
 
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
-    # Check if player p1 exists, if not create
-    if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
-        player_1 = await create_player(p1)
-        print("############# PLAYER DONE")
-    else:
-        player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
+    try:
+        print("here endfortheouche §!!!")
+        if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
+            player_1 = await create_player(p1)
+            print("############# PLAYER DONE")
+        else:
+            player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
 
-    # Check if player p2 exists, if not create
-    if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
-        player_2 = await create_player(p2)
-        print("############# PLAYER DONE")
-    else:
-        player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
-    
-    # create Match
-    print("############# BEFORE MATCH")
-    await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
-    print("############# AFTER DONE")
+        print("ok")
 
-    # Update data p1 et p2
-    
-    await uptdate_player_statistics(p1)
-    print("############# END STAT P1")
-    await uptdate_player_statistics(p2)
+        if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
+            player_2 = await create_player(p2)
+            print("############# PLAYER DONE")
+        else:
+            player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
+        
+        print("############# BEFORE MATCH")
+        await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
+        print("############# AFTER DONE")
+
+        await update_player_statistics(p1)
+        print("############# END STAT P1")
+        await update_player_statistics(p2)
+    except Exception as e:
+        print(f"Error in endfortheouche: {e}")
 
 @database_sync_to_async
 def create_player(
@@ -46,22 +49,23 @@ def create_player(
     num_participated_tournaments=0, 
     num_won_tournaments=0
 ):
-    if Player.objects.filter(name=name).exists():
-        raise ValueError(f"A player with the name '{name}' already exists.")
-
+    print("create player !!!")
+    """ if database_sync_to_async(Player.objects.filter(name=name).exists)():
+        raise ValueError(f"A player with the name '{name}' already exists.") """
+    
     player = Player(
         name=name,
-        total_match  = total_match,
-        total_win = total_win,
-        p_win = p_win,
-        m_score_match = m_score_match,
-        m_score_adv_match = m_score_adv_match,
-        best_score = best_score,
-        m_nbr_ball_touch = m_nbr_ball_touch,
-        total_duration = total_duration,
-        m_duration = m_duration,
-        num_participated_tournaments = num_participated_tournaments,
-        num_won_tournaments = num_won_tournaments
+        total_match=total_match,
+        total_win=total_win,
+        p_win=p_win,
+        m_score_match=m_score_match,
+        m_score_adv_match=m_score_adv_match,
+        best_score=best_score,
+        m_nbr_ball_touch=m_nbr_ball_touch,
+        total_duration=total_duration,
+        m_duration=m_duration,
+        num_participated_tournaments=num_participated_tournaments,
+        num_won_tournaments=num_won_tournaments
     )
     player.save()
     return player
@@ -97,7 +101,7 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     return match
 
 @database_sync_to_async
-def uptdate_player_statistics(player_name):
+def update_player_statistics(player_name):
     print("############# BEG STAT P")
     player = get_object_or_404(Player, name=player_name)
 
@@ -180,39 +184,6 @@ def get_player_p_win(player_name):
     player = get_object_or_404(Player, name=player_name)
     # Retourner la valeur de p_win
     return player.p_win
-
-
-""" def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration):
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        raise ValidationError(f"Match with id {match_id} does not exist")
-
-    match.score_player1 = score_player1
-    match.score_player2 = score_player2
-    match.nbr_ball_touch_p1 = nbr_ball_touch_p1
-    match.nbr_ball_touch_p2 = nbr_ball_touch_p2
-    match.duration = duration
-
-    if score_player1 > score_player2:
-        match.winner = match.player1
-    elif score_player2 > score_player1:
-        match.winner = match.player2
-    else:
-        match.winner = None
-
-    match.save()
-    return match """
-
-""" def complete_tournoi(tournoi_id, player):
-    try:
-        tournoi = Tournoi.objects.get(id = tournoi_id)
-    except Tournoi.DoesNotExist:
-        raise ValidationError(f"Tournoi with id {tournoi_id} does not exist")
-    
-    tournoi.winner = player
-    tournoi.save()
-    return tournoi """
 
 
     

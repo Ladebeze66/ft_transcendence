@@ -15,13 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
+    const tournoiList = document.getElementById('tournoi-list');
     const dropdownMenu = document.getElementById('dropdown-menu');
 
+    const pongElements = document.getElementById('pong-elements');
+    const logo = document.querySelector('.logo');
+
+    const quickMatchButton = document.getElementById('quick-match');
+    const tournamentButton = document.getElementById('tournament');
+
     let socket;
-    let chatSocket;
     let token;
     let gameState;
-    let username; // Ajouter cette variable pour stocker le nom d'utilisateur
+	let chatSocket; //modif
+	let username;
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -35,6 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
+
+    quickMatchButton.addEventListener('click', startQuickMatch);
+    tournamentButton.addEventListener('click', startTournament);
+
+
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -98,12 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
-                    username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
-                    gameContainer.style.display = 'flex';
-                    formBlock.style.display = 'none';
-                    startWebSocketConnection(token);
-                    startChatWebSocket(); // Initialiser le chat WebSocket après l'inscription
+                    //gameContainer.style.display = 'flex';
+                    //formBlock.style.display = 'none';
+                    //logo.style.display = 'none';
+                    pongElements.style.display = 'none';
+                    console.log("new button must appear !");
+                    document.getElementById("post-form-buttons").style.display = 'inline-block';
+                    //startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -136,18 +150,32 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await authenticateUser(nickname, password);
             if (result) {
-                username = nickname; // Stocker le nom d'utilisateur après la connexion
                 loginForm.style.display = 'none';
-                gameContainer.style.display = 'flex';
-                formBlock.style.display = 'none';
-                startWebSocketConnection(token);
-                startChatWebSocket(); // Initialiser le chat WebSocket après la connexion
+                //gameContainer.style.display = 'flex';
+                //formBlock.style.display = 'none';
+                //logo.style.display = 'none';
+                //pongElements.style.display = 'none';
+                console.log("new button must appear !");
+                document.getElementById("post-form-buttons").style.display = 'inline-block';
+                //startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
             }
         } catch (error) {
             console.error('Error authenticating user:', error);
         }
+    }
+
+    function startQuickMatch() {
+        gameContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        menuButton.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token);
+    }
+
+    function startTournament() {
+        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
     }
 
     async function authenticateUser(username, password) {
@@ -209,6 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player1-name').textContent = `${player1_name}`;
         document.getElementById('player2-name').textContent = `${player2_name}`;
         document.addEventListener('keydown', handleKeyDown);
+
     }
 
     function handleKeyDown(event) {
@@ -248,6 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
         player2Score.textContent = gameState.player2_score;
     }
 
+    menuButton.addEventListener('click', toggleMenu);
+
     function toggleMenu() {
         console.log('Menu toggled');
         if (dropdownMenu.style.display === "block") {
@@ -257,49 +288,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const links = document.querySelectorAll('#dropdown-menu a');
+    //console.log(links);
+
+    links.forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            const tableId = link.getAttribute('data-table');
+            console.log("Here !!!!!!!!!!!! NNNNNNNN");
+            showTable(tableId);
+        });
+    });
+
     function showTable(tableId) {
         // Masquer tous les tableaux
-        if (playerList) {
-            playerList.style.display = 'none';
-        }
-        if (matchList) {
-            matchList.style.display = 'none';
-        }
+        console.log('Entering showTable', tableId);
+        if (playerList) playerList.style.display = 'none';
+        if (matchList) matchList.style.display = 'none';
+        if (tournoiList) tournoiList.style.display = 'none';
 
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
-            if (playerList) {
-                playerList.style.display = 'block';
-            }
+            console.log('Showing player list');
+            //if (playerList) {
+            playerList.style.display = 'block';
             fetchPlayers();
+            //}
         } else if (tableId === 'match-list') {
-            if (matchList) {
-                matchList.style.display = 'block';
-            }
+            console.log('Showing match list');
+            //if (matchList)
+            matchList.style.display = 'block';
             fetchMatches();
+        } else if (tableId === 'tournoi-list') {
+            console.log('Showing tournoi list');
+            //if (tournoiList)
+            tournoiList.style.display = 'block';
+            fetchTournois();
         }
-
         // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
         }
     }
 
-    // Ajouter les gestionnaires d'événements
-    if (menuButton) {
-        menuButton.addEventListener('click', toggleMenu);
-    }
-
-    const links = document.querySelectorAll('#dropdown-menu a');
-    links.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Empêche le comportement par défaut du lien
-            const tableId = link.getAttribute('data-table');
-            showTable(tableId);
-        });
-    });
-
     function fetchMatches() {
+        console.log('Fetching matches...');
         fetch('/api/match_list/')
             .then(response => response.json())
             .then(data => {
@@ -310,7 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchPlayers() {
+    function fetchPlayers(){
+        console.log('Fetching players...');
         fetch('/api/player_list/')
             .then(response => response.json())
             .then(data => {
@@ -318,12 +352,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayPlayers(data.players);
                 }
             })
-            .catch(error => console.error('Error fetching player data:', error));
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function fetchTournois(){
+        console.log('Fetching tournois...');
+        fetch('/api/tournoi_list/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tournois) {
+                    displayTournois(data.tournois);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
     }
 
     function displayMatches(matches) {
+        console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
+
+        if (matches.length === 0) {
+            console.log('No matches to display');
+        }
 
         matches.forEach(match => {
             const row = document.createElement('tr');
@@ -346,8 +397,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayPlayers(players) {
+        console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
+
+        if (players.length === 0) {
+            console.log('No players to display');
+        }
+
 
         players.forEach(player => {
             const row = document.createElement('tr');
@@ -370,36 +427,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialisation du chat WebSocket
-    function startChatWebSocket() {
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+    function displayTournois(tournois) {
+        console.log('Displaying tournois:');
+        const tournoisListBody = document.querySelector('#tournoi-list tbody');
+        tournoisListBody.innerHTML = '';
 
-        chatSocket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            const message = data.message;
-            const chatLog = document.getElementById('chat-log');
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            chatLog.appendChild(messageElement);
-        };
+        if (tournois.length === 0) {
+            console.log('No tournois to display');
+        }
 
-        chatSocket.onclose = function(event) {
-            console.error('Chat WebSocket closed unexpectedly');
-        };
-
-        const chatInput = document.getElementById('chat-input');
-        const chatButton = document.getElementById('chat-button');
-
-        chatButton.addEventListener('click', () => {
-            const message = chatInput.value;
-            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
-            chatInput.value = '';
-        });
-
-        chatInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                chatButton.click();
-            }
+        tournois.forEach(tournoi => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${tournoi.id}</td>
+                <td>${tournoi.name}</td>
+                <td>${tournoi.nbr_player}</td>
+                <td>${tournoi.date}</td>
+                <td>${tournoi.winner.name}</td>
+            `;
+            tournoisListBody.appendChild(row);
         });
     }
+	// Initialisation du chat WebSocket
+	function startChatWebSocket() {
+		chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+		chatSocket.onmessage = function(event) {
+			const data = JSON.parse(event.data);
+			const message = data.message;
+			const chatLog = document.getElementById('chat-log');
+			const messageElement = document.createElement('div');
+			messageElement.textContent = message;
+			chatLog.appendChild(messageElement);
+		};
+
+		chatSocket.onclose = function(event) {
+			console.error('Chat WebSocket closed unexpectedly');
+		};
+
+		const chatInput = document.getElementById('chat-input');
+		const chatButton = document.getElementById('chat-button');
+
+		chatButton.addEventListener('click', () => {
+			const message = chatInput.value;
+			chatSocket.send(JSON.stringify({'message': message, 'username': username}));
+			chatInput.value = '';
+		});
+
+		chatInput.addEventListener('keypress', function(event) {
+			if (event.key === 'Enter') {
+				chatButton.click();
+			}
+		});
+}
+
 });

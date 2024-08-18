@@ -10,7 +10,6 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.game = None
-        self.user = None
         print("User connected")
 
     async def receive(self, text_data):
@@ -28,7 +27,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         if user:
             self.user = user
             await self.send(text_data=json.dumps({'type': 'authenticated'}))
-            print(f"User {self.user.username} authenticated")
+            print(f"User {self.user} authenticated")
             await self.join_waiting_room()
         else:
             await self.send(text_data=json.dumps({'type': 'error', 'message': 'Authentication failed'}))
@@ -50,11 +49,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         if self.game:
             await self.game.end_game(disconnected_player=self)
         await match_maker.remove_player(self)
-        print(f"User {self.user.username if self.user else 'Unknown'} disconnected")
+        print(f"User {self.user.username if hasattr(self, 'user') else 'Unknown'} disconnected")
 
     async def set_game(self, game):
         self.game = game
-        
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_group_name = 'chat'
@@ -85,4 +84,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
         await self.send(text_data=json.dumps({'message': message}))
-

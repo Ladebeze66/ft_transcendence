@@ -1,13 +1,12 @@
-COMPOSE_FILE=docker-compose.yaml
+COMPOSE_FILE=docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
-up: down
-	sudo mkdir -p data/db
+up:
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER)
+	$(COMPOSE) up
 
-build: 
+build:
 	$(COMPOSE) build $(CONTAINER)
 
 start:
@@ -21,20 +20,19 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
-	sudo rm -rf data
 	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
 
-re: destroy up
-
 ps:
 	$(COMPOSE) ps
 
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
+
+re: destroy down up
 
 help:
 	@echo "Usage:"
