@@ -476,12 +476,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showTable(tableId);
         });
     });
-    
+
     function showTable(tableId) {
         // Masquer tous les tableaux
         console.log('Entering showTable', tableId);
         hideAllTables();
-    
+
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
             console.log('Showing player list 2');
@@ -491,12 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
             //}
         } else if (tableId === 'match-list') {
             console.log('Showing match list 2');
-            //if (matchList) 
+            //if (matchList)
             matchList.style.display = 'block';
             fetchMatches();
         } else if (tableId === 'tournoi-list') {
             console.log('Showing tournoi list 2');
-            //if (tournoiList) 
+            //if (tournoiList)
             tournoiList.style.display = 'block';
             fetchTournois();
         } else if (tableId === 'blockchain-list') {
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     jsonContent.textContent = JSON.stringify(data, null, 2);
                 }); */
         }
-        
+
         // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
@@ -652,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //////////////////////////////    END STARS      ////////////////////////////////
 
-    
+
    /*  btn.onclick = function() {
         fetch('/web3/')
             .then(response => response.json())
@@ -768,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     //////////////////////////////    BEG SETTING     ////////////////////////////////
-    
+
     document.getElementById('settings-btn').addEventListener('click', function() {
         document.getElementById('settings-menu').style.display = 'block';
     });
@@ -795,4 +795,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //////////////////////////////    END SETTING     ////////////////////////////////
 
+});
+
+////////////////////// CHAT ////////////////////////////////
+document.addEventListener('DOMContentLoaded', () => {
+    let chatSocket;
+
+    function startChatWebSocketConnection() {
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const message = data.message;
+            const username = data.username;
+            displayChatMessage(username, message);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat WebSocket closed unexpectedly');
+        };
+    }
+
+    function displayChatMessage(username, message) {
+        const chatBox = document.getElementById('chat-box');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = `${username}: ${message}`;
+        chatBox.appendChild(messageElement);
+    }
+
+    document.getElementById('chat-send-button').addEventListener('click', function() {
+        const messageInput = document.getElementById('chat-message-input');
+        const message = messageInput.value;
+        chatSocket.send(JSON.stringify({
+            'message': message,
+        }));
+        messageInput.value = '';
+    });
+
+    // Appel de la fonction startChatWebSocketConnection seulement après connexion réussie
+    if (userIsAuthenticated) { // Assurez-vous que cette variable est définie après l'authentification
+        startChatWebSocketConnection();
+        document.getElementById('chat-container').style.display = 'block';
+    }
 });

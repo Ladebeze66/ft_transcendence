@@ -4,50 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Players List</title>
+    <style>
+        /* Styles généraux */
+        body {
+            display: flex;
+            flex-direction: row;
+            font-family: Arial, sans-serif;
+        }
+
+        #player-list-container {
+            width: 70%;
+            margin-right: 20px;
+        }
+
+        #chat-container {
+            width: 30%;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Players List</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Total Matches</th>
-                <th>Total Wins</th>
-                <th>Win Percentage</th>
-                <th>Average Match Score</th>
-                <th>Average Opponent Score</th>
-                <th>Best Score</th>
-                <th>Average Ball Touches</th>
-                <th>Total Duration</th>
-                <th>Average Duration</th>
-                <th>Participated Tournaments</th>
-                <th>Won Tournaments</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for player in players %}
-            <tr>
-                <td>{{ player.id }}</td>
-                <td>{{ player.name }}</td>
-                <td>{{ player.total_match }}</td>
-                <td>{{ player.total_win }}</td>
-                <td>{{ player.p_win }}</td>
-                <td>{{ player.m_score_match }}</td>
-                <td>{{ player.m_score_adv_match }}</td>
-                <td>{{ player.best_score }}</td>
-                <td>{{ player.m_nbr_ball_touch }}</td>
-                <td>{{ player.total_duration }}</td>
-                <td>{{ player.m_duration }}</td>
-                <td>{{ player.num_participated_tournaments }}</td>
-                <td>{{ player.num_won_tournaments }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="13">No players found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div id="player-list-container">
+        <h1>Players List</h1>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Total Matches</th>
+                    <th>Total Wins</th>
+                    <th>Win Percentage</th>
+                    <th>Average Match Score</th>
+                    <th>Average Opponent Score</th>
+                    <th>Best Score</th>
+                    <th>Average Ball Touches</th>
+                    <th>Total Duration</th>
+                    <th>Average Duration</th>
+                    <th>Participated Tournaments</th>
+                    <th>Won Tournaments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>{{ player.id }}</td>
+                    <td>{{ player.name }}</td>
+                    <td>{{ player.total_match }}</td>
+                    <td>{{ player.total_win }}</td>
+                    <td>{{ player.p_win }}</td>
+                    <td>{{ player.m_score_match }}</td>
+                    <td>{{ player.m_score_adv_match }}</td>
+                    <td>{{ player.best_score }}</td>
+                    <td>{{ player.m_nbr_ball_touch }}</td>
+                    <td>{{ player.total_duration }}</td>
+                    <td>{{ player.m_duration }}</td>
+                    <td>{{ player.num_participated_tournaments }}</td>
+                    <td>{{ player.num_won_tournaments }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="13">No players found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "pong/chat.html" %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let chatSocket;
+
+            function startChatWebSocketConnection() {
+                chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+                chatSocket.onmessage = function(e) {
+                    const data = JSON.parse(e.data);
+                    const message = data.message;
+                    const username = data.username;
+                    displayChatMessage(username, message);
+                };
+
+                chatSocket.onclose = function(e) {
+                    console.error('Chat WebSocket closed unexpectedly');
+                };
+            }
+
+            function displayChatMessage(username, message) {
+                const chatBox = document.getElementById('chat-box');
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `${username}: ${message}`;
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            document.getElementById('chat-send-button').addEventListener('click', function() {
+                const messageInput = document.getElementById('chat-message-input');
+                const message = messageInput.value;
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                }));
+                messageInput.value = '';
+            });
+
+            const userIsAuthenticated = true;  // Cette variable devrait être définie après l'authentification réelle
+
+            if (userIsAuthenticated) {
+                startChatWebSocketConnection();
+                document.getElementById('chat-container').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
