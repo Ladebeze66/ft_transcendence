@@ -6,23 +6,36 @@ import random
 from datetime import datetime
 from .utils import endfortheouche
 
-
 class Game:
-    def __init__(self, game_id, player1, player2):
+    def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
         self.player1 = player1
         self.player2 = player2
-        self.botgame = player2 is None
-        self.game_state = {
-            'player1_name': player1.user.username,
-            'player2_name': player2.user.username if player2 else 'BOT',
-            'player1_position': 150,
-            'player2_position': 150,
-            'ball_position': {'x': 390, 'y': 190},
-            'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
-            'player1_score': 0,
-            'player2_score': 0
-        }
+        self.localgame = localgame
+        if self.localgame:
+            self.botgame = False
+            self.game_state = {
+                'player1_name': player1.user.username,
+                'player2_name': player1.user2.username,
+                'player1_position': 150,
+                'player2_position': 150,
+                'ball_position': {'x': 390, 'y': 190},
+                'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
+                'player1_score': 0,
+                'player2_score': 0
+            }
+        else:
+            self.botgame = player2 is None
+            self.game_state = {
+                'player1_name': player1.user.username,
+                'player2_name': player2.user.username if player2 else 'BOT',
+                'player1_position': 150,
+                'player2_position': 150,
+                'ball_position': {'x': 390, 'y': 190},
+                'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
+                'player1_score': 0,
+                'player2_score': 0
+            }
         self.speed = 1
         self.game_loop_task = None
         self.ended = False
@@ -31,21 +44,18 @@ class Game:
         self.bt1 = 0
         self.bt2 = 0
         self.start_time = None
-        
-        
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
         self.game_loop_task = asyncio.create_task(self.game_loop())
-        print(" begin MATCH at : ")
         self.start_time = datetime.now()
-        print(f" begin MATCH : {self.start_time} ")
+        print(f"  Begin MATCH at: {self.start_time}")
 
     async def game_loop(self):
+        print("  In the game loop..")
         while not self.ended:
             if self.botgame:
-                await self.update_bot_position()
-            
+                await self.update_bot_position()            
             await self.handle_pad_movement()
             await self.update_game_state()
             await self.send_game_state()
@@ -59,7 +69,6 @@ class Game:
             self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
         elif self.game_state['player2_position'] + 80 > target_y:
             self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
-
 
     async def update_game_state(self):
         if self.ended:
@@ -84,18 +93,19 @@ class Game:
                 self.bt2 += 1
             self.update_ball_velocity()
         # Check for scoring
-        print(f"########### score user 1 {self.game_state['player1_score']} ###########")
-        print(f"§§§§§§§§§§§ score user 2 {self.game_state['player2_score']} §§§§§§§§§§§")
+        #print(f"########### score user 1 {self.game_state['player1_score']} ###########")
+        #print(f"§§§§§§§§§§§ score user 2 {self.game_state['player2_score']} §§§§§§§§§§§")
 
         if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
-            if self.game_state['player2_score'] >= 2:
+            if self.game_state['player2_score'] > 2:
                 print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 await self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
-            if self.game_state['player1_score'] >= 2:
+            if self.game_state['player1_score'] > 2:
+                print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 await self.end_game()
             self.reset_ball()
 
@@ -128,30 +138,33 @@ class Game:
         })
         await self.player1.send(message)
         if not self.botgame:
-            await self.player2.send(message)
+            if not self.localgame:
+                await self.player2.send(message)
 
     async def handle_key_press(self, player, key):
         if self.ended:
             return
-        if player == self.player1:
-            print(f"Key press: {key}")
-            if key == 'arrowup':
-                self.p1_mov = -1
-                #self.game_state['player1_position'] = max(self.game_state['player1_position'] - 25, 0)
-            elif key == 'arrowdown':
-                self.p1_mov = 1
-                #self.game_state['player1_position'] = min(self.game_state['player1_position'] + 25, 300)
-        elif not self.botgame and player == self.player2:
+        if self.localgame:
             if key == 'arrowup':
                 self.p2_mov = -1
-                #self.game_state['player2_position'] = max(self.game_state['player2_position'] - 25, 0)
             elif key == 'arrowdown':
                 self.p2_mov = 1
-                #self.game_state['player2_position'] = min(self.game_state['player2_position'] + 25, 300)
+            elif key == 'w':
+                self.p1_mov = -1
+            elif key == 's':
+                self.p1_mov = 1
+        elif player == self.player1:
+            if key == 'arrowup':
+                self.p1_mov = -1
+            elif key == 'arrowdown':
+                self.p1_mov = 1
+        elif player == self.player2:
+            if key == 'arrowup':
+                self.p2_mov = -1
+            elif key == 'arrowdown':
+                self.p2_mov = 1
 
     async def handle_pad_movement(self):
-        #print(f"P1 mov: {self.p1_mov}")
-        #print(f"P2 mov: {self.p2_mov}")
         if self.ended:
             return
         if self.p1_mov == -1:
@@ -192,9 +205,9 @@ class Game:
             })
             await self.player1.send(end_message)
             if not self.botgame:
-                await self.player2.send(end_message)
+                if not self.localgame:
+                    await self.player2.send(end_message)
             print("save data")
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
-

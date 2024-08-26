@@ -19,6 +19,16 @@ import json
 import uuid
 
 @csrf_exempt
+def check_user_exists(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'exists': True})
+        return JsonResponse({'exists': False})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
 def register_user(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -29,16 +39,6 @@ def register_user(request):
             token = get_or_create_token(user)
             return JsonResponse({'registered': True, 'token': token})
         return JsonResponse({'registered': False, 'error': 'User already exists'})
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-@csrf_exempt
-def check_user_exists(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({'exists': True})
-        return JsonResponse({'exists': False})
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt

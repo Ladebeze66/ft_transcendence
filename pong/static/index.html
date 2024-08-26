@@ -6,11 +6,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=1">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=3">
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-
+    
     <style>
         body {
             color: rgb(0, 255, 255); /* Valeur par défaut */
@@ -18,15 +18,15 @@
             font-size: 16px;
         }
     </style>
-
+    
 </head>
 <body>
     <div class="language-switcher">
-        <img src="{% static 'flags/fr.svg' %}" alt="Français" onclick="changeLanguage('fr')">
-        <img src="{% static 'flags/us.svg' %}" alt="English" onclick="changeLanguage('en')">
-        <img src="{% static 'flags/it.svg' %}" alt="Italiano" onclick="changeLanguage('it')">
-        <img src="{% static 'flags/es.svg' %}" alt="Español" onclick="changeLanguage('es')">
-        <img src="{% static 'flags/de.svg' %}" alt="Deutsch" onclick="changeLanguage('de')">
+        <img id="lang-fr" src="{% static 'flags/fr.svg' %}" alt="Français">
+        <img id="lang-en" src="{% static 'flags/us.svg' %}" alt="English">
+        <img id="lang-it" src="{% static 'flags/it.svg' %}" alt="Italiano">
+        <img id="lang-es" src="{% static 'flags/es.svg' %}" alt="Español">
+        <img id="lang-de" src="{% static 'flags/de.svg' %}" alt="Deutsch">
     </div>
     <div class="background">
         <div class="stars" id="stars"></div>
@@ -56,39 +56,6 @@
         <input type="range" id="font-size-slider" min="12" max="36" value="16">
     </div>
 
-
-    <button id="myBtn">Resultat</button>
-    <div id="myModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <pre id="jsonContent"></pre>
-      </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var modal = document.getElementById("myModal");
-            var btn = document.getElementById("myBtn");
-            var span = document.getElementsByClassName("close")[0];
-            var jsonContent = document.getElementById("jsonContent");
-            btn.onclick = function() {
-                fetch('/web3/')
-                    .then(response => response.json())
-                    .then(data => {
-                        jsonContent.textContent = JSON.stringify(data, null, 2);
-                        modal.style.display = "block";
-                    });
-            }
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        });
-    </script>
-
     <div class="container" id="block-form">
         <h1 id="welcome">BIENVENUE DANS LE PONG 42</h1>
         <div class="input-container">
@@ -110,8 +77,26 @@
                 <button id="login">Login</button>
             </div>
             <div id="post-form-buttons" style="display: none;">
+                <button id="local-game">Local Game</button>
                 <button id="quick-match">Quick Match</button>
                 <button id="tournament">Tournament</button>
+            </div>
+            <div id="auth-form2" style="display: none;">
+                <label for="nickname" id="label-nickname2">Enter the second player's nickname:</label>
+                <input type="text" id="nickname2" name="nickname">
+                <button id="check-nickname2">Check Nickname</button>
+            </div>
+            <div id="register-form2" style="display: none;">
+                <label for="password" id="label-password2">Enter the second player's password:</label>
+                <input type="password" id="password2" name="password">
+                <label for="confirm-password" id="label-confirm-password2">Confirm the second player's password:</label>
+                <input type="password" id="confirm-password2" name="confirm-password">
+                <button id="register2">Register</button>
+            </div>
+            <div id="login-form2" style="display: none;">
+                <label for="login-password" id="label-login-password2">Enter the second player's password:</label>
+                <input type="password" id="login-password2" name="login-password">
+                <button id="login2">Login</button>
             </div>
         </div>
     </div>
@@ -260,141 +245,6 @@
     </div>
 
     <script src="{% static 'game.js' %}"></script>
-    <script>
-        const translations = {
-            fr: {
-                welcome: "BIENVENUE DANS LE PONG 42",
-                labelNickname: "Entrez votre surnom:",
-                labelPassword: "Entrez votre mot de passe:",
-                labelConfirmPassword: "Confirmez votre mot de passe:",
-                labelLoginPassword: "Entrez votre mot de passe:"
-            },
-            en: {
-                welcome: "WELCOME TO PONG 42",
-                labelNickname: "Enter your nickname:",
-                labelPassword: "Enter your password:",
-                labelConfirmPassword: "Confirm your password:",
-                labelLoginPassword: "Enter your password:"
-            },
-            it: {
-                welcome: "BENVENUTO A PONG 42",
-                labelNickname: "Inserisci il tuo soprannome:",
-                labelPassword: "Inserisci la tua password:",
-                labelConfirmPassword: "Conferma la tua password:",
-                labelLoginPassword: "Inserisci la tua password:"
-            },
-            es: {
-                welcome: "BIENVENIDO A PONG 42",
-                labelNickname: "Introduce tu apodo:",
-                labelPassword: "Introduce tu contraseña:",
-                labelConfirmPassword: "Confirma tu contraseña:",
-                labelLoginPassword: "Introduce tu contraseña:"
-            },
-            de: {
-                welcome: "WILLKOMMEN BEI PONG 42",
-                labelNickname: "Geben Sie Ihren Spitznamen ein:",
-                labelPassword: "Geben Sie Ihr Passwort ein:",
-                labelConfirmPassword: "Bestätigen Sie Ihr Passwort:",
-                labelLoginPassword: "Geben Sie Ihr Passwort ein:"
-            }
-        };
-
-        function changeLanguage(lang) {
-            document.getElementById('welcome').innerText = translations[lang].welcome;
-            document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
-            document.getElementById('label-password').innerText = translations[lang].labelPassword;
-            document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
-            document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
-        }
-
-        const starsContainer = document.getElementById('stars');
-        for (let i = 0; i < 500; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = `${Math.random() * 3}px`;
-            star.style.height = star.style.width;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.animationDuration = `${Math.random() * 2 + 1}s`;
-            starsContainer.appendChild(star);
-        }
-    </script>
-    <script>
-        function setCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days*24*60*60*1000));
-            const expires = "expires=" + d.toUTCString();
-            document.cookie = name + "=" + value + ";" + expires + ";path=/";
-        }
-
-        function getCookie(name) {
-            const cname = name + "=";
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const ca = decodedCookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(cname) === 0) {
-                    return c.substring(cname.length, c.length);
-                }
-            }
-            return "";
-        }
-
-        function changeLanguage(lang) {
-            setCookie('preferredLanguage', lang, 365);  // Store the language preference for 1 year
-            document.getElementById('welcome').innerText = translations[lang].welcome;
-            document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
-            document.getElementById('label-password').innerText = translations[lang].labelPassword;
-            document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
-            document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
-        }
-
-        // Function to set the language based on the cookie
-        function setLanguageFromCookie() {
-            const preferredLanguage = getCookie('preferredLanguage');
-            if (preferredLanguage && translations[preferredLanguage]) {
-                changeLanguage(preferredLanguage);
-            } else {
-                changeLanguage('fr'); // Default to French if no cookie is found
-            }
-        }
-
-        // Set the language when the page loads
-        window.onload = setLanguageFromCookie;
-    </script>
-    <script>
-    document.getElementById('settings-btn').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'block';
-    });
-
-    document.getElementById('close-settings').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'none';
-    });
-
-    // Change the color of the text
-    document.getElementById('color-picker').addEventListener('input', function() {
-        document.body.style.color = this.value;
-        document.querySelectorAll('button').forEach(function(button) {
-            button.style.backgroundColor = this.value;  // Change la couleur de fond des boutons
-        }, this);
-    });
-
-    document.getElementById('font-selector').addEventListener('change', function() {
-        document.body.style.fontFamily = this.value;
-    });
-
-    document.getElementById('font-size-slider').addEventListener('input', function() {
-        document.body.style.fontSize = this.value + 'px';
-    });
-    </script>
-	    <div id="chat-container">
-			<div id="chat-log"></div>
-			<input type="text" id="chat-input" placeholder="Tapez votre message...">
-			<button id="chat-button">➤</button>
-		</div>
 </body>
 
 </html>
