@@ -1,3 +1,26 @@
+// Déclaration de la fonction startChatWebSocketConnection en dehors du DOMContentLoaded
+function startChatWebSocketConnection() {
+    let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const message = data.message;
+        const username = data.username;
+        displayChatMessage(username, message);
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat WebSocket closed unexpectedly');
+    };
+}
+
+function displayChatMessage(username, message) {
+    const chatBox = document.getElementById('chat-box');
+    const messageElement = document.createElement('div');
+    messageElement.textContent = `${username}: ${message}`;
+    chatBox.appendChild(messageElement);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const formBlock = document.getElementById('block-form');
 
@@ -47,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket;
     let token;
     let gameState;
-    let userIsAuthenticated = false; // Initialisation à false
+	let username;
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -132,8 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
+					username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
+					startChatWebSocketConnection(); // Initialiser le chat WebSocket après l'inscription
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -166,13 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await authenticateUser(nickname, password);
             if (result) {
-                userIsAuthenticated = true; // Définir comme authentifié après connexion réussie
+				username = nickname; // Stocker le nom d'utilisateur après l'inscription
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
-
-                // Démarrer la connexion WebSocket pour le chat
-                startChatWebSocketConnection();
-                document.getElementById('chat-container').style.display = 'block';
+				startChatWebSocketConnection(); // Initialiser le chat WebSocket après l'inscription
             } else {
                 alert('Authentication failed. Please try again.');
             }
@@ -228,7 +250,40 @@ document.addEventListener('DOMContentLoaded', () => {
                                     registerButton2.click();
                                 }
                             });
-                        }
+                        }////////////////////// CHAT ////////////////////////////////
+    // Initialisation du chat WebSocket
+    function startChatWebSocket() {
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+        chatSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const message = data.message;
+            const chatLog = document.getElementById('chat-log');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            chatLog.appendChild(messageElement);
+        };
+
+        chatSocket.onclose = function(event) {
+            console.error('Chat WebSocket closed unexpectedly');
+        };
+
+        const chatInput = document.getElementById('chat-input');
+        const chatButton = document.getElementById('chat-button');
+
+        chatButton.addEventListener('click', () => {
+            const message = chatInput.value;
+            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
+            chatInput.value = '';
+        });
+
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                chatButton.click();
+            }
+        });
+}
+
                     });
                 }
             } catch (error) {
@@ -731,46 +786,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     ////////////////////////////// END SETTING ////////////////////////////////
-});
 
-////////////////////// CHAT ////////////////////////////////
-document.addEventListener('DOMContentLoaded', () => {
-    let chatSocket;
-
-    function startChatWebSocketConnection() {
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
-
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-            const message = data.message;
-            const username = data.username;
-            displayChatMessage(username, message);
-        };
-
-        chatSocket.onclose = function (e) {
-            console.error('Chat WebSocket closed unexpectedly');
-        };
-    }
-
-    function displayChatMessage(username, message) {
-        const chatBox = document.getElementById('chat-box');
-        const messageElement = document.createElement('div');
-        messageElement.textContent = `${username}: ${message}`;
-        chatBox.appendChild(messageElement);
-    }
-
-    document.getElementById('chat-send-button').addEventListener('click', function () {
-        const messageInput = document.getElementById('chat-message-input');
-        const message = messageInput.value;
-        chatSocket.send(JSON.stringify({
-            'message': message,
-        }));
-        messageInput.value = '';
-    });
-
-    // Appel de la fonction startChatWebSocketConnection seulement après connexion réussie
-    if (userIsAuthenticated) {
-        startChatWebSocketConnection();
-        document.getElementById('chat-container').style.display = 'block';
-    }
 });
