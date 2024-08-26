@@ -10,15 +10,19 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-    
+
     <style>
         body {
+			display: flex;
+            flex-direction: row;
             color: rgb(0, 255, 255); /* Valeur par défaut */
             font-family: Arial, sans-serif;
             font-size: 16px;
+            height: 100vh;
+            margin: 0;
         }
     </style>
-    
+
 </head>
 <body>
     <div class="language-switcher">
@@ -143,7 +147,9 @@
                     <th>Tournament</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody>color: rgb(0, 255, 255); /* Valeur par défaut */
+				font-family: Arial, sans-serif;
+				font-size: 16px;
                 {% for match in matches %}
                 <tr>
                     <td>{{ match.id }}</td>
@@ -159,7 +165,9 @@
                     <td>{{ match.is_tournoi }}</td>
                     <td>{{ match.tournoi.name }}</td>
                 </tr>
-                {% empty %}
+                {% empty %}color: rgb(0, 255, 255); /* Valeur par défaut */
+				font-family: Arial, sans-serif;
+				font-size: 16px;
                 <tr>
                     <td colspan="12">No matches found.</td>
                 </tr>
@@ -243,6 +251,8 @@
             </tbody>
         </table>
     </div>
+	<!-- Inclusion du Chat -->
+    {% include "pong/chat.html" %}
 
     <script src="{% static 'game.js' %}"></script>
 </body>

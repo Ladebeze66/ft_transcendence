@@ -263,9 +263,9 @@ button:hover {
 
 
 .navbar {
-    position: absolute; 
-    top: 30px; 
-    right: 10px; 
+    position: absolute;
+    top: 30px;
+    right: 10px;
     padding: 10px;
 }
 
@@ -273,28 +273,28 @@ button:hover {
     font-size: 24px;
     background: none;
     border: none;
-    color: #00ffff; 
+    color: #00ffff;
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .burger-menu:hover {
-    color: #ffffff; 
+    color: #ffffff;
 }
 
 
 .dropdown-content {
     display: none;
     position: absolute;
-    top: 100%; 
-    right: 0; 
-    margin-top: 10px; 
-    background-color: #1a1a2e; 
-    color: #ffffff; 
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background-color: #1a1a2e;
+    color: #ffffff;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     z-index: 1;
-    width: max-content; 
+    width: max-content;
 }
 
 .dropdown-content.show {
@@ -303,18 +303,18 @@ button:hover {
 
 
 .dropdown-content a {
-    color: #ffffff; 
+    color: #ffffff;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
-    transition: background-color 0.3s ease; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
 }
 
 
 .dropdown-content a:hover {
-    background-color: #333; 
-    color: #00ffff; 
+    background-color: #333;
+    color: #00ffff;
 }
 
 .language-switcher {
@@ -406,4 +406,45 @@ button:hover {
 pre {
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* Styles pour le chat */
+#chat-container {
+    width: 300px;
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-box {
+    flex: 1;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #0056b3;
 }
