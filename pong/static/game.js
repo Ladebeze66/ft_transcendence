@@ -1,26 +1,3 @@
-// Déclaration de la fonction startChatWebSocketConnection en dehors du DOMContentLoaded
-function startChatWebSocketConnection() {
-    let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
-
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const message = data.message;
-        const username = data.username;
-        displayChatMessage(username, message);
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('Chat WebSocket closed unexpectedly');
-    };
-}
-
-function displayChatMessage(username, message) {
-    const chatBox = document.getElementById('chat-box');
-    const messageElement = document.createElement('div');
-    messageElement.textContent = `${username}: ${message}`;
-    chatBox.appendChild(messageElement);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const formBlock = document.getElementById('block-form');
 
@@ -67,10 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
 
+ /*    const modal = document.getElementById("myModal");
+    const btn = document.getElementById("myBtn");
+    const span = document.getElementsByClassName("close")[0];
+    const jsonContent = document.getElementById("jsonContent"); */
+
     let socket;
     let token;
     let gameState;
-	let username;
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -92,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localGameButton.addEventListener('click', startLocalGame);
     quickMatchButton.addEventListener('click', startQuickMatch);
     tournamentButton.addEventListener('click', startTournament);
+
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -155,10 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
-					username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
-					startChatWebSocketConnection(); // Initialiser le chat WebSocket après l'inscription
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -191,10 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await authenticateUser(nickname, password);
             if (result) {
-				username = nickname; // Stocker le nom d'utilisateur après l'inscription
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
-				startChatWebSocketConnection(); // Initialiser le chat WebSocket après l'inscription
             } else {
                 alert('Authentication failed. Please try again.');
             }
@@ -250,40 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     registerButton2.click();
                                 }
                             });
-                        }////////////////////// CHAT ////////////////////////////////
-    // Initialisation du chat WebSocket
-    function startChatWebSocket() {
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
-
-        chatSocket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            const message = data.message;
-            const chatLog = document.getElementById('chat-log');
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            chatLog.appendChild(messageElement);
-        };
-
-        chatSocket.onclose = function(event) {
-            console.error('Chat WebSocket closed unexpectedly');
-        };
-
-        const chatInput = document.getElementById('chat-input');
-        const chatButton = document.getElementById('chat-button');
-
-        chatButton.addEventListener('click', () => {
-            const message = chatInput.value;
-            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
-            chatInput.value = '';
-        });
-
-        chatInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                chatButton.click();
-            }
-        });
-}
-
+                        }
                     });
                 }
             } catch (error) {
@@ -391,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
+        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 2);
     }
@@ -399,12 +345,13 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
+        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 1);
     }
 
     function startTournament() {
-        console.log("For now, do nothing, hurry up and work Senor chaku !!!!");
+        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
     }
 
     function startWebSocketConnection(token, players) {
@@ -457,16 +404,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player1-name').textContent = `${player1_name}`;
         document.getElementById('player2-name').textContent = `${player2_name}`;
         document.addEventListener('keydown', handleKeyDown);
+
     }
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
+            //console.log('Key press: ', event.key);
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
         if (socket.readyState === WebSocket.OPEN) {
+            //console.log('Key sent: ', key);
             socket.send(JSON.stringify({ type: 'key_press', key }));
         }
     }
@@ -494,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
         player2Score.textContent = gameState.player2_score;
     }
 
+
     ////////////////////////////// BEG BURGER BUTTON ////////////////////////////////
 
     menuButton.addEventListener('click', toggleMenu);
@@ -508,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function hideAllTables() {
+    function hideAllTables(){
         if (playerList) playerList.style.display = 'none';
         if (matchList) matchList.style.display = 'none';
         if (tournoiList) tournoiList.style.display = 'none';
@@ -521,27 +472,45 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (event) => {
             event.preventDefault(); // Empêche le comportement par défaut du lien
             const tableId = link.getAttribute('data-table');
+            //console.log("Here !!!!!!!!!!!! NNNNNNNN");
             showTable(tableId);
         });
     });
-
+    
     function showTable(tableId) {
+        // Masquer tous les tableaux
+        console.log('Entering showTable', tableId);
         hideAllTables();
-
+    
+        // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
+            console.log('Showing player list 2');
+            //if (playerList) {
             playerList.style.display = 'block';
             fetchPlayers();
+            //}
         } else if (tableId === 'match-list') {
+            console.log('Showing match list 2');
+            //if (matchList) 
             matchList.style.display = 'block';
             fetchMatches();
         } else if (tableId === 'tournoi-list') {
+            console.log('Showing tournoi list 2');
+            //if (tournoiList) 
             tournoiList.style.display = 'block';
             fetchTournois();
         } else if (tableId === 'blockchain-list') {
             console.log('Opening external page in a new tab');
             window.open('https://sepolia.etherscan.io/address/0x078d04eb6fb97cd863361fc86000647dc876441b', '_blank');
+            /* fetch('/web3/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('ok here !!');
+                    jsonContent.textContent = JSON.stringify(data, null, 2);
+                }); */
         }
-
+        
+        // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
         }
@@ -559,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchPlayers() {
+    function fetchPlayers(){
         console.log('Fetching players...');
         fetch('/api/player_list/')
             .then(response => response.json())
@@ -571,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchTournois() {
+    function fetchTournois(){
         console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')
             .then(response => response.json())
@@ -584,8 +553,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayMatches(matches) {
+        console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
+
+        if (matches.length === 0) {
+            console.log('No matches to display');
+        }
 
         matches.forEach(match => {
             const row = document.createElement('tr');
@@ -608,8 +582,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayPlayers(players) {
+        console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
+
+        if (players.length === 0) {
+            console.log('No players to display');
+        }
 
         players.forEach(player => {
             const row = document.createElement('tr');
@@ -633,8 +612,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayTournois(tournois) {
+        console.log('Displaying tournois:');
         const tournoisListBody = document.querySelector('#tournoi-list tbody');
         tournoisListBody.innerHTML = '';
+
+        if (tournois.length === 0) {
+            console.log('No tournois to display');
+        }
 
         tournois.forEach(tournoi => {
             const row = document.createElement('tr');
@@ -651,7 +635,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ////////////////////////////// END BURGER BUTTON ////////////////////////////////
 
-    ////////////////////////////// BEG STARS ////////////////////////////////
+
+    //////////////////////////////    BEG STARS      ////////////////////////////////
 
     const starsContainer = document.getElementById('stars');
     for (let i = 0; i < 500; i++) {
@@ -665,9 +650,30 @@ document.addEventListener('DOMContentLoaded', () => {
         starsContainer.appendChild(star);
     }
 
-    ////////////////////////////// END STARS ////////////////////////////////
+    //////////////////////////////    END STARS      ////////////////////////////////
 
-    ////////////////////////////// BEG LANGAGE ////////////////////////////////
+    
+   /*  btn.onclick = function() {
+        fetch('/web3/')
+            .then(response => response.json())
+            .then(data => {
+                console.log('ok here !!');
+                jsonContent.textContent = JSON.stringify(data, null, 2);
+                modal.style.display = "block";
+            });
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    } */
+
+    //////////////////////////////    BEG LANGAGE    ////////////////////////////////
     const translations = {
         fr: {
             welcome: "BIENVENUE DANS LE PONG 42",
@@ -708,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setCookie(name, value, days) {
         const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        d.setTime(d.getTime() + (days*24*60*60*1000));
         const expires = "expires=" + d.toUTCString();
         document.cookie = name + "=" + value + ";" + expires + ";path=/";
     }
@@ -717,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cname = name + "=";
         const decodedCookie = decodeURIComponent(document.cookie);
         const ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
+        for(let i = 0; i < ca.length; i++) {
             let c = ca[i];
             while (c.charAt(0) === ' ') {
                 c = c.substring(1);
@@ -757,34 +763,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set the language when the page loads
     window.onload = setLanguageFromCookie;
 
-    ////////////////////////////// END LANGAGE ////////////////////////////////
+    //////////////////////////////   END LANGAGE    ////////////////////////////////
 
-    ////////////////////////////// BEG SETTING ////////////////////////////////
 
-    document.getElementById('settings-btn').addEventListener('click', function () {
+
+    //////////////////////////////    BEG SETTING     ////////////////////////////////
+    
+    document.getElementById('settings-btn').addEventListener('click', function() {
         document.getElementById('settings-menu').style.display = 'block';
     });
 
-    document.getElementById('close-settings').addEventListener('click', function () {
+    document.getElementById('close-settings').addEventListener('click', function() {
         document.getElementById('settings-menu').style.display = 'none';
     });
 
     // Change the color of the text
-    document.getElementById('color-picker').addEventListener('input', function () {
+    document.getElementById('color-picker').addEventListener('input', function() {
         document.body.style.color = this.value;
-        document.querySelectorAll('button').forEach(function (button) {
+        document.querySelectorAll('button').forEach(function(button) {
             button.style.backgroundColor = this.value;  // Change la couleur de fond des boutons
         }, this);
     });
 
-    document.getElementById('font-selector').addEventListener('change', function () {
+    document.getElementById('font-selector').addEventListener('change', function() {
         document.body.style.fontFamily = this.value;
     });
 
-    document.getElementById('font-size-slider').addEventListener('input', function () {
+    document.getElementById('font-size-slider').addEventListener('input', function() {
         document.body.style.fontSize = this.value + 'px';
     });
 
-    ////////////////////////////// END SETTING ////////////////////////////////
+    //////////////////////////////    END SETTING     ////////////////////////////////
 
 });
