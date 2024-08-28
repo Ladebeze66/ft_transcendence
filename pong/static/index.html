@@ -10,7 +10,7 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-    
+
     <style>
         body {
             color: rgb(0, 255, 255); /* Valeur par défaut */
@@ -18,7 +18,7 @@
             font-size: 16px;
         }
     </style>
-    
+
 </head>
 <body>
     <div class="language-switcher">
@@ -36,6 +36,12 @@
         <div class="paddle paddle-right"></div>
         <div class="ball_anim"></div>
     </div>
+	<!-- Ajout pour le chat -->
+	<div id="chat-container" style="display: flex; flex-direction: column; max-height: 200px; overflow-y: auto;">
+    	<div id="chat-messages"></div>
+    	<input type="text" id="chat-input" placeholder="Type your message..." />
+    	<button id="send-chat">Send</button>
+	</div>
 
     <button id="settings-btn">⚙️ Réglages</button>
     <div id="settings-menu" style="display: none;">

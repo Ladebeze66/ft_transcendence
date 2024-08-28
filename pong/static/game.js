@@ -355,49 +355,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startWebSocketConnection(token, players) {
-        socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+		const socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-        socket.onopen = function (event) {
-            console.log('WebSocket connection established');
-            if (players === 1) {
-                console.log("Sending token for 1 player game");
-                socket.send(JSON.stringify({ type: 'authenticate', token: token }));
-            } else {
-                console.log("Sending tokens for 2 player game");
-                socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
-            }
-        };
+		socket.onopen = function (event) {
+			console.log('WebSocket connection established');
+			if (players === 1) {
+				console.log("Sending token for 1 player game");
+				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+			} else {
+				console.log("Sending tokens for 2 player game");
+				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+			}
+		};
 
-        socket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (data.type === 'authenticated') {
-                console.log('Authentication successful');
-            } else if (data.type === 'waiting_room') {
-                console.log('Entered the WAITING ROOM');
-            } else if (data.type === 'game_start') {
-                console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-                startGame(data.game_id, data.player1, data.player2);
-            } else if (data.type === 'game_state_update') {
-                updateGameState(data.game_state);
-            } else if (data.type === 'player_disconnected') {
-                console.log("Player disconnected:", data.player);
-            } else if (data.type === 'game_ended') {
-                console.log("Game ended:", data.game_id);
-            } else if (data.type === 'error') {
-                console.error(data.message);
-            } else {
-                console.log('Message from server:', data.type, data.message);
-            }
-        };
+		socket.onmessage = function (event) {
+			const data = JSON.parse(event.data);
 
-        socket.onclose = function (event) {
-            console.log('WebSocket connection closed');
-        };
+			if (data.type === 'authenticated') {
+				console.log('Authentication successful');
+			} else if (data.type === 'waiting_room') {
+				console.log('Entered the WAITING ROOM');
+			} else if (data.type === 'game_start') {
+				console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+				startGame(data.game_id, data.player1, data.player2);
+			} else if (data.type === 'game_state_update') {
+				updateGameState(data.game_state);
+			} else if (data.type === 'player_disconnected') {
+				console.log("Player disconnected:", data.player);
+			} else if (data.type === 'game_ended') {
+				console.log("Game ended:", data.game_id);
+			} else if (data.type === 'chat_message') {
+				displayChatMessage(data.user, data.message, data.timestamp);
+			} else if (data.type === 'error') {
+				console.error(data.message);
+			} else {
+				console.log('Message from server:', data.type, data.message);
+			}
+		};
 
-        socket.onerror = function (error) {
-            console.error('WebSocket error:', error);
-        };
-    }
+		socket.onclose = function (event) {
+			console.log('WebSocket connection closed');
+		};
+
+		socket.onerror = function (error) {
+			console.error('WebSocket error:', error);
+		};
+
+		// Fonction pour envoyer un message de chat
+		function sendChatMessage(message, room) {
+			if (socket.readyState === WebSocket.OPEN) {
+				socket.send(JSON.stringify({
+					type: 'chat_message',
+					message: message,
+					room: room
+				}));
+			} else {
+				console.error('WebSocket is not open. Ready state:', socket.readyState);
+			}
+		}
+
+		// Événement pour envoyer un message de chat lorsque le bouton est cliqué
+		document.getElementById('send-chat').addEventListener('click', function() {
+			const message = document.getElementById('chat-input').value;
+			sendChatMessage(message, 'game_room');  // 'game_room' est un exemple de nom de salle
+			document.getElementById('chat-input').value = '';  // Vide le champ d'entrée
+		});
+
+		// Fonction pour afficher un message de chat dans l'interface utilisateur
+		function displayChatMessage(user, message, timestamp) {
+			const chatMessages = document.getElementById('chat-messages');
+			const messageElement = document.createElement('div');
+			messageElement.textContent = `${timestamp} - ${user}: ${message}`;
+			chatMessages.appendChild(messageElement);
+		}
+
+		// Fonction pour gérer les mises à jour du jeu (exemple)
+		function updateGameState(gameState) {
+			// Logique pour mettre à jour l'état du jeu avec gameState
+			console.log('Game state updated:', gameState);
+		}
+	}
 
     function startGame(gameCode, player1_name, player2_name) {
         document.getElementById('gameCode').textContent = `Game Code: ${gameCode}`;
@@ -476,12 +513,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showTable(tableId);
         });
     });
-    
+
     function showTable(tableId) {
         // Masquer tous les tableaux
         console.log('Entering showTable', tableId);
         hideAllTables();
-    
+
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
             console.log('Showing player list 2');
@@ -491,12 +528,12 @@ document.addEventListener('DOMContentLoaded', () => {
             //}
         } else if (tableId === 'match-list') {
             console.log('Showing match list 2');
-            //if (matchList) 
+            //if (matchList)
             matchList.style.display = 'block';
             fetchMatches();
         } else if (tableId === 'tournoi-list') {
             console.log('Showing tournoi list 2');
-            //if (tournoiList) 
+            //if (tournoiList)
             tournoiList.style.display = 'block';
             fetchTournois();
         } else if (tableId === 'blockchain-list') {
@@ -509,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     jsonContent.textContent = JSON.stringify(data, null, 2);
                 }); */
         }
-        
+
         // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
@@ -652,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //////////////////////////////    END STARS      ////////////////////////////////
 
-    
+
    /*  btn.onclick = function() {
         fetch('/web3/')
             .then(response => response.json())
@@ -768,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     //////////////////////////////    BEG SETTING     ////////////////////////////////
-    
+
     document.getElementById('settings-btn').addEventListener('click', function() {
         document.getElementById('settings-menu').style.display = 'block';
     });
