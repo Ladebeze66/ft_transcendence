@@ -37,11 +37,13 @@
         <div class="ball_anim"></div>
     </div>
 	<!-- Ajout pour le chat -->
-	<div id="chat-container" style="display: flex; flex-direction: column; max-height: 200px; overflow-y: auto;">
-    	<div id="chat-messages"></div>
-    	<input type="text" id="chat-input" placeholder="Type your message..." />
-    	<button id="send-chat">Send</button>
+	<div id="chat-container">
+		<div id="room-name">Room: <span id="room-name-value">game_room</span></div> <!-- Ajout -->
+		<div id="chat-messages"></div>
+		<input type="text" id="chat-input" placeholder="Type your message...">
+		<button id="send-chat">Send</button>
 	</div>
+
 
     <button id="settings-btn">⚙️ Réglages</button>
     <div id="settings-menu" style="display: none;">

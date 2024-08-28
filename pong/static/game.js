@@ -353,88 +353,152 @@ document.addEventListener('DOMContentLoaded', () => {
     function startTournament() {
         console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
     }
+/////CHAT//////
+function startWebSocketConnection(token, players) {
+    // Connexion WebSocket pour le jeu
+    const gameSocket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-    function startWebSocketConnection(token, players) {
-		const socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+    gameSocket.onopen = function (event) {
+        console.log('Game WebSocket connection established', event);
 
-		socket.onopen = function (event) {
-			console.log('WebSocket connection established');
-			if (players === 1) {
-				console.log("Sending token for 1 player game");
-				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
-			} else {
-				console.log("Sending tokens for 2 player game");
-				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
-			}
-		};
+        if (players === 1) {
+            console.log("Sending token for 1 player game:", token);
+            gameSocket.send(JSON.stringify({ type: 'authenticate', token: token }));
+        } else {
+            console.log("Sending tokens for 2 player game:", token);
+            gameSocket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+        }
 
-		socket.onmessage = function (event) {
-			const data = JSON.parse(event.data);
+        // Affiche un message lorsque le joueur est connecté au chat
+        displayChatMessage('System', 'You are connected to the chat.', new Date().toLocaleTimeString());
+    };
+    // Vérifie que les éléments du DOM sont présents
+    if (document.getElementById('chat-input') && document.getElementById('send-chat')) {
+        console.log('Chat input and send button are present in the DOM');
+    } else {
+        console.error('Chat input or send button not found in the DOM');
+    }
 
-			if (data.type === 'authenticated') {
-				console.log('Authentication successful');
-			} else if (data.type === 'waiting_room') {
-				console.log('Entered the WAITING ROOM');
-			} else if (data.type === 'game_start') {
-				console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-				startGame(data.game_id, data.player1, data.player2);
-			} else if (data.type === 'game_state_update') {
-				updateGameState(data.game_state);
-			} else if (data.type === 'player_disconnected') {
-				console.log("Player disconnected:", data.player);
-			} else if (data.type === 'game_ended') {
-				console.log("Game ended:", data.game_id);
-			} else if (data.type === 'chat_message') {
-				displayChatMessage(data.user, data.message, data.timestamp);
-			} else if (data.type === 'error') {
-				console.error(data.message);
-			} else {
-				console.log('Message from server:', data.type, data.message);
-			}
-		};
+    // Événement pour envoyer un message de chat lorsque le bouton est cliqué
+    document.getElementById('send-chat').addEventListener('click', function() {
+        const message = document.getElementById('chat-input').value;
+        console.log('Chat send button clicked. Message:', message);
 
-		socket.onclose = function (event) {
-			console.log('WebSocket connection closed');
-		};
+        sendChatMessage(message, roomName);
 
-		socket.onerror = function (error) {
-			console.error('WebSocket error:', error);
-		};
+        // Vide le champ d'entrée et vérifie si l'élément a été vidé
+        document.getElementById('chat-input').value = '';
+        console.log('Chat input cleared:', document.getElementById('chat-input').value);
+    });
 
-		// Fonction pour envoyer un message de chat
-		function sendChatMessage(message, room) {
-			if (socket.readyState === WebSocket.OPEN) {
-				socket.send(JSON.stringify({
-					type: 'chat_message',
-					message: message,
-					room: room
-				}));
-			} else {
-				console.error('WebSocket is not open. Ready state:', socket.readyState);
-			}
-		}
+    gameSocket.onmessage = function (event) {
+        console.log('Message received on game WebSocket:', event.data);
+        const data = JSON.parse(event.data);
 
-		// Événement pour envoyer un message de chat lorsque le bouton est cliqué
-		document.getElementById('send-chat').addEventListener('click', function() {
-			const message = document.getElementById('chat-input').value;
-			sendChatMessage(message, 'game_room');  // 'game_room' est un exemple de nom de salle
-			document.getElementById('chat-input').value = '';  // Vide le champ d'entrée
-		});
+        if (data.type === 'authenticated') {
+            console.log('Authentication successful');
+        } else if (data.type === 'waiting_room') {
+            console.log('Entered the WAITING ROOM');
+        } else if (data.type === 'game_start') {
+            console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+            startGame(data.game_id, data.player1, data.player2);
+        } else if (data.type === 'game_state_update') {
+            console.log('Game state update received:', data.game_state);
+            updateGameState(data.game_state);
+        } else if (data.type === 'player_disconnected') {
+            console.log("Player disconnected:", data.player);
+        } else if (data.type === 'game_ended') {
+            console.log("Game ended:", data.game_id);
+        } else if (data.type === 'chat_message') {
+            console.log('Chat message received:', data);
+            displayChatMessage(data.user, data.message, data.timestamp);
+        } else if (data.type === 'error') {
+            console.error('Error received:', data.message);
+        } else {
+            console.log('Unknown message from server:', data.type, data.message);
+        }
+    };
 
-		// Fonction pour afficher un message de chat dans l'interface utilisateur
-		function displayChatMessage(user, message, timestamp) {
-			const chatMessages = document.getElementById('chat-messages');
-			const messageElement = document.createElement('div');
-			messageElement.textContent = `${timestamp} - ${user}: ${message}`;
-			chatMessages.appendChild(messageElement);
-		}
+    gameSocket.onclose = function (event) {
+        console.log('Game WebSocket connection closed', event);
+    };
 
-		// Fonction pour gérer les mises à jour du jeu (exemple)
-		function updateGameState(gameState) {
-			// Logique pour mettre à jour l'état du jeu avec gameState
-			console.log('Game state updated:', gameState);
-		}
-	}
+    gameSocket.onerror = function (error) {
+        console.error('Game WebSocket error:', error);
+    };
+
+    // Connexion WebSocket pour le chat
+    const roomName = `game_room`;  // Vous pouvez personnaliser ce nom en fonction de la salle de jeu actuelle
+    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+
+    chatSocket.onopen = function (event) {
+        console.log('Chat WebSocket connection established', event);
+        // Met à jour le nom de la salle affichée dans l'interface utilisateur
+        document.getElementById('room-name-value').textContent = roomName;
+    };
+
+    chatSocket.onmessage = function (event) {
+        console.log('Message received on chat WebSocket:', event.data);
+        const data = JSON.parse(event.data);
+        if (data.type === 'chat_message') {
+            console.log('Displaying chat message:', data);
+            displayChatMessage(data.user, data.message, data.timestamp);
+        } else {
+            console.log('Unknown message type on chat WebSocket:', data.type);
+        }
+    };
+
+    chatSocket.onclose = function (event) {
+        console.log('Chat WebSocket connection closed', event);
+    };
+
+    chatSocket.onerror = function (error) {
+        console.error('Chat WebSocket error:', error);
+    };
+
+    // Fonction pour envoyer un message de chat
+    function sendChatMessage(message, room) {
+        console.log('Sending chat message:', message, 'to room:', room);
+        if (chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                type: 'chat_message',
+                message: message,
+                room: room
+            }));
+        } else {
+            console.error('Chat WebSocket is not open. Ready state:', chatSocket.readyState);
+        }
+    }
+
+    // Événement pour envoyer un message de chat lorsque le bouton est cliqué
+    document.getElementById('send-chat').addEventListener('click', function() {
+        const message = document.getElementById('chat-input').value;
+        console.log('Chat send button clicked. Message:', message);
+
+        sendChatMessage(message, roomName);
+
+        // Vide le champ d'entrée et vérifie si l'élément a été vidé
+        document.getElementById('chat-input').value = '';
+        console.log('Chat input cleared:', document.getElementById('chat-input').value);
+    });
+
+    // Fonction pour afficher un message de chat dans l'interface utilisateur
+    function displayChatMessage(user, message, timestamp) {
+        console.log('Displaying message in chat:', message);
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = `${timestamp} - ${user}: ${message}`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+    }
+
+    // Fonction pour gérer les mises à jour du jeu
+    function updateGameState(gameState) {
+        console.log('Updating game state:', gameState);
+        // Logique pour mettre à jour l'état du jeu avec gameState
+    }
+}
+////CHAT///////
 
     function startGame(gameCode, player1_name, player2_name) {
         document.getElementById('gameCode').textContent = `Game Code: ${gameCode}`;
