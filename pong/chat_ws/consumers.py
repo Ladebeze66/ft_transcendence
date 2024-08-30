@@ -1,7 +1,9 @@
+# /pong/game/consumers.py
+
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from pong.game.models import ChatRoom, ChatMessage, Player
 from asgiref.sync import sync_to_async
-import datetime
+from django.core.exceptions import ValidationError
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -11,8 +13,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         # Check if roomid exists
         try:
-            self.chatObject = await sync_to_async(ChatRoom.objects.get)(roomid=self.roomid)
-        except Exception as e:
+            self.chatObject = await sync_to_async(ChatRoom.objects.get)(id=self.roomid)
+        except ChatRoom.DoesNotExist:
             await self.disconnect_when_connecting()
             return
 
@@ -26,18 +28,20 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content, **kwargs):
         if content.get('command') == 'join':
             await self.new_connection(content['username'])
+        elif content.get('command') == 'message':
+            await self.handle_message(content['message'])
 
     async def new_connection(self, username):
         try:
-            userObject = await sync_to_async(Player.objects.get)(username=username)
-        except Exception as e:
+            userObject = await sync_to_async(Player.objects.get)(name=username)
+        except Player.DoesNotExist:
             await self.send_json({
                 "command": "error",
                 "message": "User not found."
             })
             return await self.close()
 
-        if (await sync_to_async(self.check)(userObject)):
+        if not await sync_to_async(self.check_membership)(userObject):
             await self.send_json({
                 "command": "error",
                 "message": "You aren't invited!"
@@ -53,8 +57,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         )
         await self.send_status()
 
-    def check(self, userObject):
-        return (self.chatObject.owner != userObject and userObject not in self.chatObject.members.all())
+    def check_membership(self, userObject):
+        return self.chatObject.owner == userObject or userObject in self.chatObject.members.all()
 
     async def send_status(self):
         await self.send_json({
@@ -63,7 +67,51 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         })
 
     def get_serialized_data(self):
-        return ChatRoomSerializer(self.chatObject).data
+        return {
+            "name": self.chatObject.name,
+            "owner": self.chatObject.owner.name,
+            "members": [member.name for member in self.chatObject.members.all()],
+            "messages": [
+                {
+                    "sender": message.sender.name,
+                    "message": message.message,
+                    "timestamp": message.timestamp.isoformat()
+                }
+                for message in self.chatObject.messages.all()
+            ]
+        }
+
+    async def handle_message(self, message):
+        if not self.registered:
+            await self.send_json({
+                "command": "error",
+                "message": "You are not registered in the room."
+            })
+            return
+
+        chat_message = await sync_to_async(ChatMessage.objects.create)(
+            room=self.chatObject,
+            sender=self.userObject,
+            message=message
+        )
+
+        await self.channel_layer.group_send(
+            self.room_name,
+            {
+                "type": "chat_message",
+                "message": {
+                    "sender": chat_message.sender.name,
+                    "message": chat_message.message,
+                    "timestamp": chat_message.timestamp.isoformat()
+                }
+            }
+        )
+
+    async def chat_message(self, event):
+        await self.send_json({
+            "command": "message",
+            "message": event["message"]
+        })
 
     async def disconnect_when_connecting(self):
         await self.accept()
