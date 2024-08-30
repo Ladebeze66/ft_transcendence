@@ -1,8 +1,8 @@
 export default function chat(prop={}) {
-    let websocket = undefined;
+    let websocket = undefined;  // Déclaration de la variable websocket
     let yourName = undefined;
 
-    // Attach all pre-rendering code here (like idk, fetch request or something)
+    // Code pré-rendu (par exemple, fetch request)
     let prerender = async () => {
         const me_response = await fetchMod(`/api/me`);
         if (!me_response.ok) {
@@ -29,10 +29,26 @@ export default function chat(prop={}) {
 
         value = await blockedResponse.json();
         prop.blockList = value;
-        return true; // return true to continue to render_code
+
+        // Initialiser le WebSocket une fois que le pré-rendu est terminé
+        websocket = new WebSocket(`ws://${window.location.host}/ws/chat/${prop.roomid}/`);
+
+        // Listener pour les messages entrants
+        websocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log(data);
+            // Ajoutez ici la logique pour afficher les messages dans l'interface utilisateur
+        };
+
+        // Listener pour la fermeture de la connexion
+        websocket.onclose = function(event) {
+            console.log('WebSocket connection closed:', event);
+        };
+
+        return true; // Retourne true pour continuer vers render_code
     }
 
-    // Return the HTML code here
+    // Code HTML à retourner
     let render_code = () => {
         return `
         <h1 class="title">Chat</h1>
@@ -61,14 +77,24 @@ export default function chat(prop={}) {
         `;
     }
 
-    // Attach all event listeners here
+    // Attacher tous les listeners d'événements ici
     let postrender = () => {
         const friendList = document.getElementById("friend-list-items");
         const chatContentField = document.getElementById("chatContentField");
         const sendMessageButton = document.getElementById('sendMessageButton');
         const sendInviteButton = document.getElementById('inviteForMatchButton');
 
-        // Add other necessary event listeners and logic
+        // Envoyer un message via le WebSocket lorsque l'utilisateur clique sur le bouton d'envoi
+        sendMessageButton.onclick = () => {
+            const messageInputDom = document.getElementById('dataEnter');
+            const message = messageInputDom.value;
+            websocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';  // Efface le champ de saisie après l'envoi
+        };
+
+        // Ajouter d'autres listeners d'événements et la logique ici
     }
 
     return [prerender, render_code, postrender];
