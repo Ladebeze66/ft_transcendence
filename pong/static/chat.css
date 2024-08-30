@@ -1,0 +1,85 @@
+.friend-list {
+    background-color: darkgray;
+    border-radius: 5px;
+    padding: 5px;
+    width: 310px;
+    min-width: 310px;
+    overflow-y: auto;
+}
+
+.friend-list-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 55px;
+    background-color: #f8f9fa;
+    color: black;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 10px;
+    transition: background-color 0.25s ease-in-out;
+}
+
+.friend-list-item.friendMsgActivated {
+    background-color: rgba(248, 249, 250, 0.342);
+}
+
+.friend-list-item:hover {
+    cursor: pointer;
+    background-color: rgba(248, 249, 250, 0.342);
+}
+
+.chat-content-field {
+    background-color: rgb(213, 213, 213, 0.5);
+}
+
+.chat-content-field > * {
+    color: black;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.chat-content-field > *:last-child {
+    margin-top: 0px;
+}
+
+.chat-content-field .eofBox {
+    background-color: rgba(213, 213, 213, 0.11);
+    font-weight: bold;
+    text-align: center;
+}
+
+.chat-content-field .messageBox {
+    display: flex;
+    background-color: white;
+}
+
+.chat-content-field .errorBox {
+    background-color:rgb(146, 26, 26);
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+.chat-content-field .messageBox .ImageHolder{
+    aspect-ratio: 1;
+    min-height: 50px;
+    min-width: 50px;
+    height: 50px;
+    width: 50px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+.chat-content-field .messageBox .content{
+    flex-grow: 1;
+    padding-left: 15px;
+}
+
+.chat-content-field .messageBox .content .inviteContent{
+    font-weight: bold;
+}
+
+.chat-content-field .messageBox .content .playerID{
+    font-weight: bold;
+}
