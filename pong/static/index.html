@@ -7,12 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=3">
-    <link rel="stylesheet" type="text/css" href="{% static 'chat.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'chat.css' %}">
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
 </head>
 <body>
+	<!-- Section du chat -->
+    <div id="chat-container">
+        <div id="chat-header"></div>
+        <div id="player-stats"></div>
+        <div id="chat-messages"></div>
+        <input type="text" id="message-input" placeholder="Entrez votre message ici">
+        <button id="send-message-button">Envoyer</button>
+    </div>
     <div class="language-switcher">
         <img id="lang-fr" src="{% static 'flags/fr.svg' %}" alt="Français">
         <img id="lang-en" src="{% static 'flags/us.svg' %}" alt="English">
@@ -140,7 +148,7 @@
                 </tr>
             </thead>
             <tbody>
-            </tbody>
+			</tbody>
         </table>
         <button id="generate-match-chart">Générer le graphique</button>
         <canvas id="match-chart" style="display:none;"></canvas>
@@ -168,7 +176,7 @@
                 </tr>
             </thead>
             <tbody>
-            </tbody>
+	        </tbody>
         </table>
         <button id="generate-player-chart">Générer le graphique</button>
         <canvas id="player-chart" style="display:none;"></canvas>
@@ -186,8 +194,8 @@
                     <th>Winner</th>
                 </tr>
             </thead>
-            <tbody>
-            </tbody>
+			<tbody>
+			</tbody>
         </table>
     </div>
 
@@ -198,19 +206,8 @@
     <script src="{% static 'game.js' %}"></script>
     <script src="{% static 'burger.js' %}"></script>
     <script src="{% static 'language.js' %}"></script>
-    <!-- Inclusion du fichier chat.js -->
-    <script type="module">
-        import chat from '{% static 'chat.js' %}';
-        const [prerender, render_code, postrender] = chat({ roomid: 'your-room-id' });
-
-        (async () => {
-            const success = await prerender();
-            if (success) {
-                document.body.innerHTML += render_code();
-                postrender();
-            }
-        })();
-    </script>
+	<!-- Inclusion du fichier chat.js -->
+    <script src="{% static 'chat.js' %}"></script>
 </body>
 
 </html>

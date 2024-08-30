@@ -80,7 +80,7 @@ def match_list_json(request):
 
 def player_list_json(request):
     players = Player.objects.all()
-    
+
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
@@ -93,7 +93,7 @@ def player_list_json(request):
 
 def tournoi_list_json(request):
     tournois = Tournoi.objects.all()
-    
+
     data = {
         'tournois': list(tournois.values(
             'id', 'name', 'nbr_player', 'date', 'winner'
@@ -138,7 +138,7 @@ def read_data(request):
         # print(f"Final Order: {', '.join(tournament[5])}")
     print("-----------------------------")
     return JsonResponse(json_data, safe=False)
-        
+
 
 def write_data(request):
     # addTournament(string,uint256,uint256,string[],string[])
@@ -167,3 +167,15 @@ def write_data(request):
     # print("Transaction receipt:", tx_receipt)
     print("-----------------------------")
 
+def get_player_data(request, user_id):
+    try:
+        player = Player.objects.get(user__id=user_id)
+        data = {
+            'username': player.user.username,
+            'total_matches': player.total_matches,
+            'total_wins': player.total_wins,
+            'rank': player.rank,
+        }
+        return JsonResponse(data)
+    except Player.DoesNotExist:
+        return JsonResponse({'error': 'Player not found'}, status=404)

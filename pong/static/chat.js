@@ -1,114 +1,51 @@
-export default function chat(prop={}) {
-    let websocket = undefined;  // Déclaration de la variable websocket
-    let yourName = undefined;
-
-    // Code pré-rendu (par exemple, fetch request)
-    let prerender = async () => {
-		console.log('Prerender started');
-		const me_response = await fetch(`/api/me`);
-		if (!me_response.ok) {
-			console.error('Failed to fetch /api/me');
-			history.back();
-			return false;
-		}
-		let value = await me_response.json();
-		yourName = value.username;
-
-		const response = await fetch(`/api/player/${yourName}/friends`, { method: "GET" });
-		if (!response.ok) {
-			console.error('Failed to fetch friends');
-			history.back();
-			return false;
-		}
-
-		value = await response.json();
-		prop.friendList = value;
-
-		const blockedResponse = await fetch(`/api/player/${yourName}/blocked`, { method: "GET" });
-		if (!blockedResponse.ok) {
-			console.error('Failed to fetch blocked players');
-			history.back();
-			return false;
-		}
-
-		value = await blockedResponse.json();
-		prop.blockList = value;
-
-		console.log('Prerender completed successfully');
-
-		// Initialiser le WebSocket une fois que le pré-rendu est terminé
-		websocket = new WebSocket(`ws://${window.location.host}/ws/chat/${prop.roomid}/`);
-
-		websocket.onopen = function(event) {
-			console.log('WebSocket connection opened:', event);
-		};
-
-		// Listener pour les messages entrants
-		websocket.onmessage = function(event) {
-			const data = JSON.parse(event.data);
-			console.log(data);
-			// Ajoutez ici la logique pour afficher les messages dans l'interface utilisateur
-		};
-
-		// Listener pour la fermeture de la connexion
-		websocket.onclose = function(event) {
-			console.log('WebSocket connection closed:', event);
-		};
-
-		return true; // Retourne true pour continuer vers render_code
-	}
-
-    // Code HTML à retourner
-    let render_code = () => {
-		console.log('Rendering HTML');
-		return `
-		<h1 class="title">Chat</h1>
-		<div class="d-flex flex-grow-1 align-self-stretch overflow-hidden" id='contentDiv'>
-			<div class="d-flex flex-column friend-list p-3">
-				<h4>Friends</h4>
-				<div dir="rtl" class="d-flex flex-column flex-grow-1 overflow-y-auto" style="padding-left:5px;" id="friend-list-items"></div>
-			</div>
-			<div class="d-flex flex-column flex-grow-1 px-2">
-				<div class="chat-content-field d-flex flex-column-reverse flex-grow-1 p-2 mb-2 overflow-y-auto rounded" id="chatContentField"></div>
-				<div class="text-input-box">
-					<div class="d-flex flex-row text-input-box">
-						<textarea class="form-control" rows="1" placeholder="Type your message here..." id="dataEnter"></textarea>
-						<button type="button" class="btn btn-dark mx-2 disabled" id="sendMessageButton">Send</button>
-						<button type="button" class="btn btn-dark d-flex disabled gap-3" id="inviteForMatchButton">
-							Invite
-							<select class='rounded bg-black border-black text-white' id="inviteForMatchType">
-								<option value="pong">Pong</option>
-								<option value="apong">APong Us</option>
-							</select>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		`;
-	}
-
-    // Attacher tous les listeners d'événements ici
-    let postrender = () => {
-		console.log('Attaching event listeners');
-        const friendList = document.getElementById("friend-list-items");
-        const chatContentField = document.getElementById("chatContentField");
-        const sendMessageButton = document.getElementById('sendMessageButton');
-        const sendInviteButton = document.getElementById('inviteForMatchButton');
-
-        // Envoyer un message via le WebSocket lorsque l'utilisateur clique sur le bouton d'envoi
-        sendMessageButton.onclick = () => {
-            const messageInputDom = document.getElementById('dataEnter');
-            const message = messageInputDom.value;
-            websocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';  // Efface le champ de saisie après l'envoi
-        };
-
-        // Ajouter d'autres listeners d'événements et la logique ici
-		console.log('Event listeners attached');
+// Fonction pour récupérer les données du joueur
+async function fetchPlayerData(userId) {
+    try {
+        const response = await fetch(`/player_data/${userId}/`);
+        if (!response.ok) {
+            throw new Error('Erreur lors de la récupération des données du joueur');
+        }
+        const playerData = await response.json();
+        return playerData;
+    } catch (error) {
+        console.error('Erreur:', error);
+        return null;
     }
-
-    return [prerender, render_code, postrender];
 }
+
+// Initialisation du chat avec les données du joueur
+async function initializeChat(userId) {
+    const playerData = await fetchPlayerData(userId);
+    if (playerData) {
+        // Affichage du nom d'utilisateur et du rang dans le chat
+        const chatHeader = document.getElementById('chat-header');
+        chatHeader.innerText = `Chat - ${playerData.username} (Rang: ${playerData.rank})`;
+
+        // Affichage des statistiques du joueur
+        const playerStats = document.getElementById('player-stats');
+        playerStats.innerHTML = `
+            <p>Total de matchs: ${playerData.total_matches}</p>
+            <p>Total de victoires: ${playerData.total_wins}</p>
+        `;
+
+        // Logique pour gérer les messages du chat (exemple de base)
+        const sendMessageButton = document.getElementById('send-message-button');
+        const messageInput = document.getElementById('message-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        sendMessageButton.addEventListener('click', function() {
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                chatMessages.innerHTML += `<p><strong>${playerData.username}:</strong> ${message}</p>`;
+                messageInput.value = '';  // Effacer le champ de saisie
+            }
+        });
+    } else {
+        // Gestion de l'erreur si les données du joueur ne sont pas disponibles
+        alert('Impossible de récupérer les données du joueur');
+    }
+}
+
+// Appeler la fonction avec l'ID de l'utilisateur connecté
+const userId = 1; // Remplace ceci par l'ID réel de l'utilisateur connecté
+initializeChat(userId);
