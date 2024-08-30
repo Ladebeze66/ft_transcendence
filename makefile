@@ -4,7 +4,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER) || true
+	$(COMPOSE) up -d $(CONTAINER) || true
 
 build:
 	$(COMPOSE) build $(CONTAINER)
@@ -20,8 +20,8 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
-	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
-	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
@@ -32,7 +32,7 @@ ps:
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
-re: destroy down up
+re: destroy up
 
 help:
 	@echo "Usage:"

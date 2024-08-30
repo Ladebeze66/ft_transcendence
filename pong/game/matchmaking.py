@@ -40,7 +40,7 @@ class MatchMaker:
                 await asyncio.sleep(1)
                 self.timer += 1
                 # Waiting for more than 30s -> BOT game
-                if self.timer >= 30 and self.waiting_players:
+                if self.timer >= 15 and self.waiting_players:
                     player1 = self.waiting_players.pop(0)
                     print(f"*** MATCH FOUND: {player1.user.username} vs BOT")
                     self.botgame = True
@@ -110,6 +110,3 @@ class MatchMaker:
 
 # Instance of the class
 match_maker = MatchMaker()
-
-# to get what you want use get_player_p_win(player_name) !! (voir utils.py)
-#

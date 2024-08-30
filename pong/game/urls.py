@@ -2,7 +2,6 @@
 
 from django.urls import path, include
 from . import views
-from .views import player_list, tournoi_list, match_list
 from rest_framework.routers import DefaultRouter
 from .views import match_list_json, player_list_json, tournoi_list_json
 
@@ -13,9 +12,6 @@ urlpatterns = [
     path('register_user/', views.register_user, name='register_user'),
     path('authenticate_user/', views.authenticate_user, name='authenticate_user'),
     path('web3/', views.read_data, name='read_data'),
-    path('players/', player_list, name='player_list'),
-    path('matches/', match_list, name='match_list'),
-    path('tournois/', tournoi_list, name='tournoi_list'),
     path('api/match_list/', match_list_json, name='match_list_json'),
     path('api/player_list/', player_list_json, name='player_list_json'),
     path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json')

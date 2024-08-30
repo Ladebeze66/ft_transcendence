@@ -1,10 +1,6 @@
 # /pong/game/views.py
 
 from django.shortcuts import render
-
-def index(request):
-    return render(request, 'index.html')
-
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
 from .utils import create_player, create_tournoi, create_match
@@ -12,11 +8,13 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-""" from .serializers import MatchSerializer """
 from rest_framework import viewsets
 
 import json
 import uuid
+
+def index(request):
+    return render(request, 'index.html')
 
 @csrf_exempt
 def check_user_exists(request):
@@ -69,23 +67,6 @@ def get_or_create_token(user):
                 break
     return user.auth_token
 
-
-####################### THEOUCHE PART ############################
-
-def player_list(request):
-    players = Player.objects.all()
-    return render(request, 'pong/player_list.html', {'players': players})
-
-def match_list(request):
-    matches = Match.objects.select_related('player1', 'player2', 'winner', 'tournoi').all()
-    return render(request, 'pong/match_list.html', {'matches': matches})
-
-def tournoi_list(request):
-    tournois = Tournoi.objects.select_related('winner').all()
-    return render(request, 'pong/tournoi_list.html', {'tournois': tournois})
-
-from django.http import JsonResponse
-
 def match_list_json(request):
     matches = Match.objects.all()
     data = {
@@ -98,10 +79,8 @@ def match_list_json(request):
     return JsonResponse(data)
 
 def player_list_json(request):
-    # Récupère tous les joueurs
     players = Player.objects.all()
     
-    # Crée un dictionnaire avec les informations des joueurs
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
@@ -110,30 +89,18 @@ def player_list_json(request):
             'num_participated_tournaments', 'num_won_tournaments'
         ))
     }
-    
-    # Renvoie les données en JSON
     return JsonResponse(data)
 
 def tournoi_list_json(request):
-    # Récupère tous les joueurs
     tournois = Tournoi.objects.all()
     
-    # Crée un dictionnaire avec les informations des joueurs
     data = {
         'tournois': list(tournois.values(
             'id', 'name', 'nbr_player', 'date', 'winner'
         ))
     }
-    
-    # Renvoie les données en JSON
     return JsonResponse(data)
 
-
-####################### THEOUCHE PART ############################
-
-
-
-####################### jcheca PART ############################
 
 from web3 import Web3
 

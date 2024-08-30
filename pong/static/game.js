@@ -28,14 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginButton2 = document.getElementById('login2');
 
     const gameContainer = document.getElementById('game1');
-
-    const menuButton = document.querySelector('.burger-menu');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-
-    const playerList = document.getElementById('player-list');
-    const matchList = document.getElementById('match-list');
-    const tournoiList = document.getElementById('tournoi-list');
-    const blockchainList = document.getElementById('blockchain-list');
+    const tournamentContainer = document.getElementById('tournament-bracket');
 
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
@@ -43,11 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const localGameButton = document.getElementById('local-game');
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
-
- /*    const modal = document.getElementById("myModal");
-    const btn = document.getElementById("myBtn");
-    const span = document.getElementsByClassName("close")[0];
-    const jsonContent = document.getElementById("jsonContent"); */
 
     let socket;
     let token;
@@ -83,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm.style.display = 'none';
                     loginForm.style.display = 'block';
-                    // Auto-focus and key handling for LOGIN-FORM
                     loginPasswordInput.focus();
                     loginPasswordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -94,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
-                    // Auto-focus and key handling for REGISTER-FORM
                     passwordInput.focus();
                     passwordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -196,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.authenticated;
     }
 
-    // functions to handle the second player
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();
@@ -206,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm2.style.display = 'none';
                     loginForm2.style.display = 'block';
-                    // Auto-focus and key handling for LOGIN-FORM2
                     loginPasswordInput2.focus();
                     loginPasswordInput2.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -217,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     authForm2.style.display = 'none';
                     registerForm2.style.display = 'block';
-                    // Auto-focus and key handling for REGISTER-FORM2
                     passwordInput2.focus();
                     passwordInput2.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -336,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
-        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 2);
     }
@@ -345,179 +327,76 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
-        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 1);
     }
 
     function startTournament() {
-        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
-    }
-/////CHAT//////
-function startWebSocketConnection(token, players) {
-    // Connexion WebSocket pour le jeu
-    const gameSocket = new WebSocket(`ws://${window.location.host}/ws/game/`);
-
-    gameSocket.onopen = function (event) {
-        console.log('Game WebSocket connection established', event);
-
-        if (players === 1) {
-            console.log("Sending token for 1 player game:", token);
-            gameSocket.send(JSON.stringify({ type: 'authenticate', token: token }));
-        } else {
-            console.log("Sending tokens for 2 player game:", token);
-            gameSocket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
-        }
-
-        // Affiche un message lorsque le joueur est connecté au chat
-        displayChatMessage('System', 'You are connected to the chat.', new Date().toLocaleTimeString());
-    };
-    // Vérifie que les éléments du DOM sont présents
-    if (document.getElementById('chat-input') && document.getElementById('send-chat')) {
-        console.log('Chat input and send button are present in the DOM');
-    } else {
-        console.error('Chat input or send button not found in the DOM');
+        tournamentContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        pongElements.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token, 42);
     }
 
-    // Événement pour envoyer un message de chat lorsque le bouton est cliqué
-    document.getElementById('send-chat').addEventListener('click', function() {
-        const message = document.getElementById('chat-input').value;
-        console.log('Chat send button clicked. Message:', message);
+    function startWebSocketConnection(token, players) {
+        socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-        sendChatMessage(message, roomName);
+        socket.onopen = function (event) {
+            console.log('WebSocket connection established');
+            if (players === 1) {
+                console.log("Sending token for a quick match game");
+                socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+            } else if (players === 2) {
+                console.log("Sending tokens for a local game");
+                socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+            } else {
+                console.log("Sending token for a tournament game")
+                socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
+            }
+        };
 
-        // Vide le champ d'entrée et vérifie si l'élément a été vidé
-        document.getElementById('chat-input').value = '';
-        console.log('Chat input cleared:', document.getElementById('chat-input').value);
-    });
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'authenticated') {
+                console.log('Authentication successful');
+            } else if (data.type === 'waiting_room') {
+                console.log('Entered the WAITING ROOM');
+            } else if (data.type === 'game_start') {
+                console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+                document.addEventListener('keydown', handleKeyDown);
+            } else if (data.type === 'game_state_update') {
+                updateGameState(data.game_state);
+            } else if (data.type === 'player_disconnected') {
+                console.log("Player disconnected:", data.player);
+            } else if (data.type === 'game_ended') {
+                console.log("Game ended:", data.game_id);
+            } else if (data.type === 'error') {
+                console.error(data.message);
+            } else if (data.type === 'update_waiting_room') {
+                document.getElementById('tournament-bracket').innerHTML = data.html;
+            } else {
+                console.log('Message from server:', data.type, data.message);
+            }
+        };
 
-    gameSocket.onmessage = function (event) {
-        console.log('Message received on game WebSocket:', event.data);
-        const data = JSON.parse(event.data);
+        socket.onclose = function (event) {
+            console.log('WebSocket connection closed');
+        };
 
-        if (data.type === 'authenticated') {
-            console.log('Authentication successful');
-        } else if (data.type === 'waiting_room') {
-            console.log('Entered the WAITING ROOM');
-        } else if (data.type === 'game_start') {
-            console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-            startGame(data.game_id, data.player1, data.player2);
-        } else if (data.type === 'game_state_update') {
-            console.log('Game state update received:', data.game_state);
-            updateGameState(data.game_state);
-        } else if (data.type === 'player_disconnected') {
-            console.log("Player disconnected:", data.player);
-        } else if (data.type === 'game_ended') {
-            console.log("Game ended:", data.game_id);
-        } else if (data.type === 'chat_message') {
-            console.log('Chat message received:', data);
-            displayChatMessage(data.user, data.message, data.timestamp);
-        } else if (data.type === 'error') {
-            console.error('Error received:', data.message);
-        } else {
-            console.log('Unknown message from server:', data.type, data.message);
-        }
-    };
-
-    gameSocket.onclose = function (event) {
-        console.log('Game WebSocket connection closed', event);
-    };
-
-    gameSocket.onerror = function (error) {
-        console.error('Game WebSocket error:', error);
-    };
-
-    // Connexion WebSocket pour le chat
-    const roomName = `game_room`;  // Vous pouvez personnaliser ce nom en fonction de la salle de jeu actuelle
-    const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-
-    chatSocket.onopen = function (event) {
-        console.log('Chat WebSocket connection established', event);
-        // Met à jour le nom de la salle affichée dans l'interface utilisateur
-        document.getElementById('room-name-value').textContent = roomName;
-    };
-
-    chatSocket.onmessage = function (event) {
-        console.log('Message received on chat WebSocket:', event.data);
-        const data = JSON.parse(event.data);
-        if (data.type === 'chat_message') {
-            console.log('Displaying chat message:', data);
-            displayChatMessage(data.user, data.message, data.timestamp);
-        } else {
-            console.log('Unknown message type on chat WebSocket:', data.type);
-        }
-    };
-
-    chatSocket.onclose = function (event) {
-        console.log('Chat WebSocket connection closed', event);
-    };
-
-    chatSocket.onerror = function (error) {
-        console.error('Chat WebSocket error:', error);
-    };
-
-    // Fonction pour envoyer un message de chat
-    function sendChatMessage(message, room) {
-        console.log('Sending chat message:', message, 'to room:', room);
-        if (chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({
-                type: 'chat_message',
-                message: message,
-                room: room
-            }));
-        } else {
-            console.error('Chat WebSocket is not open. Ready state:', chatSocket.readyState);
-        }
-    }
-
-    // Événement pour envoyer un message de chat lorsque le bouton est cliqué
-    document.getElementById('send-chat').addEventListener('click', function() {
-        const message = document.getElementById('chat-input').value;
-        console.log('Chat send button clicked. Message:', message);
-
-        sendChatMessage(message, roomName);
-
-        // Vide le champ d'entrée et vérifie si l'élément a été vidé
-        document.getElementById('chat-input').value = '';
-        console.log('Chat input cleared:', document.getElementById('chat-input').value);
-    });
-
-    // Fonction pour afficher un message de chat dans l'interface utilisateur
-    function displayChatMessage(user, message, timestamp) {
-        console.log('Displaying message in chat:', message);
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.textContent = `${timestamp} - ${user}: ${message}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
-    }
-
-    // Fonction pour gérer les mises à jour du jeu
-    function updateGameState(gameState) {
-        console.log('Updating game state:', gameState);
-        // Logique pour mettre à jour l'état du jeu avec gameState
-    }
-}
-////CHAT///////
-
-    function startGame(gameCode, player1_name, player2_name) {
-        document.getElementById('gameCode').textContent = `Game Code: ${gameCode}`;
-        document.getElementById('player1-name').textContent = `${player1_name}`;
-        document.getElementById('player2-name').textContent = `${player2_name}`;
-        document.addEventListener('keydown', handleKeyDown);
-
+        socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
     }
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
-            //console.log('Key press: ', event.key);
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
         if (socket.readyState === WebSocket.OPEN) {
-            //console.log('Key sent: ', key);
             socket.send(JSON.stringify({ type: 'key_press', key }));
         }
     }
@@ -528,216 +407,20 @@ function startWebSocketConnection(token, players) {
     }
 
     function renderGame() {
-        const player1Pad = document.getElementById('player1-pad');
-        player1Pad.style.top = `${gameState.player1_position}px`;
+        document.getElementById('player1-name').textContent = `${gameState.player1_name}`;
+        document.getElementById('player2-name').textContent = `${gameState.player2_name}`;
 
-        const player2Pad = document.getElementById('player2-pad');
-        player2Pad.style.top = `${gameState.player2_position}px`;
+        document.getElementById('player1-pad').style.top = `${gameState.player1_position}px`;
+        document.getElementById('player2-pad').style.top = `${gameState.player2_position}px`;
 
-        const ball = document.getElementById('ball');
-        ball.style.left = `${gameState.ball_position.x}px`;
-        ball.style.top = `${gameState.ball_position.y}px`;
+        document.getElementById('ball').style.left = `${gameState.ball_position.x}px`;
+        document.getElementById('ball').style.top = `${gameState.ball_position.y}px`;
 
-        const player1Score = document.getElementById('player1-score');
-        player1Score.textContent = gameState.player1_score;
+        document.getElementById('player1-score').textContent = gameState.player1_score;
+        document.getElementById('player2-score').textContent = gameState.player2_score;
 
-        const player2Score = document.getElementById('player2-score');
-        player2Score.textContent = gameState.player2_score;
+        document.getElementById('game-text').textContent = gameState.game_text;
     }
-
-
-    ////////////////////////////// BEG BURGER BUTTON ////////////////////////////////
-
-    menuButton.addEventListener('click', toggleMenu);
-
-    function toggleMenu() {
-        console.log('Menu toggled');
-        if (dropdownMenu.style.display === "block") {
-            dropdownMenu.style.display = "none";
-            hideAllTables();
-        } else {
-            dropdownMenu.style.display = "block";
-        }
-    }
-
-    function hideAllTables(){
-        if (playerList) playerList.style.display = 'none';
-        if (matchList) matchList.style.display = 'none';
-        if (tournoiList) tournoiList.style.display = 'none';
-        if (blockchainList) blockchainList.style.display = 'none';
-    }
-
-    const links = document.querySelectorAll('#dropdown-menu a');
-
-    links.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Empêche le comportement par défaut du lien
-            const tableId = link.getAttribute('data-table');
-            //console.log("Here !!!!!!!!!!!! NNNNNNNN");
-            showTable(tableId);
-        });
-    });
-
-    function showTable(tableId) {
-        // Masquer tous les tableaux
-        console.log('Entering showTable', tableId);
-        hideAllTables();
-
-        // Afficher le tableau sélectionné
-        if (tableId === 'player-list') {
-            console.log('Showing player list 2');
-            //if (playerList) {
-            playerList.style.display = 'block';
-            fetchPlayers();
-            //}
-        } else if (tableId === 'match-list') {
-            console.log('Showing match list 2');
-            //if (matchList)
-            matchList.style.display = 'block';
-            fetchMatches();
-        } else if (tableId === 'tournoi-list') {
-            console.log('Showing tournoi list 2');
-            //if (tournoiList)
-            tournoiList.style.display = 'block';
-            fetchTournois();
-        } else if (tableId === 'blockchain-list') {
-            console.log('Opening external page in a new tab');
-            window.open('https://sepolia.etherscan.io/address/0x078d04eb6fb97cd863361fc86000647dc876441b', '_blank');
-            /* fetch('/web3/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('ok here !!');
-                    jsonContent.textContent = JSON.stringify(data, null, 2);
-                }); */
-        }
-
-        // Masquer le menu après la sélection
-        if (dropdownMenu) {
-            dropdownMenu.style.display = 'none';
-        }
-    }
-
-    function fetchMatches() {
-        console.log('Fetching matches...');
-        fetch('/api/match_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.matches) {
-                    displayMatches(data.matches);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function fetchPlayers(){
-        console.log('Fetching players...');
-        fetch('/api/player_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.players) {
-                    displayPlayers(data.players);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function fetchTournois(){
-        console.log('Fetching tournois...');
-        fetch('/api/tournoi_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.tournois) {
-                    displayTournois(data.tournois);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function displayMatches(matches) {
-        console.log('Displaying matches:');
-        const matchListBody = document.querySelector('#match-list tbody');
-        matchListBody.innerHTML = '';
-
-        if (matches.length === 0) {
-            console.log('No matches to display');
-        }
-
-        matches.forEach(match => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${match.id}</td>
-                <td>${match.player1__name}</td>
-                <td>${match.player2__name}</td>
-                <td>${match.score_player1}</td>
-                <td>${match.score_player2}</td>
-                <td>${match.winner__name}</td>
-                <td>${match.nbr_ball_touch_p1}</td>
-                <td>${match.nbr_ball_touch_p2}</td>
-                <td>${match.duration}</td>
-                <td>${match.date}</td>
-                <td>${match.is_tournoi}</td>
-                <td>${match.tournoi__name}</td>
-            `;
-            matchListBody.appendChild(row);
-        });
-    }
-
-    function displayPlayers(players) {
-        console.log('Displaying players:');
-        const playersListBody = document.querySelector('#player-list tbody');
-        playersListBody.innerHTML = '';
-
-        if (players.length === 0) {
-            console.log('No players to display');
-        }
-
-        players.forEach(player => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${player.id}</td>
-                <td>${player.name}</td>
-                <td>${player.total_match}</td>
-                <td>${player.total_win}</td>
-                <td>${player.p_win}</td>
-                <td>${player.m_score_match}</td>
-                <td>${player.m_score_adv_match}</td>
-                <td>${player.best_score}</td>
-                <td>${player.m_nbr_ball_touch}</td>
-                <td>${player.total_duration}</td>
-                <td>${player.m_duration}</td>
-                <td>${player.num_participated_tournaments}</td>
-                <td>${player.num_won_tournaments}</td>
-            `;
-            playersListBody.appendChild(row);
-        });
-    }
-
-    function displayTournois(tournois) {
-        console.log('Displaying tournois:');
-        const tournoisListBody = document.querySelector('#tournoi-list tbody');
-        tournoisListBody.innerHTML = '';
-
-        if (tournois.length === 0) {
-            console.log('No tournois to display');
-        }
-
-        tournois.forEach(tournoi => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${tournoi.id}</td>
-                <td>${tournoi.name}</td>
-                <td>${tournoi.nbr_player}</td>
-                <td>${tournoi.date}</td>
-                <td>${tournoi.winner.name}</td>
-            `;
-            tournoisListBody.appendChild(row);
-        });
-    }
-
-    ////////////////////////////// END BURGER BUTTON ////////////////////////////////
-
-
-    //////////////////////////////    BEG STARS      ////////////////////////////////
 
     const starsContainer = document.getElementById('stars');
     for (let i = 0; i < 500; i++) {
@@ -750,150 +433,5 @@ function startWebSocketConnection(token, players) {
         star.style.animationDuration = `${Math.random() * 2 + 1}s`;
         starsContainer.appendChild(star);
     }
-
-    //////////////////////////////    END STARS      ////////////////////////////////
-
-
-   /*  btn.onclick = function() {
-        fetch('/web3/')
-            .then(response => response.json())
-            .then(data => {
-                console.log('ok here !!');
-                jsonContent.textContent = JSON.stringify(data, null, 2);
-                modal.style.display = "block";
-            });
-    }
-
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    } */
-
-    //////////////////////////////    BEG LANGAGE    ////////////////////////////////
-    const translations = {
-        fr: {
-            welcome: "BIENVENUE DANS LE PONG 42",
-            labelNickname: "Entrez votre surnom:",
-            labelPassword: "Entrez votre mot de passe:",
-            labelConfirmPassword: "Confirmez votre mot de passe:",
-            labelLoginPassword: "Entrez votre mot de passe:"
-        },
-        en: {
-            welcome: "WELCOME TO PONG 42",
-            labelNickname: "Enter your nickname:",
-            labelPassword: "Enter your password:",
-            labelConfirmPassword: "Confirm your password:",
-            labelLoginPassword: "Enter your password:"
-        },
-        it: {
-            welcome: "BENVENUTO A PONG 42",
-            labelNickname: "Inserisci il tuo soprannome:",
-            labelPassword: "Inserisci la tua password:",
-            labelConfirmPassword: "Conferma la tua password:",
-            labelLoginPassword: "Inserisci la tua password:"
-        },
-        es: {
-            welcome: "BIENVENIDO A PONG 42",
-            labelNickname: "Introduce tu apodo:",
-            labelPassword: "Introduce tu contraseña:",
-            labelConfirmPassword: "Confirma tu contraseña:",
-            labelLoginPassword: "Introduce tu contraseña:"
-        },
-        de: {
-            welcome: "WILLKOMMEN BEI PONG 42",
-            labelNickname: "Geben Sie Ihren Spitznamen ein:",
-            labelPassword: "Geben Sie Ihr Passwort ein:",
-            labelConfirmPassword: "Bestätigen Sie Ihr Passwort:",
-            labelLoginPassword: "Geben Sie Ihr Passwort ein:"
-        }
-    };
-
-    function setCookie(name, value, days) {
-        const d = new Date();
-        d.setTime(d.getTime() + (days*24*60*60*1000));
-        const expires = "expires=" + d.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
-
-    function getCookie(name) {
-        const cname = name + "=";
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const ca = decodedCookie.split(';');
-        for(let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(cname) === 0) {
-                return c.substring(cname.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function changeLanguage(lang) {
-        setCookie('preferredLanguage', lang, 365);  // Store the language preference for 1 year
-        document.getElementById('welcome').innerText = translations[lang].welcome;
-        document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
-        document.getElementById('label-password').innerText = translations[lang].labelPassword;
-        document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
-        document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
-    }
-
-    // Function to set the language based on the cookie
-    function setLanguageFromCookie() {
-        const preferredLanguage = getCookie('preferredLanguage');
-        if (preferredLanguage && translations[preferredLanguage]) {
-            changeLanguage(preferredLanguage);
-        } else {
-            changeLanguage('fr'); // Default to French if no cookie is found
-        }
-    }
-
-    document.getElementById('lang-fr').addEventListener('click', () => changeLanguage('fr'));
-    document.getElementById('lang-en').addEventListener('click', () => changeLanguage('en'));
-    document.getElementById('lang-it').addEventListener('click', () => changeLanguage('it'));
-    document.getElementById('lang-es').addEventListener('click', () => changeLanguage('es'));
-    document.getElementById('lang-de').addEventListener('click', () => changeLanguage('de'));
-
-    // Set the language when the page loads
-    window.onload = setLanguageFromCookie;
-
-    //////////////////////////////   END LANGAGE    ////////////////////////////////
-
-
-
-    //////////////////////////////    BEG SETTING     ////////////////////////////////
-
-    document.getElementById('settings-btn').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'block';
-    });
-
-    document.getElementById('close-settings').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'none';
-    });
-
-    // Change the color of the text
-    document.getElementById('color-picker').addEventListener('input', function() {
-        document.body.style.color = this.value;
-        document.querySelectorAll('button').forEach(function(button) {
-            button.style.backgroundColor = this.value;  // Change la couleur de fond des boutons
-        }, this);
-    });
-
-    document.getElementById('font-selector').addEventListener('change', function() {
-        document.body.style.fontFamily = this.value;
-    });
-
-    document.getElementById('font-size-slider').addEventListener('input', function() {
-        document.body.style.fontSize = this.value + 'px';
-    });
-
-    //////////////////////////////    END SETTING     ////////////////////////////////
 
 });

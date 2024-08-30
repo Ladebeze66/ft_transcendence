@@ -9,16 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=3">
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
-    </div>
-
-    <style>
-        body {
-            color: rgb(0, 255, 255); /* Valeur par défaut */
-            font-family: Arial, sans-serif;
-            font-size: 16px;
-        }
-    </style>
-
+    </div> 
 </head>
 <body>
     <div class="language-switcher">
@@ -36,14 +27,6 @@
         <div class="paddle paddle-right"></div>
         <div class="ball_anim"></div>
     </div>
-	<!-- Ajout pour le chat -->
-	<div id="chat-container">
-		<div id="room-name">Room: <span id="room-name-value">game_room</span></div> <!-- Ajout -->
-		<div id="chat-messages"></div>
-		<input type="text" id="chat-input" placeholder="Type your message...">
-		<button id="send-chat">Send</button>
-	</div>
-
 
     <button id="settings-btn">⚙️ Réglages</button>
     <div id="settings-menu" style="display: none;">
@@ -119,8 +102,9 @@
         </div>
     </div>
 
+    <div id="tournament-bracket" style="display: none;"></div>
+
     <div id="game1" style="display: none;">
-        <div id="gameCode" class="game-code">Game Code : </div>
         <div id="player1-name" class="name">Player 1</div>
         <div id="player2-name" class="name">Player 2</div>
         <div id="game2">
@@ -129,11 +113,14 @@
             <div id="player1-pad" class="pad"></div>
             <div id="player2-pad" class="pad"></div>
             <div id="ball"></div>
+            <div id="game-text" class="gameText"></div>
         </div>
     </div>
 
     <div id="match-list" class="content-list" style="display: none;">
         <h1>Matches</h1>
+        <input type="text" id="search-match-player" placeholder="Rechercher par nom de joueur">
+        <input type="date" id="search-match-date">
         <table>
             <thead>
                 <tr>
@@ -152,32 +139,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for match in matches %}
-                <tr>
-                    <td>{{ match.id }}</td>
-                    <td>{{ match.player1.name }}</td>
-                    <td>{{ match.player2.name }}</td>
-                    <td>{{ match.score_player1 }}</td>
-                    <td>{{ match.score_player2 }}</td>
-                    <td>{{ match.winner.name }}</td>
-                    <td>{{ match.nbr_ball_touch_p1 }}</td>
-                    <td>{{ match.nbr_ball_touch_p2 }}</td>
-                    <td>{{ match.duration }}</td>
-                    <td>{{ match.date }}</td>
-                    <td>{{ match.is_tournoi }}</td>
-                    <td>{{ match.tournoi.name }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="12">No matches found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+			</tbody>
         </table>
+        <button id="generate-match-chart">Générer le graphique</button>
+        <canvas id="match-chart" style="display:none;"></canvas>
     </div>
 
     <div id="player-list" class="content-list" style="display: none;">
         <h1>Players</h1>
+        <input type="text" id="search-player" placeholder="Rechercher par nom">
         <table>
             <thead>
                 <tr>
@@ -197,29 +167,10 @@
                 </tr>
             </thead>
             <tbody>
-                {% for player in players %}
-                <tr>
-                    <td>{{ player.id }}</td>
-                    <td>{{ player.name }}</td>
-                    <td>{{ player.total_match }}</td>
-                    <td>{{ player.total_win }}</td>
-                    <td>{{ player.p_win }}</td>
-                    <td>{{ player.m_score_match }}</td>
-                    <td>{{ player.m_score_adv_match }}</td>
-                    <td>{{ player.best_score }}</td>
-                    <td>{{ player.m_nbr_ball_touch }}</td>
-                    <td>{{ player.total_duration }}</td>
-                    <td>{{ player.m_duration }}</td>
-                    <td>{{ player.num_participated_tournaments }}</td>
-                    <td>{{ player.num_won_tournaments }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="13">No players found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+	        </tbody>
         </table>
+        <button id="generate-player-chart">Générer le graphique</button>
+        <canvas id="player-chart" style="display:none;"></canvas>
     </div>
 
     <div id="tournoi-list" class="content-list" style="display: none;">
@@ -234,25 +185,18 @@
                     <th>Winner</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for tournoi in tournois %}
-                <tr>
-                    <td>{{ tournoi.id }}</td>
-                    <td>{{ tournoi.name }}</td>
-                    <td>{{ tournoi.nbr_player }}</td>
-                    <td>{{ tournoi.date }}</td>
-                    <td>{{ tournoi.winner.name }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="14">No tournois found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+			<tbody>
+			</tbody>
         </table>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 
     <script src="{% static 'game.js' %}"></script>
+    <script src="{% static 'burger.js' %}"></script>
+    <script src="{% static 'language.js' %}"></script>
 </body>
 
 </html>

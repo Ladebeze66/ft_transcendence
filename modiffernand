@@ -1,6 +1,0 @@
-models.py : création de la classe ChatMessage
-Mise à jour consumers.py: ajout gestion des messages de chat dans la méthode 'receive" et création d'une nouvelle méthode 'handle_chat_message'
-routing.py: route pour le chat
-Mise à jour frontend: ajout conteneur pour les messages du chat
-game.js: modification startwebsocket connection et ajout fonction envoie affichage message
-styles.css: ajout chat

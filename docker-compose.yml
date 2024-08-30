@@ -58,8 +58,6 @@ services:
      timeout: 5s
      retries: 120
 
-
-
   backend:
     build:
       context: .
@@ -74,6 +72,7 @@ services:
       venv/bin/daphne -b 0.0.0.0 -p 8080 pong.asgi:application"
     volumes:
       - pong:/transcendence/pong
+      - pong_django_logs:/transcendence/logs
     ports:
       - 8080:8080
     networks:
@@ -200,6 +199,7 @@ services:
       - certs:/usr/share/logstash/certs
       - pong_logstash_data01:/usr/share/logstash/data
       - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - pong_django_logs:/usr/share/logstash/logs
     ports:
       - "5044:5044/udp"
     command: logstash -f /usr/share/logstash/pipeline/logstash.conf
@@ -216,6 +216,12 @@ volumes:
     driver_opts:
       type: none
       device: ${PROJECT_PATH}
+      o: bind
+  pong_django_logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DJANGO_LOGS}
       o: bind
   pong_pg_data:
     driver: local

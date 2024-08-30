@@ -1,0 +1,10 @@
+<!-- templates/tournament_waiting_room.html -->
+<div class="tournament-waiting-room">
+    <h2>Tournament Waiting Room</h2>
+    <p>Players currently waiting: {{ players|length }}</p>
+    <ul>
+        {% for player in players %}
+            <li>{{ player }}</li>
+        {% endfor %}
+    </ul>
+</div>

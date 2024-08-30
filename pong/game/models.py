@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 User.add_to_class('auth_token', models.CharField(max_length=100, null=True, blank=True, unique=True))
-# Create your models here.
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
@@ -21,7 +20,7 @@ class Player(models.Model):
     num_won_tournaments = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
-        return self.name
+        return self.name 
 
 class Tournoi(models.Model):
     name = models.CharField(max_length=200)
@@ -55,18 +54,8 @@ class Match(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
-        self.clean()  # Appel de la méthode clean() avant d'enregistrer
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.player1.name} vs {self.player2.name}"
-
-#///////CHAT/////////
-class ChatMessage(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room = models.CharField(max_length=100)
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.username}: {self.content[:20]}..."  # Afficher les 20 premiers caractères du message
