@@ -13,6 +13,30 @@ async function fetchPlayerData(userId) {
     }
 }
 
+// Fonction pour gérer l'authentification et démarrer le chat
+async function authenticateAndStartChat(username, password) {
+    try {
+        const response = await fetch('/authenticate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        if (!response.ok) {
+            throw new Error('Échec de l\'authentification');
+        }
+        const data = await response.json();
+        if (data.authenticated) {
+            initializeChat(data.user_id);
+        } else {
+            alert('Authentification échouée');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
 // Initialisation du chat avec les données du joueur
 async function initializeChat(userId) {
     const playerData = await fetchPlayerData(userId);
@@ -46,6 +70,9 @@ async function initializeChat(userId) {
     }
 }
 
-// Appeler la fonction avec l'ID de l'utilisateur connecté
-const userId = 1; // Remplace ceci par l'ID réel de l'utilisateur connecté
-initializeChat(userId);
+// Appeler la fonction authenticateAndStartChat après la saisie du login et du mot de passe
+document.getElementById('login-button').addEventListener('click', function() {
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    authenticateAndStartChat(username, password);
+});
