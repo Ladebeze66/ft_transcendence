@@ -13,31 +13,7 @@ async function fetchPlayerData(userId) {
     }
 }
 
-// Fonction pour gérer l'authentification et démarrer le chat
-async function authenticateAndStartChat(username, password) {
-    try {
-        const response = await fetch('/authenticate/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        if (!response.ok) {
-            throw new Error('Échec de l\'authentification');
-        }
-        const data = await response.json();
-        if (data.authenticated) {
-            initializeChat(data.user_id);
-        } else {
-            alert('Authentification échouée');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
-}
-
-// Initialisation du chat avec les données du joueur
+// Initialisation du chat avec les données du joueur et WebSocket
 async function initializeChat(userId) {
     const playerData = await fetchPlayerData(userId);
     if (playerData) {
@@ -57,22 +33,44 @@ async function initializeChat(userId) {
         const messageInput = document.getElementById('message-input');
         const chatMessages = document.getElementById('chat-messages');
 
+        // Création de la connexion WebSocket
+        const chatSocket = new WebSocket(
+            `ws://${window.location.host}/ws/chat/${userId}/`
+        );
+
+        // Recevoir des messages via WebSocket
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            chatMessages.innerHTML += `<p><strong>${data.username}:</strong> ${data.message}</p>`;
+        };
+
+        // Gestion de l'erreur WebSocket
+        chatSocket.onerror = function(e) {
+            console.error('WebSocket error observed:', e);
+        };
+
+        // Envoyer un message via WebSocket
         sendMessageButton.addEventListener('click', function() {
             const message = messageInput.value;
             if (message.trim() !== '') {
-                chatMessages.innerHTML += `<p><strong>${playerData.username}:</strong> ${message}</p>`;
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'username': playerData.username
+                }));
                 messageInput.value = '';  // Effacer le champ de saisie
             }
         });
+
     } else {
         // Gestion de l'erreur si les données du joueur ne sont pas disponibles
         alert('Impossible de récupérer les données du joueur');
     }
 }
 
-// Appeler la fonction authenticateAndStartChat après la saisie du login et du mot de passe
-document.getElementById('login-button').addEventListener('click', function() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    authenticateAndStartChat(username, password);
-});
+// Appeler cette fonction après l'authentification de l'utilisateur
+function startChatAfterLogin(userId) {
+    initializeChat(userId);
+}
+
+// Exemple d'appel après l'authentification réussie
+// Utilisation de la variable userId qui doit être définie après l'authentification dans game.js

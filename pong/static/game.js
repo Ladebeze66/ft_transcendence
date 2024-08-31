@@ -152,20 +152,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleLogin() {
-        const nickname = nicknameInput.value.trim();
-        const password = loginPasswordInput.value.trim();
-        try {
-            const result = await authenticateUser(nickname, password);
-            if (result) {
-                loginForm.style.display = 'none';
-                document.getElementById("post-form-buttons").style.display = 'block';
-            } else {
-                alert('Authentication failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error authenticating user:', error);
-        }
-    }
+		const nickname = nicknameInput.value.trim();
+		const password = loginPasswordInput.value.trim();
+		try {
+			const result = await authenticateUser(nickname, password);
+			if (result) {
+				loginForm.style.display = 'none';
+				document.getElementById("post-form-buttons").style.display = 'block';
+				// Récupérer l'ID utilisateur ici et l'utiliser pour initialiser le chat
+				initializeChat(result.userId);
+			} else {
+				alert('Authentication failed. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error authenticating user:', error);
+		}
+	}
 
     async function authenticateUser(username, password) {
         const response = await fetch('/authenticate_user/', {

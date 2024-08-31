@@ -1,67 +1,79 @@
-.friend-list {
-    background-color: darkgray;
-    border-radius: 5px;
-    padding: 5px;
+/* Container du chat */
+#chat-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
     width: 310px;
-    min-width: 310px;
-    overflow-y: auto;
-}
-
-.friend-list-item {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 55px;
-    background-color: #f8f9fa;
-    color: black;
-    margin-bottom: 10px;
+    max-height: 300px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
     border-radius: 5px;
+    overflow-y: hidden;  /* Empêche le débordement initial */
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Entête du chat */
+#chat-header {
+    background-color: darkgray;
     padding: 10px;
-    transition: background-color 0.25s ease-in-out;
+    border-bottom: 1px solid #ccc;
+    font-weight: bold;
+    text-align: center;
 }
 
-.friend-list-item.friendMsgActivated {
-    background-color: rgba(248, 249, 250, 0.342);
+/* Affichage des statistiques du joueur */
+#player-stats {
+    background-color: #e9ecef;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    font-size: 12px;
 }
 
-.friend-list-item:hover {
+/* Messages du chat */
+#chat-messages {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: white;
+    overflow-y: scroll;  /* Barre de défilement */
+}
+
+/* Champ de saisie de message */
+#message-input {
+    width: calc(100% - 20px);
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Bouton d'envoi de message */
+#send-message-button {
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    background-color: rgba(248, 249, 250, 0.342);
 }
 
+/* Style supplémentaire pour le bouton au survol */
+#send-message-button:hover {
+    background-color: #0056b3;
+}
+
+/* Surcharge des styles existants si nécessaire */
 .chat-content-field {
     background-color: rgb(213, 213, 213, 0.5);
+    flex-grow: 1;
+    overflow-y: scroll;
 }
 
-.chat-content-field > * {
-    color: black;
-    margin-top: 10px;
-    padding: 10px;
-}
-
-.chat-content-field > *:last-child {
-    margin-top: 0px;
-}
-
-.chat-content-field .eofBox {
-    background-color: rgba(213, 213, 213, 0.11);
-    font-weight: bold;
-    text-align: center;
-}
-
-.chat-content-field .messageBox {
-    display: flex;
-    background-color: white;
-}
-
-.chat-content-field .errorBox {
-    background-color:rgb(146, 26, 26);
-    font-weight: bold;
-    text-align: center;
-    color: white;
-}
-
-.chat-content-field .messageBox .ImageHolder{
+/* Autres styles du contenu */
+.chat-content-field .messageBox .ImageHolder {
     aspect-ratio: 1;
     min-height: 50px;
     min-width: 50px;
@@ -71,15 +83,12 @@
     object-fit: cover;
 }
 
-.chat-content-field .messageBox .content{
+.chat-content-field .messageBox .content {
     flex-grow: 1;
     padding-left: 15px;
 }
 
-.chat-content-field .messageBox .content .inviteContent{
-    font-weight: bold;
-}
-
-.chat-content-field .messageBox .content .playerID{
+.chat-content-field .messageBox .content .inviteContent,
+.chat-content-field .messageBox .content .playerID {
     font-weight: bold;
 }
