@@ -3,8 +3,8 @@ COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
 up: down
-	$(COMPOSE) build 
-	$(COMPOSE) up -d $(CONTAINER) || true
+	$(COMPOSE) build
+	$(COMPOSE) up $(CONTAINER) || true
 
 build:
 	$(COMPOSE) build $(CONTAINER)
@@ -30,7 +30,7 @@ ps:
 	$(COMPOSE) ps
 
 db-shell:
-	$(COMPOSE) exec db psql -U 42student players_db 
+	$(COMPOSE) exec db psql -U 42student players_db
 
 re: destroy up
 
@@ -47,4 +47,3 @@ help:
 	@echo "  make help                     # Show this help"
 
 .PHONY: up build start stop down destroy logs ps db-shell help
-

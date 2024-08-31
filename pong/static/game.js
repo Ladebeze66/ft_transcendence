@@ -187,24 +187,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		const password = loginPasswordInput.value.trim();
 
 		try {
-			console.log('Tentative de connexion pour:', nickname); // Log le début du processus de connexion
+			console.log('Tentative de connexion pour:', nickname);
 
 			const result = await authenticateUser(nickname, password);
 			if (result) {
-				const userId = result.userId; // Assurez-vous que `authenticateUser` retourne l'ID utilisateur
-				console.log('Utilisateur authentifié avec succès, userId:', userId); // Log l'ID utilisateur
+				const userId = result.userId;
+				console.log('Utilisateur authentifié avec succès, userId:', userId);
 
 				loginForm.style.display = 'none';
 				document.getElementById("post-form-buttons").style.display = 'block';
 
-				// Initialiser le chat avec l'ID de l'utilisateur
-				initializeChat(userId);
+				// Appel de startChatAfterLogin après authentification
+				startChatAfterLogin(userId);
 			} else {
-				console.warn('Échec de l\'authentification pour:', nickname); // Log en cas d'échec d'authentification
+				console.warn('Échec de l\'authentification pour:', nickname);
 				alert('Authentication failed. Please try again.');
 			}
 		} catch (error) {
-			console.error('Erreur lors de l\'authentification:', error); // Log l'erreur si une exception est levée
+			console.error('Erreur lors de l\'authentification:', error);
 		}
 	}
 

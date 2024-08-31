@@ -1,6 +1,7 @@
 # /pong/game/views.py
 
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
 from .utils import create_player, create_tournoi, create_match
@@ -168,14 +169,16 @@ def write_data(request):
     print("-----------------------------")
 
 def get_player_data(request, user_id):
-    try:
-        player = Player.objects.get(user__id=user_id)
-        data = {
-            'username': player.user.username,
-            'total_matches': player.total_matches,
-            'total_wins': player.total_wins,
-            'rank': player.rank,
-        }
-        return JsonResponse(data)
-    except Player.DoesNotExist:
-        return JsonResponse({'error': 'Player not found'}, status=404)
+    # Récupération du joueur par son ID
+    player = get_object_or_404(Player, id=user_id)
+
+    # Préparation des données à renvoyer
+    data = {
+        'username': player.name,  # Utilisation de 'name' au lieu de 'user.username'
+        'total_matches': player.total_match,
+        'total_wins': player.total_win,
+        'rank': player.rank,
+    }
+
+    # Renvoi de la réponse en JSON
+    return JsonResponse(data)

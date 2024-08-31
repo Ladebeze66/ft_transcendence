@@ -13,46 +13,74 @@ async function fetchPlayerData(userId) {
 	}
 }
 
-// Initialisation du chat avec les données du joueur et WebSocket
 async function initializeChat(userId) {
-	console.log('Initialisation du chat pour userId:', userId); // Log pour vérifier l'ID utilisateur
+    console.log('Initialisation du chat pour userId:', userId);
 
-	const playerData = await fetchPlayerData(userId);
-	if (playerData) {
-		console.log('Données du joueur récupérées:', playerData); // Log les données du joueur récupérées
+    const playerData = await fetchPlayerData(userId);
+    if (playerData) {
+        console.log('Données du joueur récupérées:', playerData);
 
-		// Affichage du nom d'utilisateur et du rang dans le chat
-		const chatHeader = document.getElementById('chat-header');
-		chatHeader.innerText = `Chat - ${playerData.username} (Rang: ${playerData.rank})`;
+        // Affichage du nom d'utilisateur et du rang dans le chat
+        const chatHeader = document.getElementById('chat-header');
+        chatHeader.innerText = `Chat - ${playerData.name} (Rang: ${playerData.rank})`;
 
-		// Affichage des statistiques du joueur
-		const playerStats = document.getElementById('player-stats');
-		playerStats.innerHTML = `
-			<p>Total de matchs: ${playerData.total_matches}</p>
-			<p>Total de victoires: ${playerData.total_wins}</p>
-		`;
+        // Affichage des statistiques du joueur
+        const playerStats = document.getElementById('player-stats');
+        playerStats.innerHTML = `
+            <p>Total de matchs: ${playerData.total_matches}</p>
+            <p>Total de victoires: ${playerData.total_wins}</p>
+        `;
 
-		// Logique pour gérer les messages du chat (exemple de base)
-		const sendMessageButton = document.getElementById('send-message-button');
-		const messageInput = document.getElementById('message-input');
-		const chatMessages = document.getElementById('chat-messages');
+        // Initialiser le WebSocket pour le chat
+        const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${playerData.name}/`);
 
-		sendMessageButton.addEventListener('click', function() {
-			const message = messageInput.value;
-			if (message.trim() !== '') {
-				chatMessages.innerHTML += `<p><strong>${playerData.username}:</strong> ${message}</p>`;
-				messageInput.value = '';  // Effacer le champ de saisie
-			}
-		});
+        chatSocket.onopen = function (event) {
+            console.log('Connexion WebSocket pour le chat établie');
+        };
 
-		console.log('Chat initialisé avec succès pour:', playerData.username); // Log la fin du processus d'initialisation du chat
-	} else {
-		console.error('Impossible de récupérer les données du joueur pour userId:', userId); // Log en cas d'échec de récupération des données
-		alert('Impossible de récupérer les données du joueur');
-	}
+        chatSocket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            const message = data.message;
+            const username = data.username;
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML += `<p><strong>${username}:</strong> ${message}</p>`;
+        };
+
+        chatSocket.onclose = function (event) {
+            console.log('Connexion WebSocket pour le chat fermée');
+        };
+
+        // Gestion de l'envoi des messages
+        const sendMessageButton = document.getElementById('send-message-button');
+        const messageInput = document.getElementById('message-input');
+
+        sendMessageButton.addEventListener('click', function() {
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'username': playerData.name
+                }));
+                chatMessages.innerHTML += `<p><strong>${playerData.name}:</strong> ${message}</p>`;
+                messageInput.value = '';  // Effacer le champ de saisie
+            }
+        });
+
+        console.log('Chat initialisé avec succès pour:', playerData.name);
+    } else {
+        console.error('Impossible de récupérer les données du joueur pour userId:', userId);
+        alert('Impossible de récupérer les données du joueur');
+    }
 }
 
-// Appeler cette fonction après l'authentification de l'utilisateur
+// Appelée après l'authentification réussie de l'utilisateur
 function startChatAfterLogin(userId) {
-	initializeChat(userId);
+    console.log('Démarrage des fonctions après connexion pour l\'utilisateur:', userId);
+
+    // Initialiser le chat
+    initializeChat(userId);
+
+    // Placez ici d'autres fonctions ou initialisations nécessaires à l'avenir
+    // Par exemple, vous pourriez vouloir initialiser des notifications, charger des données spécifiques, etc.
+    initializeOtherFeatures(userId);
 }
