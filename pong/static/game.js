@@ -151,6 +151,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.registered;
     }
 
+	async function authenticateUser(nickname, password) {
+		try {
+			const response = await fetch('/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ nickname, password }),
+			});
+
+			if (!response.ok) {
+				throw new Error('Échec de l\'authentification');
+			}
+
+			const result = await response.json();
+			console.log('Réponse de l\'authentification:', result); // Log la réponse complète
+
+			// Vérification si l'ID utilisateur est bien dans la réponse
+			if (result.userId) {
+				console.log('Utilisateur authentifié avec ID:', result.userId);
+				return result; // On retourne tout l'objet pour pouvoir récupérer `userId` dans `handleLogin`
+			} else {
+				console.warn('L\'ID utilisateur est manquant dans la réponse');
+				return null;
+			}
+		} catch (error) {
+			console.error('Erreur lors de la tentative d\'authentification:', error);
+			return null;
+		}
+	}
+
     async function handleLogin() {
 		const nickname = nicknameInput.value.trim();
 		const password = loginPasswordInput.value.trim();
@@ -176,24 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.error('Erreur lors de l\'authentification:', error); // Log l'erreur si une exception est levée
 		}
 	}
-
-
-
-    async function authenticateUser(username, password) {
-        const response = await fetch('/authenticate_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.authenticated) {
-            token = data.token;
-        }
-        return data.authenticated;
-    }
-
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();
