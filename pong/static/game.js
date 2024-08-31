@@ -169,20 +169,50 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-    async function authenticateUser(username, password) {
-        const response = await fetch('/authenticate_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.authenticated) {
-            token = data.token;
-        }
-        return data.authenticated;
-    }
+    // Supposons que vous ayez une fonction d'authentification existante
+	async function authenticateUser() {
+    	try {
+        	const response = await fetch('/api/authenticate', {
+        	    method: 'POST',
+        	    headers: {
+        	        'Content-Type': 'application/json',
+        	    },
+        	    body: JSON.stringify({
+        	        username: 'votre_nom_utilisateur',
+        	        password: 'votre_mot_de_passe',
+        	    }),
+        	});
+
+        	if (!response.ok) {
+        	    throw new Error('Erreur lors de l\'authentification');
+        	}
+
+        	const data = await response.json();
+        	// Stocker l'ID utilisateur dans localStorage ou dans une variable globale
+        	localStorage.setItem('userId', data.userId);
+        	return data.userId;
+    	} catch (error) {
+        	console.error('Erreur d\'authentification:', error);
+        	return null;
+    	}
+	}
+
+	// Fonction pour récupérer l'ID utilisateur stocké
+	function getUserId() {
+	    return localStorage.getItem('userId');
+	}
+
+	// Exemple d'utilisation après l'authentification
+	authenticateUser().then(userId => {
+	    if (userId) {
+	        console.log('Utilisateur authentifié avec l\'ID:', userId);
+	        // Maintenant que l'utilisateur est authentifié, vous pouvez initialiser le chat
+	        initializeChat(userId);
+	    } else {
+	        console.log('Erreur d\'authentification');
+	    }
+	});
+
 
 
     async function handleCheckNickname2() {

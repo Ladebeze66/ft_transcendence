@@ -71,6 +71,3 @@ async function initializeChat(userId) {
 function startChatAfterLogin(userId) {
     initializeChat(userId);
 }
-
-// Exemple d'appel après l'authentification réussie
-// Utilisation de la variable userId qui doit être définie après l'authentification dans game.js
