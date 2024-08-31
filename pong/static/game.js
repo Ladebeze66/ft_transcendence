@@ -12,7 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loginForm = document.getElementById('login-form');
     const loginPasswordInput = document.getElementById('login-password');
+    // Assurez-vous que le bouton de connexion est bien relié à handleLogin
     const loginButton = document.getElementById('login');
+    if (loginButton) {
+        console.log('Bouton de connexion trouvé, association de handleLogin');
+        loginButton.addEventListener('click', handleLogin);
+    } else {
+        console.error('Bouton de connexion non trouvé, vérifiez l\'ID dans le HTML');
+    }
 
     const authForm2 = document.getElementById('auth-form2');
     const nicknameInput2 = document.getElementById('nickname2');
@@ -36,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const localGameButton = document.getElementById('local-game');
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
+
 
     let socket;
     let token;
@@ -151,65 +159,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.registered;
     }
 
-	async function authenticateUser(nickname, password) {
+	async function handleLogin() {
+		const nickname = document.getElementById('nickname').value.trim();
+		const password = document.getElementById('login-password').value.trim();
+
 		try {
-			const response = await fetch('/login', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ nickname, password }),
-			});
+			console.log('Tentative de connexion pour:', nickname);
 
-			if (!response.ok) {
-				throw new Error('Échec de l\'authentification');
-			}
+			const result = await authenticateUser(nickname, password);
+			if (result) {
+				const userId = result.userId;
+				console.log('Utilisateur authentifié avec succès, userId:', userId);
 
-			const result = await response.json();
-			console.log('Réponse de l\'authentification:', result); // Log la réponse complète
+				// Cache le formulaire de connexion et affiche les options post-authentification
+				document.getElementById('login-form').style.display = 'none';
+				document.getElementById("post-form-buttons").style.display = 'block';
 
-			// Vérification si l'ID utilisateur est bien dans la réponse
-			if (result.userId) {
-				console.log('Utilisateur authentifié avec ID:', result.userId);
-				return result; // On retourne tout l'objet pour pouvoir récupérer `userId` dans `handleLogin`
+				// Appel de startChatAfterLogin après authentification
+				startChatAfterLogin(userId);
 			} else {
-				console.warn('L\'ID utilisateur est manquant dans la réponse');
-				return null;
+				console.warn('Échec de l\'authentification pour:', nickname);
+				alert('Authentication failed. Please try again.');
 			}
 		} catch (error) {
-			console.error('Erreur lors de la tentative d\'authentification:', error);
-			return null;
+			console.error('Erreur lors de l\'authentification:', error);
 		}
 	}
 
-    function handleLogin(userId) {
-		console.log('Utilisateur authentifié avec succès. ID utilisateur:', userId);
-		startChatAfterLogin(userId);
-		// D'autres initialisations peuvent être ajoutées ici si nécessaire
-	}
-
-	function startChatAfterLogin(userId) {
-		console.log('Démarrage de la fonction startChatAfterLogin pour l\'utilisateur:', userId);
-
-		// Vérifier si la fonction est bien appelée
-		initializeChat(userId);
-	}
-
-	async function initializeChat(userId) {
-		console.log('Initialisation du chat pour userId:', userId);
-
-		try {
-			const playerData = await fetchPlayerData(userId);
-			if (playerData) {
-				console.log('Données du joueur récupérées:', playerData);
-				// Ici, on devrait normalement lancer le WebSocket pour le chat
-			} else {
-				console.error('Impossible de récupérer les données du joueur pour userId:', userId);
-			}
-		} catch (error) {
-			console.error('Erreur lors de l\'initialisation du chat:', error);
-		}
-	}
+    async function authenticateUser(username, password) {
+        const response = await fetch('/authenticate_user/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (data.authenticated) {
+            token = data.token;
+        }
+        return data.authenticated;
+    }
 
 
     async function handleCheckNickname2() {
