@@ -1,18 +1,3 @@
-// Fonction pour récupérer les données du joueur
-async function fetchPlayerData(userId) {
-	try {
-		const response = await fetch(`/player_data/${userId}/`);
-		if (!response.ok) {
-			throw new Error('Erreur lors de la récupération des données du joueur');
-		}
-		const playerData = await response.json();
-		return playerData;
-	} catch (error) {
-		console.error('Erreur:', error);
-		return null;
-	}
-}
-
 async function initializeChat(userId) {
     console.log('Initialisation du chat pour userId:', userId);
 
@@ -50,6 +35,10 @@ async function initializeChat(userId) {
             console.log('Connexion WebSocket pour le chat fermée');
         };
 
+        chatSocket.onerror = function (error) {
+            console.error('Erreur WebSocket:', error);
+        };
+
         // Gestion de l'envoi des messages
         const sendMessageButton = document.getElementById('send-message-button');
         const messageInput = document.getElementById('message-input');
@@ -73,7 +62,6 @@ async function initializeChat(userId) {
     }
 }
 
-// Appelée après l'authentification réussie de l'utilisateur
 function startChatAfterLogin(userId) {
     console.log('Démarrage des fonctions après connexion pour l\'utilisateur:', userId);
 
@@ -81,6 +69,5 @@ function startChatAfterLogin(userId) {
     initializeChat(userId);
 
     // Placez ici d'autres fonctions ou initialisations nécessaires à l'avenir
-    // Par exemple, vous pourriez vouloir initialiser des notifications, charger des données spécifiques, etc.
     initializeOtherFeatures(userId);
 }

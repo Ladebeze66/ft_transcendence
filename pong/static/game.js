@@ -182,31 +182,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-    async function handleLogin() {
-		const nickname = nicknameInput.value.trim();
-		const password = loginPasswordInput.value.trim();
+    function handleLogin(userId) {
+		console.log('Utilisateur authentifié avec succès. ID utilisateur:', userId);
+		startChatAfterLogin(userId);
+		// D'autres initialisations peuvent être ajoutées ici si nécessaire
+	}
+
+	function startChatAfterLogin(userId) {
+		console.log('Démarrage de la fonction startChatAfterLogin pour l\'utilisateur:', userId);
+
+		// Vérifier si la fonction est bien appelée
+		initializeChat(userId);
+	}
+
+	async function initializeChat(userId) {
+		console.log('Initialisation du chat pour userId:', userId);
 
 		try {
-			console.log('Tentative de connexion pour:', nickname);
-
-			const result = await authenticateUser(nickname, password);
-			if (result) {
-				const userId = result.userId;
-				console.log('Utilisateur authentifié avec succès, userId:', userId);
-
-				loginForm.style.display = 'none';
-				document.getElementById("post-form-buttons").style.display = 'block';
-
-				// Appel de startChatAfterLogin après authentification
-				startChatAfterLogin(userId);
+			const playerData = await fetchPlayerData(userId);
+			if (playerData) {
+				console.log('Données du joueur récupérées:', playerData);
+				// Ici, on devrait normalement lancer le WebSocket pour le chat
 			} else {
-				console.warn('Échec de l\'authentification pour:', nickname);
-				alert('Authentication failed. Please try again.');
+				console.error('Impossible de récupérer les données du joueur pour userId:', userId);
 			}
 		} catch (error) {
-			console.error('Erreur lors de l\'authentification:', error);
+			console.error('Erreur lors de l\'initialisation du chat:', error);
 		}
 	}
+
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();
