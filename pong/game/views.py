@@ -29,29 +29,15 @@ def check_user_exists(request):
 @csrf_exempt
 def register_user(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            username = data.get('username')
-            password = data.get('password')
-
-            if not username or not password:
-                return JsonResponse({'registered': False, 'error': 'Username and password are required'}, status=400)
-
-            if not User.objects.filter(username=username).exists():
-                user = User.objects.create_user(username=username, password=password)
-                token = get_or_create_token(user)
-                return JsonResponse({'registered': True, 'token': token})
-            else:
-                return JsonResponse({'registered': False, 'error': 'User already exists'}, status=409)
-        except json.JSONDecodeError as e:
-            # Log the error for debugging
-            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
-        except Exception as e:
-            # Log the error message
-            return JsonResponse({'error': f'Internal Server Error: {str(e)}'}, status=500)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        if not User.objects.filter(username=username).exists():
+            user = User.objects.create_user(username=username, password=password)
+            token = get_or_create_token(user)
+            return JsonResponse({'registered': True, 'token': token})
+        return JsonResponse({'registered': False, 'error': 'User already exists'})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 def authenticate_user(request):
