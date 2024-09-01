@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket = null;
     let token;
     let gameState;
-	let chatSocket = null;
-
+	let chatSockets = {}; // Object to hold WebSockets for multiple chat rooms
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -416,48 +415,50 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function initializeChatSocket(roomName) {
+    	// Si un socket pour cette room existe déjà, le fermer
+    	if (chatSockets[roomName]) {
+    	    chatSockets[roomName].close();
+    	}
 
-function initializeChatSocket(roomName) {
-    // Fermer l'ancien WebSocket du chat s'il est encore ouvert
-    if (chatSocket !== null) {
-        chatSocket.close();
-    }
+		// Initialiser un nouveau WebSocket pour la room spécifiée
+    	const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
 
-    // Initialisation du WebSocket pour le chat
-    chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+    	chatSocket.onopen = function (event) {
+        	console.log(`Chat WebSocket connection established for room: ${roomName}`);
+        	chatSocket.send(JSON.stringify({ message: `User has joined the chat`, username: username_global }));
+    	};
 
-    chatSocket.onopen = function (event) {
-        console.log('Chat WebSocket connection established');
-        chatSocket.send(JSON.stringify({ message: 'User has joined the chat', username: username_global }));
-    };
+    	chatSocket.onmessage = function (event) {
+        	const data = JSON.parse(event.data);
+        	handleChatMessage(data, roomName);
+    	};
 
-    chatSocket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        handleChatMessage(data);
-    };
+    	chatSocket.onclose = function (event) {
+        	console.log(`Chat WebSocket connection closed for room: ${roomName}`);
+    	};
 
-    chatSocket.onclose = function (event) {
-        console.log('Chat WebSocket connection closed');
-    };
+    	chatSocket.onerror = function (error) {
+        	console.error(`WebSocket error in chat for room: ${roomName}`, error);
+        	// Tentative de reconnexion après 5 secondes
+        	setTimeout(() => initializeChatSocket(roomName), 5000);
+    	};
 
-    chatSocket.onerror = function (error) {
-        console.error('WebSocket error in chat:', error);
-    };
+    	chatSockets[roomName] = chatSocket; // Store the socket for this room
 }
 
-function handleChatMessage(data) {
-    const div = document.createElement("div");
-    div.classList.add("msg_text");
-    div.innerHTML = `
-        <div class="msg_content">
-            <div class="msg_username">${escapeHtml(data.username)}</div>
-            <div class="msg_text">: ${escapeHtml(data.message)}</div>
-        </div>`;
-    document.querySelector("#i-msg").value = "";
-    document.querySelector("#msg_container").appendChild(div);
-    document.querySelector("#msg_container").scrollTop = document.querySelector("#msg_container").scrollHeight;
-}
-
+	function handleChatMessage(data, roomName) {
+    	const chatContainer = document.querySelector(`#chat-messages-${roomName}`);
+    	const div = document.createElement("div");
+    	div.classList.add("msg_text");
+    	div.innerHTML = `
+    	    <div class="msg_content">
+    	        <div class="msg_username">${escapeHtml(data.username)}</div>
+    	        <div class="msg_text">: ${escapeHtml(data.message)}</div>
+    	    </div>`;
+    	chatContainer.appendChild(div);
+    	chatContainer.scrollTop = chatContainer.scrollHeight;
+	}
 
 	// Fonction pour démarrer une sélection de jeu
 	function startGameSelection(token, players) {

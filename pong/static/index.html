@@ -13,14 +13,41 @@
     </div>
 </head>
 <body>
-	<!-- Section du chat -->
-	<div id="chat-container">
-		<div id="chat-header">Chat</div>
-		<div id="player-stats"></div>
-		<div id="chat-messages"></div>
-		<input type="text" id="message-input" placeholder="Entrez votre message ici">
-		<button id="send-message-button">Envoyer</button>
+	<!-- Conteneur pour la room principale -->
+	<div id="chat-main_room" class="chat-container">
+    	<div id="chat-header">Main Room Chat</div>
+    	<div id="player-stats-main_room"></div>
+    	<div id="chat-messages-main_room"></div>
+    	<input type="text" id="message-input-main_room" placeholder="Entrez votre message ici">
+    	<button id="send-message-button-main_room" onclick="sendMessage('main_room')">Envoyer</button>
 	</div>
+
+	<!-- Conteneur pour la room de jeu 1 -->
+	<div id="chat-game_room_1" class="chat-container" style="display: none;">
+	    <div id="chat-header">Game Room 1 Chat</div>
+	    <div id="player-stats-game_room_1"></div>
+	    <div id="chat-messages-game_room_1"></div>
+	    <input type="text" id="message-input-game_room_1" placeholder="Entrez votre message ici">
+	    <button id="send-message-button-game_room_1" onclick="sendMessage('game_room_1')">Envoyer</button>
+</div>
+	</div>
+	<div class="chat-tabs">
+		<button onclick="switchChatRoom('main_room')">Main Room</button>
+		<button onclick="switchChatRoom('game_room_1')">Game Room 1</button>
+		<!-- Ajoutez d'autres boutons pour d'autres rooms si nécessaire -->
+	</div>
+	<div id="chat-main_room" class="chat-container">
+		<div id="msg_container-main_room" class="msg_container"></div>
+		<input type="text" id="i-msg-main_room" placeholder="Type your message here...">
+		<button onclick="sendMessage('main_room')">Send</button>
+	</div>
+
+	<div id="chat-game_room_1" class="chat-container" style="display: none;">
+		<div id="msg_container-game_room_1" class="msg_container"></div>
+		<input type="text" id="i-msg-game_room_1" placeholder="Type your message here...">
+		<button onclick="sendMessage('game_room_1')">Send</button>
+	</div>
+
     <div class="language-switcher">
         <img id="lang-fr" src="{% static 'flags/fr.svg' %}" alt="Français">
         <img id="lang-en" src="{% static 'flags/us.svg' %}" alt="English">

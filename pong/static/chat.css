@@ -92,3 +92,34 @@
 .chat-content-field .messageBox .content .playerID {
     font-weight: bold;
 }
+
+/* Onglets de Chat */
+.chat-tabs {
+    display: flex;
+    justify-content: space-around;
+    background-color: #333;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.chat-tabs button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.chat-tabs button:hover {
+    background-color: #0056b3;
+}
+
+.chat-container {
+    display: none;
+}
+
+.chat-container.active {
+    display: block;
+}
