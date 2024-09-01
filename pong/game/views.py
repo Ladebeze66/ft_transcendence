@@ -29,15 +29,29 @@ def check_user_exists(request):
 @csrf_exempt
 def register_user(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
-        if not User.objects.filter(username=username).exists():
-            user = User.objects.create_user(username=username, password=password)
-            token = get_or_create_token(user)
-            return JsonResponse({'registered': True, 'token': token})
-        return JsonResponse({'registered': False, 'error': 'User already exists'})
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+
+            if not username or not password:
+                return JsonResponse({'registered': False, 'error': 'Username and password are required'}, status=400)
+
+            if not User.objects.filter(username=username).exists():
+                user = User.objects.create_user(username=username, password=password)
+                token = get_or_create_token(user)
+                return JsonResponse({'registered': True, 'token': token})
+            else:
+                return JsonResponse({'registered': False, 'error': 'User already exists'}, status=409)
+        except json.JSONDecodeError as e:
+            # Log the error for debugging
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            # Log the error message
+            return JsonResponse({'error': f'Internal Server Error: {str(e)}'}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
 
 @csrf_exempt
 def authenticate_user(request):
@@ -80,7 +94,7 @@ def match_list_json(request):
 
 def player_list_json(request):
     players = Player.objects.all()
-    
+
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
@@ -93,7 +107,7 @@ def player_list_json(request):
 
 def tournoi_list_json(request):
     tournois = Tournoi.objects.all()
-    
+
     data = {
         'tournois': list(tournois.values(
             'id', 'name', 'nbr_player', 'date', 'winner'
@@ -138,7 +152,7 @@ def read_data(request):
         # print(f"Final Order: {', '.join(tournament[5])}")
     print("-----------------------------")
     return JsonResponse(json_data, safe=False)
-        
+
 
 def write_data(request):
     # addTournament(string,uint256,uint256,string[],string[])
@@ -166,4 +180,3 @@ def write_data(request):
     # tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
     # print("Transaction receipt:", tx_receipt)
     print("-----------------------------")
-

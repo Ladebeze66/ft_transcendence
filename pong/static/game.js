@@ -141,19 +141,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function registerUser(username, password) {
-        const response = await fetch('/register_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.registered) {
-            token = data.token;
-        }
-        return data.registered;
-    }
+		try {
+			const response = await fetch('/register_user/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ username: username, password: password }),
+			});
+
+			const data = await response.json();
+			if (data.registered) {
+				console.log('User registered successfully:', data.token);
+				return data.token;
+			} else {
+				console.error('Error registering user:', data.error);
+			}
+		} catch (error) {
+			console.error('Error registering user:', error);
+		}
+	}
+
 
     async function handleLogin() {
         const nickname = nicknameInput.value.trim();
