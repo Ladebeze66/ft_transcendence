@@ -141,19 +141,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function registerUser(username, password) {
-        const response = await fetch('/register_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.registered) {
-            token = data.token;
-        }
-        return data.registered;
-    }
+		try {
+			const response = await fetch('/register_user/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ username, password })
+			});
+
+			if (!response.ok) {
+				console.error(`HTTP error! Status: ${response.status}`);
+				return false;
+			}
+
+			let data;
+			try {
+				data = await response.json();
+			} catch (error) {
+				console.error('La réponse reçue n\'est pas un JSON valide:', error);
+				return false;
+			}
+
+			if (data.registered) {
+				console.log('User registered successfully:', data);
+				return data.token;  // On retourne le token récupéré lors de l'inscription
+			} else {
+				console.error('Registration failed:', data.error);
+				return null;
+			}
+		} catch (error) {
+			console.error('Error during registration request:', error);
+			return null;
+		}
+	}
+
+
 
     async function handleLogin() {
         const nickname = nicknameInput.value.trim();

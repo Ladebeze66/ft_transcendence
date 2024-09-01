@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels', 
+    'channels',
     'pong.game',
     'rest_framework'
 ]
@@ -137,36 +137,79 @@ CHANNEL_LAYERS = {
 }
 
 LOGGING = {
-    'version': 1,  # The version of the logging configuration schema
-    'disable_existing_loggers': False,  # Allows existing loggers to keep logging
-    'formatters': {  # Defines how log messages will be formatted
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
         'json': {
             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-            # Formatter that outputs logs in JSON format, which is ideal for ingestion by Logstash.
+            'format': '%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d %(message)s',
         },
         'default': {
             'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
-            # This is a basic text formatter with timestamp, log level, logger name, line number, and the actual message.
+        },
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s [%(process)d:%(thread)d]',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
         },
     },
-    'handlers': {  # Handlers determine where the log messages are sent
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
         'file': {
-            'level': 'INFO',  # Minimum log level to be handled (INFO and above)
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/django.log'),  # The file where logs will be saved
-            'formatter': 'json',  # Uses the JSON formatter defined above
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
+            'formatter': 'json',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django_errors.log'),
+            'formatter': 'json',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
         },
         'console': {
-            'level': 'DEBUG',  # Minimum log level to be handled (DEBUG and above)
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'default',  # Uses the default text formatter
+            'formatter': 'verbose',
+            'filters': ['require_debug_true'],
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['require_debug_false'],
         },
     },
-    'loggers': {  # Loggers are the actual log streams that get configured
-        'django': {  # The Django logger catches all messages sent by the Django framework
-            'handlers': ['file', 'console'],  # Sends logs to both the file and the console
-            'level': 'DEBUG',  # Minimum log level to be logged
-            'propagate': True,  # If True, messages will be passed to the parent loggers as well
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
+        'django.request': {
+            'handlers': ['error_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['error_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
     },
 }
