@@ -344,20 +344,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startLocalGame2() {
-        gameContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
-        formBlock.style.display = 'none';
-        startWebSocketConnection(token, 2);
-    }
+		gameContainer.style.display = 'flex';
+		logo.style.display = 'none';
+		pongElements.style.display = 'none';
+		formBlock.style.display = 'none';
+
+		// Log pour vérifier le token avant l'authentification
+		console.log("Token before WebSocket authentication:", token);
+		if (!token) {
+			console.error("Token is not defined or is null.");
+			return;
+		}
+
+		startWebSocketConnection(token, 2);
+	}
 
     function startQuickMatch() {
-        gameContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
-        formBlock.style.display = 'none';
-        startWebSocketConnection(token, 1);
-    }
+		gameContainer.style.display = 'flex';
+		logo.style.display = 'none';
+		pongElements.style.display = 'none';
+		formBlock.style.display = 'none';
+
+		// Log pour vérifier le token avant l'authentification
+		console.log("Token before WebSocket authentication:", token);
+		if (!token) {
+			console.error("Token is not defined or is null.");
+			return;
+		}
+
+		startWebSocketConnection(token, 1);
+	}
 
     function startTournament() {
         tournamentContainer.style.display = 'flex';
@@ -368,54 +384,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startWebSocketConnection(token, players) {
-        socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-        socket.onopen = function (event) {
-            console.log('WebSocket connection established');
-            if (players === 1) {
-                console.log("Sending token for a quick match game");
-                socket.send(JSON.stringify({ type: 'authenticate', token: token }));
-            } else if (players === 2) {
-                console.log("Sending tokens for a local game");
-                socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
-            } else {
-                console.log("Sending token for a tournament game")
-                socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
-            }
-        };
+		socket.onopen = function (event) {
+			console.log('WebSocket connection established');
+			if (players === 1) {
+				console.log("Sending token for a quick match game");
+				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+			} else if (players === 2) {
+				console.log("Sending tokens for a local game");
+				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+			} else {
+				console.log("Sending token for a tournament game");
+				socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
+			}
+		};
 
-        socket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (data.type === 'authenticated') {
-                console.log('Authentication successful');
-            } else if (data.type === 'waiting_room') {
-                console.log('Entered the WAITING ROOM');
-            } else if (data.type === 'game_start') {
-                console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-                document.addEventListener('keydown', handleKeyDown);
-            } else if (data.type === 'game_state_update') {
-                updateGameState(data.game_state);
-            } else if (data.type === 'player_disconnected') {
-                console.log("Player disconnected:", data.player);
-            } else if (data.type === 'game_ended') {
-                console.log("Game ended:", data.game_id);
-            } else if (data.type === 'error') {
-                console.error(data.message);
-            } else if (data.type === 'update_waiting_room') {
-                document.getElementById('tournament-bracket').innerHTML = data.html;
-            } else {
-                console.log('Message from server:', data.type, data.message);
-            }
-        };
+		// Gestion des messages reçus
+		socket.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			if (data.type === 'authenticated') {
+				console.log('Authentication successful');
+			} else if (data.type === 'waiting_room') {
+				console.log('Entered the WAITING ROOM');
+			} else if (data.type === 'game_start') {
+				console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+				document.addEventListener('keydown', handleKeyDown);
+			} else if (data.type === 'game_state_update') {
+				updateGameState(data.game_state);
+			} else if (data.type === 'player_disconnected') {
+				console.log("Player disconnected:", data.player);
+			} else if (data.type === 'game_ended') {
+				console.log("Game ended:", data.game_id);
+			} else if (data.type === 'error') {
+				console.error(data.message);
+			} else if (data.type === 'update_waiting_room') {
+				document.getElementById('tournament-bracket').innerHTML = data.html;
+			} else {
+				console.log('Message from server:', data.type, data.message);
+			}
+		};
 
-        socket.onclose = function (event) {
-            console.log('WebSocket connection closed');
-        };
+		// Gestion des fermetures de connexion
+		socket.onclose = function (event) {
+			console.log('WebSocket connection closed');
+		};
 
-        socket.onerror = function (error) {
-            console.error('WebSocket error:', error);
-        };
-    }
+		socket.onerror = function (error) {
+			console.error('WebSocket error:', error);
+		};
+	}
+
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
