@@ -1,7 +1,6 @@
 # /pong/game/views.py
 
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
 from .utils import create_player, create_tournoi, create_match
@@ -81,7 +80,7 @@ def match_list_json(request):
 
 def player_list_json(request):
     players = Player.objects.all()
-
+    
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
@@ -94,7 +93,7 @@ def player_list_json(request):
 
 def tournoi_list_json(request):
     tournois = Tournoi.objects.all()
-
+    
     data = {
         'tournois': list(tournois.values(
             'id', 'name', 'nbr_player', 'date', 'winner'
@@ -139,7 +138,7 @@ def read_data(request):
         # print(f"Final Order: {', '.join(tournament[5])}")
     print("-----------------------------")
     return JsonResponse(json_data, safe=False)
-
+        
 
 def write_data(request):
     # addTournament(string,uint256,uint256,string[],string[])
@@ -168,17 +167,3 @@ def write_data(request):
     # print("Transaction receipt:", tx_receipt)
     print("-----------------------------")
 
-def get_player_data(request, user_id):
-    # Récupération du joueur par son ID
-    player = get_object_or_404(Player, id=user_id)
-
-    # Préparation des données à renvoyer
-    data = {
-        'username': player.name,  # Utilisation de 'name' au lieu de 'user.username'
-        'total_matches': player.total_match,
-        'total_wins': player.total_win,
-        'rank': player.rank,
-    }
-
-    # Renvoi de la réponse en JSON
-    return JsonResponse(data)

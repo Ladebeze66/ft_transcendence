@@ -3,7 +3,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from .views import match_list_json, player_list_json, tournoi_list_json, get_player_data
+from .views import match_list_json, player_list_json, tournoi_list_json
 
 
 urlpatterns = [
@@ -14,6 +14,5 @@ urlpatterns = [
     path('web3/', views.read_data, name='read_data'),
     path('api/match_list/', match_list_json, name='match_list_json'),
     path('api/player_list/', player_list_json, name='player_list_json'),
-    path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json'),
-	path('player_data/<int:user_id>/', get_player_data, name='get_player_data')
+    path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json')
 ]

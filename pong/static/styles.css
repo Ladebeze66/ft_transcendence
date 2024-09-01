@@ -351,7 +351,94 @@ button:hover {
     width: 250px;
     z-index: 1000;
 }
+/* Styles pour le conteneur du chat */
+#chat-container {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: 300px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+}
 
+/* Styles pour le journal du chat */
+#chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;/* Styles pour le conteneur du chat */
+	#chat-container {
+		position: absolute;
+		left: 10px;
+		bottom: 10px;
+		width: 300px;
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 10px;
+		border-radius: 10px;
+		color: #fff;
+	}
+
+	/* Styles pour le journal du chat */
+	#chat-log {
+		max-height: 150px;
+		overflow-y: auto;
+		margin-bottom: 10px;
+	}
+
+	/* Styles pour l'entrée de texte du chat */
+	#chat-input {
+		width: calc(100% - 50px);
+		padding: 5px;
+	}
+
+	/* Styles pour le bouton du chat */
+	#chat-button {
+		width: 165px;
+		padding: 15px;
+	}
+}
+/* Styles pour le conteneur du chat */
+#chat-container {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: 300px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+/* Styles pour le journal du chat */
+#chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+/* Styles pour l'entrée de texte du chat */
+#chat-input {
+    width: calc(100% - 50px);
+    padding: 5px;
+}
+
+/* Styles pour le bouton du chat */
+#chat-button {
+    width: 165px;
+    padding: 15px;
+}
+/* Styles pour l'entrée de texte du chat */
+#chat-input {
+    width: calc(100% - 50px);
+    padding: 5px;
+}
+
+/* Styles pour le bouton du chat */
+#chat-button {
+    width: 165px;
+    padding: 15px;
+}
 #close-settings {
     position: absolute;
     top: 10px;
@@ -397,7 +484,36 @@ button:hover {
 .close:focus {
     color: black;
     text-decoration: none;
-    cursor: pointer;
+    cursor: pointer;/* Styles pour le conteneur du chat */
+	#chat-container {
+		position: absolute;
+		left: 10px;
+		bottom: 10px;
+		width: 300px;
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 10px;
+		border-radius: 10px;
+		color: #fff;
+	}
+
+	/* Styles pour le journal du chat */
+	#chat-log {
+		max-height: 150px;
+		overflow-y: auto;
+		margin-bottom: 10px;
+	}
+
+	/* Styles pour l'entrée de texte du chat */
+	#chat-input {
+		width: calc(100% - 50px);
+		padding: 5px;
+	}
+
+	/* Styles pour le bouton du chat */
+	#chat-button {
+		width: 165px;
+		padding: 15px;
+	}
 }
 
 pre {
@@ -417,7 +533,36 @@ pre {
 
 }
 
-.tournament-waiting-room h2 {
+.tournament-waiting-room h2 {/* Styles pour le conteneur du chat */
+	#chat-container {
+		position: absolute;
+		left: 10px;
+		bottom: 10px;
+		width: 300px;
+		background-color: rgba(0, 0, 0, 0.5);
+		padding: 10px;
+		border-radius: 10px;
+		color: #fff;
+	}
+
+	/* Styles pour le journal du chat */
+	#chat-log {
+		max-height: 150px;
+		overflow-y: auto;
+		margin-bottom: 10px;
+	}
+
+	/* Styles pour l'entrée de texte du chat */
+	#chat-input {
+		width: calc(100% - 50px);
+		padding: 5px;
+	}
+
+	/* Styles pour le bouton du chat */
+	#chat-button {
+		width: 165px;
+		padding: 15px;
+	}
     font-family: 'Arial', sans-serif;
     font-size: 2em;
     margin-bottom: 15px;
@@ -446,4 +591,35 @@ canvas {
     max-width: 100%;
     height: auto;
     margin-top: 20px;
+}
+
+/* Styles pour le conteneur du chat */
+#chat-container {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: 300px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+/* Styles pour le journal du chat */
+#chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+/* Styles pour l'entrée de texte du chat */
+#chat-input {
+    width: calc(100% - 50px);
+    padding: 5px;
+}
+
+/* Styles pour le bouton du chat */
+#chat-button {
+    width: 165px;
+    padding: 15px;
 }

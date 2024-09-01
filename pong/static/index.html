@@ -7,47 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=3">
-	<link rel="stylesheet" type="text/css" href="{% static 'chat.css' %}">
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
 </head>
 <body>
-	<!-- Conteneur pour la room principale -->
-	<div id="chat-main_room" class="chat-container">
-    	<div id="chat-header">Main Room Chat</div>
-    	<div id="player-stats-main_room"></div>
-    	<div id="chat-messages-main_room"></div>
-    	<input type="text" id="message-input-main_room" placeholder="Entrez votre message ici">
-    	<button id="send-message-button-main_room" onclick="sendMessage('main_room')">Envoyer</button>
-	</div>
-
-	<!-- Conteneur pour la room de jeu 1 -->
-	<div id="chat-game_room_1" class="chat-container" style="display: none;">
-	    <div id="chat-header">Game Room 1 Chat</div>
-	    <div id="player-stats-game_room_1"></div>
-	    <div id="chat-messages-game_room_1"></div>
-	    <input type="text" id="message-input-game_room_1" placeholder="Entrez votre message ici">
-	    <button id="send-message-button-game_room_1" onclick="sendMessage('game_room_1')">Envoyer</button>
-</div>
-	</div>
-	<div class="chat-tabs">
-		<button onclick="switchChatRoom('main_room')">Main Room</button>
-		<button onclick="switchChatRoom('game_room_1')">Game Room 1</button>
-		<!-- Ajoutez d'autres boutons pour d'autres rooms si nécessaire -->
-	</div>
-	<div id="chat-main_room" class="chat-container">
-		<div id="msg_container-main_room" class="msg_container"></div>
-		<input type="text" id="i-msg-main_room" placeholder="Type your message here...">
-		<button onclick="sendMessage('main_room')">Send</button>
-	</div>
-
-	<div id="chat-game_room_1" class="chat-container" style="display: none;">
-		<div id="msg_container-game_room_1" class="msg_container"></div>
-		<input type="text" id="i-msg-game_room_1" placeholder="Type your message here...">
-		<button onclick="sendMessage('game_room_1')">Send</button>
-	</div>
-
     <div class="language-switcher">
         <img id="lang-fr" src="{% static 'flags/fr.svg' %}" alt="Français">
         <img id="lang-en" src="{% static 'flags/us.svg' %}" alt="English">
@@ -197,7 +161,7 @@
                     <th>Best Score</th>
                     <th>Average Ball Touches</th>
                     <th>Total Duration</th>
-                    <th>Average Duration</th>https://github.com/Ladebeze66/transcendence.git
+                    <th>Average Duration</th>
                     <th>Participated Tournaments</th>
                     <th>Won Tournaments</th>
                 </tr>
@@ -233,8 +197,27 @@
     <script src="{% static 'game.js' %}"></script>
     <script src="{% static 'burger.js' %}"></script>
     <script src="{% static 'language.js' %}"></script>
-	<!-- Inclusion du fichier chat.js -->
-    <script src="{% static 'chat.js' %}"></script>
+	<!-- Ajouter l'interface du Chat -->
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <input type="text" id="chat-input" placeholder="Tapez votre message...">
+        <button id="chat-button">➤</button>
+    </div>
+
+    <script src="{% static 'game.js' %}"></script>
+	<script>
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 500; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            starsContainer.appendChild(star);
+        }
+    </script>
 </body>
 
 </html>

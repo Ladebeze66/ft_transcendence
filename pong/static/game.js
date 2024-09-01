@@ -12,14 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loginForm = document.getElementById('login-form');
     const loginPasswordInput = document.getElementById('login-password');
-    // Assurez-vous que le bouton de connexion est bien relié à handleLogin
     const loginButton = document.getElementById('login');
-    if (loginButton) {
-        console.log('Bouton de connexion trouvé, association de handleLogin');
-        loginButton.addEventListener('click', handleLogin);
-    } else {
-        console.error('Bouton de connexion non trouvé, vérifiez l\'ID dans le HTML');
-    }
 
     const authForm2 = document.getElementById('auth-form2');
     const nicknameInput2 = document.getElementById('nickname2');
@@ -44,11 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
 
-
-    let socket = null;
+    let socket;
     let token;
     let gameState;
-	let chatSockets = {}; // Object to hold WebSockets for multiple chat rooms
+	let chatSocket;
+	let username; // Ajouter cette variable pour stocker le nom d'utilisateur
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -132,8 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
+					username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
+					startChatWebSocket();
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -160,26 +155,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.registered;
     }
 
-	async function handleLogin() {
-		const nickname = document.getElementById('nickname').value.trim();
-		const password = document.getElementById('login-password').value.trim();
-
-		try {
-			console.log('Tentative de connexion pour:', nickname);
-
-			const result = await authenticateUser(nickname, password);
-			if (result) {
-				// Cache le formulaire de connexion et affiche les options post-authentification
-				document.getElementById('login-form').style.display = 'none';
-				document.getElementById("post-form-buttons").style.display = 'block';
-			} else {
-				console.warn('Échec de l\'authentification pour:', nickname);
-				alert('Authentication failed. Please try again.');
-			}
-		} catch (error) {
-			console.error('Erreur lors de l\'authentification:', error);
-		}
-	}
+    async function handleLogin() {
+        const nickname = nicknameInput.value.trim();
+        const password = loginPasswordInput.value.trim();
+        try {
+            const result = await authenticateUser(nickname, password);
+            if (result) {
+				username = nickname; // Stocker le nom d'utilisateur après la connexion
+                loginForm.style.display = 'none';
+                document.getElementById("post-form-buttons").style.display = 'block';
+            } else {
+                alert('Authentication failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error authenticating user:', error);
+        }
+    }
 
     async function authenticateUser(username, password) {
         const response = await fetch('/authenticate_user/', {
@@ -334,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startGameSelection(token, 2);
+        startWebSocketConnection(token, 2);
     }
 
     function startQuickMatch() {
@@ -342,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startGameSelection(token, 1);
+        startWebSocketConnection(token, 1);
     }
 
     function startTournament() {
@@ -350,122 +341,58 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startGameSelection(token, 42);
+        startWebSocketConnection(token, 42);
     }
 
-	function initializeGameSocket(token, players) {
-		// Fermer l'ancien WebSocket s'il est encore ouvert
-		if (socket !== null) {
-			socket.close();
-		}
+    function startWebSocketConnection(token, players) {
+        socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-		// Initialisation du WebSocket pour le jeu
-		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+        socket.onopen = function (event) {
+            console.log('WebSocket connection established');
+            if (players === 1) {
+                console.log("Sending token for a quick match game");
+                socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+            } else if (players === 2) {
+                console.log("Sending tokens for a local game");
+                socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+            } else {
+                console.log("Sending token for a tournament game")
+                socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
+            }
+        };
 
-		socket.onopen = function (event) {
-			console.log('WebSocket connection established for the game');
-			if (players === 1) {
-				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
-			} else if (players === 2) {
-				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
-			} else {
-				socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
-			}
-		};
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'authenticated') {
+                console.log('Authentication successful');
+            } else if (data.type === 'waiting_room') {
+                console.log('Entered the WAITING ROOM');
+            } else if (data.type === 'game_start') {
+                console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+                document.addEventListener('keydown', handleKeyDown);
+            } else if (data.type === 'game_state_update') {
+                updateGameState(data.game_state);
+            } else if (data.type === 'player_disconnected') {
+                console.log("Player disconnected:", data.player);
+            } else if (data.type === 'game_ended') {
+                console.log("Game ended:", data.game_id);
+            } else if (data.type === 'error') {
+                console.error(data.message);
+            } else if (data.type === 'update_waiting_room') {
+                document.getElementById('tournament-bracket').innerHTML = data.html;
+            } else {
+                console.log('Message from server:', data.type, data.message);
+            }
+        };
 
-		socket.onmessage = function (event) {
-			// Gestion des messages pour le jeu
-			const data = JSON.parse(event.data);
-			handleGameMessage(data);
-		};
+        socket.onclose = function (event) {
+            console.log('WebSocket connection closed');
+        };
 
-		socket.onclose = function (event) {
-			console.log('Game WebSocket connection closed');
-		};
-
-		socket.onerror = function (error) {
-			console.error('WebSocket error in game:', error);
-		};
-	}
-
-	// Fonction pour gérer les messages du WebSocket du jeu
-	function handleGameMessage(data) {
-		if (data.type === 'authenticated') {
-			console.log('Authentication successful');
-		} else if (data.type === 'waiting_room') {
-			console.log('Entered the WAITING ROOM');
-		} else if (data.type === 'game_start') {
-			console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-			document.addEventListener('keydown', handleKeyDown);
-		} else if (data.type === 'game_state_update') {
-			updateGameState(data.game_state);
-		} else if (data.type === 'player_disconnected') {
-			console.log("Player disconnected:", data.player);
-		} else if (data.type === 'game_ended') {
-			console.log("Game ended:", data.game_id);
-		} else if (data.type === 'error') {
-			console.error(data.message);
-		} else if (data.type === 'update_waiting_room') {
-			document.getElementById('tournament-bracket').innerHTML = data.html;
-		} else {
-			console.log('Message from server:', data.type, data.message);
-		}
-	}
-
-	function initializeChatSocket(roomName) {
-    	// Si un socket pour cette room existe déjà, le fermer
-    	if (chatSockets[roomName]) {
-    	    chatSockets[roomName].close();
-    	}
-
-		// Initialiser un nouveau WebSocket pour la room spécifiée
-    	const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-
-    	chatSocket.onopen = function (event) {
-        	console.log(`Chat WebSocket connection established for room: ${roomName}`);
-        	chatSocket.send(JSON.stringify({ message: `User has joined the chat`, username: username_global }));
-    	};
-
-    	chatSocket.onmessage = function (event) {
-        	const data = JSON.parse(event.data);
-        	handleChatMessage(data, roomName);
-    	};
-
-    	chatSocket.onclose = function (event) {
-        	console.log(`Chat WebSocket connection closed for room: ${roomName}`);
-    	};
-
-    	chatSocket.onerror = function (error) {
-        	console.error(`WebSocket error in chat for room: ${roomName}`, error);
-        	// Tentative de reconnexion après 5 secondes
-        	setTimeout(() => initializeChatSocket(roomName), 5000);
-    	};
-
-    	chatSockets[roomName] = chatSocket; // Store the socket for this room
-}
-
-	function handleChatMessage(data, roomName) {
-    	const chatContainer = document.querySelector(`#chat-messages-${roomName}`);
-    	const div = document.createElement("div");
-    	div.classList.add("msg_text");
-    	div.innerHTML = `
-    	    <div class="msg_content">
-    	        <div class="msg_username">${escapeHtml(data.username)}</div>
-    	        <div class="msg_text">: ${escapeHtml(data.message)}</div>
-    	    </div>`;
-    	chatContainer.appendChild(div);
-    	chatContainer.scrollTop = chatContainer.scrollHeight;
-	}
-
-	// Fonction pour démarrer une sélection de jeu
-	function startGameSelection(token, players) {
-    	console.log("Initializing game selection with token:", token, "and players:", players);
-
-    	// Initialisation du WebSocket pour le jeu après sélection du mode de jeu
-    	initializeGameSocket(token, players);
-
-    // Autres configurations pour démarrer le jeu...
-}
+        socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+    }
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
@@ -510,6 +437,38 @@ document.addEventListener('DOMContentLoaded', () => {
         star.style.top = `${Math.random() * 100}%`;
         star.style.animationDuration = `${Math.random() * 2 + 1}s`;
         starsContainer.appendChild(star);
+    }
+	// Initialisation du chat WebSocket
+    function startChatWebSocket() {
+        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+        chatSocket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const message = data.message;
+            const chatLog = document.getElementById('chat-log');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            chatLog.appendChild(messageElement);
+        };
+
+        chatSocket.onclose = function(event) {
+            console.error('Chat WebSocket closed unexpectedly');
+        };
+
+        const chatInput = document.getElementById('chat-input');
+        const chatButton = document.getElementById('chat-button');
+
+        chatButton.addEventListener('click', () => {
+            const message = chatInput.value;
+            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
+            chatInput.value = '';
+        });
+
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                chatButton.click();
+            }
+        });
     }
 
 });

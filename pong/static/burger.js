@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchList) matchList.style.display = 'none';
         if (tournoiList) tournoiList.style.display = 'none';
         if (blockchainList) blockchainList.style.display = 'none';
+        logo.style.display = 'block';
     }
 
     const links = document.querySelectorAll('#dropdown-menu a');
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function showTable(tableId) {
         hideAllTables();
-    
+        logo.style.display = 'none';
         
         if (tableId === 'player-list') {
             playerList.style.display = 'block';
