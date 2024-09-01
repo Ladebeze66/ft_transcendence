@@ -45,11 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const tournamentButton = document.getElementById('tournament');
 
 
-    let socket;
+    let socket = null;
     let token;
     let gameState;
-	let gameSocket = null;
 	let chatSocket = null;
+
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startWebSocketConnection(token, 2);
+        startGameSelection(token, 2);
     }
 
     function startQuickMatch() {
@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startWebSocketConnection(token, 1);
+        startGameSelection(token, 1);
     }
 
     function startTournament() {
@@ -354,51 +354,40 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
-        startWebSocketConnection(token, 42);
+        startGameSelection(token, 42);
     }
-
-
-		// Fonction pour démarrer une sélection de jeu
-	function startGameSelection(token, players) {
-    	console.log("Initializing game selection with token:", token, "and players:", players);
-
-    	// Initialisation du WebSocket pour le jeu après sélection du mode de jeu
-    	initializeGameSocket(token, players);
-
-    	// Autres configurations pour démarrer le jeu...
-}
 
 	function initializeGameSocket(token, players) {
 		// Fermer l'ancien WebSocket s'il est encore ouvert
-		if (gameSocket !== null) {
-			gameSocket.close();
+		if (socket !== null) {
+			socket.close();
 		}
 
 		// Initialisation du WebSocket pour le jeu
-		gameSocket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
-		gameSocket.onopen = function (event) {
+		socket.onopen = function (event) {
 			console.log('WebSocket connection established for the game');
 			if (players === 1) {
-				gameSocket.send(JSON.stringify({ type: 'authenticate', token: token }));
+				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
 			} else if (players === 2) {
-				gameSocket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
 			} else {
-				gameSocket.send(JSON.stringify({ type: 'authenticate3', token: token }));
+				socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
 			}
 		};
 
-		gameSocket.onmessage = function (event) {
+		socket.onmessage = function (event) {
 			// Gestion des messages pour le jeu
 			const data = JSON.parse(event.data);
 			handleGameMessage(data);
 		};
 
-		gameSocket.onclose = function (event) {
+		socket.onclose = function (event) {
 			console.log('Game WebSocket connection closed');
 		};
 
-		gameSocket.onerror = function (error) {
+		socket.onerror = function (error) {
 			console.error('WebSocket error in game:', error);
 		};
 	}
@@ -427,70 +416,58 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	function handleGameMessage(data) {
-		if (data.type === 'authenticated') {
-			console.log('Authentication successful');
-		} else if (data.type === 'waiting_room') {
-			console.log('Entered the WAITING ROOM');
-		} else if (data.type === 'game_start') {
-			console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-			document.addEventListener('keydown', handleKeyDown);
-		} else if (data.type === 'game_state_update') {
-			updateGameState(data.game_state);
-		} else if (data.type === 'player_disconnected') {
-			console.log("Player disconnected:", data.player);
-		} else if (data.type === 'game_ended') {
-			console.log("Game ended:", data.game_id);
-		} else if (data.type === 'error') {
-			console.error(data.message);
-		} else if (data.type === 'update_waiting_room') {
-			document.getElementById('tournament-bracket').innerHTML = data.html;
-		} else {
-			console.log('Message from server:', data.type, data.message);
-		}
-	}
 
-	function initializeChatSocket(roomName) {
-		// Fermer l'ancien WebSocket s'il est encore ouvert
-		if (chatSocket !== null) {
-			chatSocket.close();
-		}
+function initializeChatSocket(roomName) {
+    // Fermer l'ancien WebSocket du chat s'il est encore ouvert
+    if (chatSocket !== null) {
+        chatSocket.close();
+    }
 
-		// Initialisation du WebSocket pour le chat
-		chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+    // Initialisation du WebSocket pour le chat
+    chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
 
-		chatSocket.onopen = function (event) {
-			console.log('Chat WebSocket connection established');
-			chatSocket.send(JSON.stringify({ message: 'User has joined the chat', username: username_global }));
-		};
+    chatSocket.onopen = function (event) {
+        console.log('Chat WebSocket connection established');
+        chatSocket.send(JSON.stringify({ message: 'User has joined the chat', username: username_global }));
+    };
 
-		chatSocket.onmessage = function (event) {
-			// Gestion des messages pour le chat
-			const data = JSON.parse(event.data);
-			handleChatMessage(data);
-		};
+    chatSocket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        handleChatMessage(data);
+    };
 
-		chatSocket.onclose = function (event) {
-			console.log('Chat WebSocket connection closed');
-		};
+    chatSocket.onclose = function (event) {
+        console.log('Chat WebSocket connection closed');
+    };
 
-		chatSocket.onerror = function (error) {
-			console.error('WebSocket error in chat:', error);
-		};
-	}
+    chatSocket.onerror = function (error) {
+        console.error('WebSocket error in chat:', error);
+    };
+}
 
-	function handleChatMessage(data) {
-		const div = document.createElement("div");
-		div.classList.add("msg_text");
-		div.innerHTML = `
-			<div class="msg_content">
-				<div class="msg_username">${escapeHtml(data.username)}</div>
-				<div class="msg_text">: ${escapeHtml(data.message)}</div>
-			</div>`;
-		document.querySelector("#i-msg").value = "";
-		document.querySelector("#msg_container").appendChild(div);
-		document.querySelector("#msg_container").scrollTop = document.querySelector("#msg_container").scrollHeight;
-	}
+function handleChatMessage(data) {
+    const div = document.createElement("div");
+    div.classList.add("msg_text");
+    div.innerHTML = `
+        <div class="msg_content">
+            <div class="msg_username">${escapeHtml(data.username)}</div>
+            <div class="msg_text">: ${escapeHtml(data.message)}</div>
+        </div>`;
+    document.querySelector("#i-msg").value = "";
+    document.querySelector("#msg_container").appendChild(div);
+    document.querySelector("#msg_container").scrollTop = document.querySelector("#msg_container").scrollHeight;
+}
+
+
+	// Fonction pour démarrer une sélection de jeu
+	function startGameSelection(token, players) {
+    	console.log("Initializing game selection with token:", token, "and players:", players);
+
+    	// Initialisation du WebSocket pour le jeu après sélection du mode de jeu
+    	initializeGameSocket(token, players);
+
+    // Autres configurations pour démarrer le jeu...
+}
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
