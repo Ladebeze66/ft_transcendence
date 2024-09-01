@@ -169,9 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const result = await authenticateUser(nickname, password);
 			if (result) {
-				const userId = result.userId;
-				console.log('Utilisateur authentifié avec succès, userId:', userId);
-
 				// Cache le formulaire de connexion et affiche les options post-authentification
 				document.getElementById('login-form').style.display = 'none';
 				document.getElementById("post-form-buttons").style.display = 'block';
