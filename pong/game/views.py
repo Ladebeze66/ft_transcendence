@@ -37,29 +37,31 @@ def register_user(request):
             username = data.get('username')
             password = data.get('password')
 
-            # Log pour le débogage
-            print(f"Received data: username={username}, password={password}")
-
             # Vérifiez si l'utilisateur existe déjà
-            if User.objects.filter(username=username).exists():
-                print("User already exists")
-                return JsonResponse({'registered': False, 'error': 'User already exists'}, status=400)
-
-            # Créez un nouvel utilisateur
-            user = User.objects.create_user(username=username, password=password)
-            token = get_or_create_token(user)
-
-            print(f"User created successfully: {user.username}")
-            return JsonResponse({'registered': True, 'token': token})
+            try:
+                user = User.objects.get(username=username)
+                token = get_or_create_token(user)
+                return JsonResponse({'registered': True, 'token': token})
+            except User.DoesNotExist:
+                # Créez un nouvel utilisateur
+                user = User.objects.create_user(username=username, password=password)
+                token = get_or_create_token(user)
+                return JsonResponse({'registered': True, 'token': token})
 
         except Exception as e:
-            print(f"Error occurred: {str(e)}")
             logger.error(f"Error in register_user: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
-    print("Invalid request method")
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
+def get_or_create_token(user):
+    if not user.auth_token:
+        while True:
+            token = str(uuid.uuid4())
+            if not User.objects.filter(auth_token=token).exists():
+                user.auth_token = token
+                user.save()
+                break
+    return user.auth_token
 
 @csrf_exempt
 def authenticate_user(request):

@@ -117,28 +117,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleRegister() {
-        const nickname = nicknameInput.value.trim();
-        const password = passwordInput.value.trim();
-        const confirmPassword = confirmPasswordInput.value.trim();
+		const nickname = nicknameInput.value.trim();
+		const password = passwordInput.value.trim();
+		const confirmPassword = confirmPasswordInput.value.trim();
 
-        if (password === confirmPassword) {
-            try {
-                const result = await registerUser(nickname, password);
-                if (result) {
+		// Validation du username
+		if (!nickname || nickname.length < 3) {
+			console.error("Invalid username. It must be at least 3 characters long.");
+			alert("Invalid username. It must be at least 3 characters long.");
+			return;
+		}
+
+		if (password === confirmPassword) {
+			try {
+				const result = await registerUser(nickname, password);
+				if (result) {
 					username = nickname; // Stocker le nom d'utilisateur après l'inscription
-                    registerForm.style.display = 'none';
-                    document.getElementById("post-form-buttons").style.display = 'block';
+					registerForm.style.display = 'none';
+					document.getElementById("post-form-buttons").style.display = 'block';
 					startChatWebSocket();
-                } else {
-                    alert('Registration failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error registering user:', error);
-            }
-        } else {
-            alert('Passwords do not match.');
-        }
-    }
+				} else {
+					alert('Registration failed. Please try again.');
+				}
+			} catch (error) {
+				console.error('Error registering user:', error);
+			}
+		} else {
+			alert('Passwords do not match.');
+		}
+	}
+
 
     async function registerUser(username, password) {
 		try {
@@ -152,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (!response.ok) {
 				console.error(`HTTP error! Status: ${response.status}`);
-				return false;
+				return null;  // Retournez null en cas d'erreur HTTP
 			}
 
 			let data;
@@ -160,23 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				data = await response.json();
 			} catch (error) {
 				console.error('La réponse reçue n\'est pas un JSON valide:', error);
-				return false;
+				return null;
 			}
 
 			if (data.registered) {
 				console.log('User registered successfully:', data);
-				return data.token;  // On retourne le token récupéré lors de l'inscription
+				return data.token;
 			} else {
 				console.error('Registration failed:', data.error);
-				return null;
+				return null;  // Retournez null si l'enregistrement échoue
 			}
 		} catch (error) {
 			console.error('Error during registration request:', error);
 			return null;
 		}
 	}
-
-
 
     async function handleLogin() {
         const nickname = nicknameInput.value.trim();
@@ -384,6 +390,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startWebSocketConnection(token, players) {
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			console.warn('WebSocket connection already open.');
+			return;
+		}
 		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
 		socket.onopen = function (event) {
