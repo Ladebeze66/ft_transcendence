@@ -49,11 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
     nicknameInput.addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            checkNicknameButton.click();
-        }
-    });
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			handleCheckNickname();  // Appeler directement la fonction au lieu de simuler un clic
+		}
+	});
 
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
