@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
+from django.db import transaction, IntegrityError
 
 import json
 import uuid
@@ -33,25 +34,44 @@ def check_user_exists(request):
 def register_user(request):
     if request.method == 'POST':
         try:
+            logger.info("Received POST request for user registration")
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
 
-            # Vérifiez si l'utilisateur existe déjà
-            try:
-                user = User.objects.get(username=username)
-                token = get_or_create_token(user)
-                return JsonResponse({'registered': True, 'token': token})
-            except User.DoesNotExist:
-                # Créez un nouvel utilisateur
+            logger.info(f"Attempting to register user: {username}")
+
+            if not username or not password:
+                logger.warning("Username or password not provided")
+                return JsonResponse({'registered': False, 'error': 'Username and password are required'}, status=400)
+
+            with transaction.atomic():
+                user_exists = User.objects.select_for_update().filter(username=username).exists()
+
+                if user_exists:
+                    logger.warning(f"User {username} already exists")
+                    return JsonResponse({'registered': False, 'error': 'User already exists'}, status=409)
+
                 user = User.objects.create_user(username=username, password=password)
                 token = get_or_create_token(user)
+                logger.info(f"User {username} registered successfully")
                 return JsonResponse({'registered': True, 'token': token})
+
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {str(e)}")
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+
+        except IntegrityError:
+            logger.error(f"IntegrityError: User {username} already exists")
+            return JsonResponse({'registered': False, 'error': 'User already exists'}, status=409)
 
         except Exception as e:
             logger.error(f"Error in register_user: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+            return JsonResponse({'error': f'Internal Server Error: {str(e)}'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
 
 def get_or_create_token(user):
     if not user.auth_token:
