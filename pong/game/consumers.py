@@ -1,5 +1,3 @@
-# /pong/game/consumers.py
-
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
@@ -21,6 +19,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
+            logger.debug(f"Received data: {text_data}")
             data = json.loads(text_data)
             message_type = data.get('type')
 
@@ -107,6 +106,7 @@ class GameConsumer(AsyncWebsocketConsumer):
     def get_user_from_token(self, token):
         try:
             user = User.objects.filter(auth_token=token).first()
+            logger.debug(f"User found: {user} for token: {token}")
             return user
         except User.DoesNotExist:
             logger.warning(f"User not found for token: {token}")
@@ -116,16 +116,19 @@ class GameConsumer(AsyncWebsocketConsumer):
     def get_user_from_token2(self, token):
         try:
             user2 = User.objects.filter(auth_token=token).first()
+            logger.debug(f"User2 found: {user2} for token: {token}")
             return user2
         except User.DoesNotExist:
             logger.warning(f"User not found for token_2: {token}")
             return None
 
     async def join_waiting_room(self):
+        logger.info("Joining waiting room")
         await self.send(text_data=json.dumps({'type': 'waiting_room'}))
         await match_maker.add_player(self)
 
     async def join_tournament_waiting_room(self):
+        logger.info("Joining tournament waiting room")
         await tournament_match_maker.add_player(self)
 
     async def disconnect(self, close_code):
@@ -139,35 +142,56 @@ class GameConsumer(AsyncWebsocketConsumer):
             logger.error(f"Error during WebSocket disconnection: {str(e)}")
 
     async def set_game(self, game):
+        logger.info(f"Setting game: {game}")
         self.game = game
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_group_name = 'chat'
-        self.user = self.scope["user"]
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
-        await self.channel_layer.group_send(self.room_group_name, {
-            'type': 'chat_message',
-            'message': f'{self.user.username} has joined the chat'
-        })
+        try:
+            self.room_group_name = 'chat'
+            self.user = self.scope["user"]
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
+            logger.info(f"{self.user.username} connected to chat WebSocket")
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'chat_message',
+                'message': f'{self.user.username} has joined the chat'
+            })
+        except Exception as e:
+            logger.error(f"Error during chat WebSocket connection: {str(e)}")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_send(self.room_group_name, {
-            'type': 'chat_message',
-            'message': f'{self.user.username} has left the chat'
-        })
+        try:
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'chat_message',
+                'message': f'{self.user.username} has left the chat'
+            })
+            logger.info(f"{self.user.username} disconnected from chat WebSocket")
+        except Exception as e:
+            logger.error(f"Error during chat WebSocket disconnection: {str(e)}")
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message = data['message']
-        username = data['username']
-        await self.channel_layer.group_send(self.room_group_name, {
-            'type': 'chat_message',
-            'message': f'{username}: {message}'
-        })
+        try:
+            data = json.loads(text_data)
+            message = data['message']
+            username = data['username']
+            logger.debug(f"Received message from {username}: {message}")
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'chat_message',
+                'message': f'{username}: {message}'
+            })
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error in chat receive: {str(e)} - Data received: {text_data}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid JSON format'}))
+        except Exception as e:
+            logger.error(f"Error during chat message receive: {str(e)}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Internal server error'}))
 
     async def chat_message(self, event):
-        message = event['message']
-        await self.send(text_data=json.dumps({'message': message}))
+        try:
+            message = event['message']
+            await self.send(text_data=json.dumps({'message': message}))
+            logger.debug(f"Broadcasting chat message: {message}")
+        except Exception as e:
+            logger.error(f"Error during chat message broadcast: {str(e)}")

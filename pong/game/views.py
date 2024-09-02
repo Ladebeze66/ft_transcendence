@@ -18,16 +18,21 @@ import logging
 logger = logging.getLogger(__name__)
 
 def index(request):
+    logger.info("Accessing index view")
     return render(request, 'index.html')
 
 @csrf_exempt
 def check_user_exists(request):
     if request.method == 'POST':
+        logger.info("POST request received for checking user existence")
         data = json.loads(request.body)
         username = data.get('username')
         if User.objects.filter(username=username).exists():
+            logger.info(f"User {username} exists")
             return JsonResponse({'exists': True})
+        logger.info(f"User {username} does not exist")
         return JsonResponse({'exists': False})
+    logger.warning("Invalid request method for check_user_exists")
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
@@ -69,17 +74,18 @@ def register_user(request):
             logger.error(f"Error in register_user: {str(e)}")
             return JsonResponse({'error': f'Internal Server Error: {str(e)}'}, status=500)
 
+    logger.warning("Invalid request method for register_user")
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-
-
 def get_or_create_token(user):
+    logger.info(f"Generating or retrieving token for user: {user.username}")
     if not user.auth_token:
         while True:
             token = str(uuid.uuid4())
             if not User.objects.filter(auth_token=token).exists():
                 user.auth_token = token
                 user.save()
+                logger.info(f"Token generated for user {user.username}: {token}")
                 break
     return user.auth_token
 
@@ -87,31 +93,27 @@ def get_or_create_token(user):
 def authenticate_user(request):
     if request.method == 'POST':
         try:
+            logger.info("Received POST request for user authentication")
             data = json.loads(request.body)
             username = data.get('username', '')
             password = data.get('password', '')
             user = authenticate(username=username, password=password)
             if user is not None:
                 token = get_or_create_token(user)
+                logger.info(f"User {username} authenticated successfully")
                 return JsonResponse({'authenticated': True, 'token': token, 'user_id': user.id})
             else:
+                logger.warning(f"Authentication failed for user {username}")
                 return JsonResponse({'authenticated': False}, status=401)
         except Exception as e:
+            logger.error(f"Error in authenticate_user: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
     else:
+        logger.warning("Invalid request method for authenticate_user")
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-def get_or_create_token(user):
-    if not user.auth_token:
-        while True:
-            token = str(uuid.uuid4())
-            if not User.objects.filter(auth_token=token).exists():
-                user.auth_token = token
-                user.save()
-                break
-    return user.auth_token
-
 def match_list_json(request):
+    logger.info("Fetching match list")
     matches = Match.objects.all()
     data = {
         'matches': list(matches.values(
@@ -120,9 +122,11 @@ def match_list_json(request):
             'is_tournoi', 'tournoi__name'
         ))
     }
+    logger.info(f"Match list fetched successfully: {len(data['matches'])} matches found")
     return JsonResponse(data)
 
 def player_list_json(request):
+    logger.info("Fetching player list")
     players = Player.objects.all()
 
     data = {
@@ -133,6 +137,19 @@ def player_list_json(request):
             'num_participated_tournaments', 'num_won_tournaments'
         ))
     }
+    logger.info(f"Player list fetched successfully: {len(data['players'])} players found")
+    return JsonResponse(data)
+
+def tournoi_list_json(request):
+    logger.info("Fetching tournoi list")
+    tournois = Tournoi.objects.all()
+
+    data = {
+        'tournois': list(tournois.values(
+            'id', 'name', 'nbr_player', 'date', 'winner'
+        ))
+    }
+    logger.info(f"Tournoi list fetched successfully: {len(data['tournois'])} tournois found")
     return JsonResponse(data)
 
 def tournoi_list_json(request):
@@ -144,7 +161,6 @@ def tournoi_list_json(request):
         ))
     }
     return JsonResponse(data)
-
 
 from web3 import Web3
 

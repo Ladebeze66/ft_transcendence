@@ -1,9 +1,12 @@
-# /pong/game/models.py
-
 from django.db import models
 from django.contrib.auth.models import User
+import logging
 
+logger = logging.getLogger(__name__)
+
+# Ajout d'un champ auth_token à la classe User
 User.add_to_class('auth_token', models.CharField(max_length=100, null=True, blank=True, unique=True))
+logger.debug("Ajout du champ auth_token à la classe User")
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
@@ -20,7 +23,12 @@ class Player(models.Model):
     num_won_tournaments = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
-        return self.name 
+        return self.name
+
+    def save(self, *args, **kwargs):
+        logger.info(f"Saving player: {self.name}")
+        super().save(*args, **kwargs)
+        logger.info(f"Player {self.name} saved successfully")
 
 class Tournoi(models.Model):
     name = models.CharField(max_length=200)
@@ -31,12 +39,17 @@ class Tournoi(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        logger.info(f"Saving tournament: {self.name}")
+        super().save(*args, **kwargs)
+        logger.info(f"Tournament {self.name} saved successfully")
+
 class Match(models.Model):
     player1 = models.ForeignKey('Player', related_name='match_as_player1', on_delete=models.CASCADE)
     player2 = models.ForeignKey('Player', related_name='match_as_player2', on_delete=models.CASCADE)
     score_player1 = models.PositiveSmallIntegerField()
     score_player2 = models.PositiveSmallIntegerField()
-    winner = models.ForeignKey('Player', related_name='won_matches',on_delete=models.CASCADE, null=True)
+    winner = models.ForeignKey('Player', related_name='won_matches', on_delete=models.CASCADE, null=True)
     nbr_ball_touch_p1 = models.PositiveIntegerField()
     nbr_ball_touch_p2 = models.PositiveIntegerField()
     duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -45,6 +58,7 @@ class Match(models.Model):
     tournoi = models.ForeignKey('Tournoi', related_name='matches', on_delete=models.SET_NULL, null=True)
 
     def clean(self):
+        logger.debug(f"Cleaning match: {self.player1.name} vs {self.player2.name}")
         if self.score_player1 < 0 or self.score_player2 < 0:
             raise ValidationError('Les scores doivent être positifs.')
         if self.score_player1 > self.score_player2 and self.winner != self.player1:
@@ -54,8 +68,10 @@ class Match(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
+        logger.info(f"Saving match: {self.player1.name} vs {self.player2.name}")
         self.clean()
         super().save(*args, **kwargs)
+        logger.info(f"Match {self.player1.name} vs {self.player2.name} saved successfully")
 
     def __str__(self):
         return f"{self.player1.name} vs {self.player2.name}"
