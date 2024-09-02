@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+	console.log("DOM fully loaded and parsed");
     const formBlock = document.getElementById('block-form');
 
     const authForm = document.getElementById('auth-form');
@@ -43,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let chatSocket;
 	let username; // Ajouter cette variable pour stocker le nom d'utilisateur
 
+	console.log("DOM elements initialized");
+
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
     nicknameInput.addEventListener('keypress', function (event) {
@@ -64,13 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
     quickMatchButton.addEventListener('click', startQuickMatch);
     tournamentButton.addEventListener('click', startTournament);
 
+	console.log("Event listeners added");
 
     async function handleCheckNickname() {
+        console.log("handleCheckNickname called");
         const nickname = nicknameInput.value.trim();
         if (nickname) {
             try {
+                console.log("Checking if user exists:", nickname);
                 const exists = await checkUserExists(nickname);
                 if (exists) {
+                    console.log("User exists, showing login form");
                     authForm.style.display = 'none';
                     loginForm.style.display = 'block';
                     loginPasswordInput.focus();
@@ -81,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                 } else {
+                    console.log("User does not exist, showing registration form");
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
                     passwordInput.focus();
@@ -101,99 +109,122 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             alert('Please enter a nickname.');
+            console.error('Nickname is empty.');
         }
     }
 
     async function checkUserExists(username) {
-        const response = await fetch('/check_user_exists/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username })
-        });
-        const data = await response.json();
-        return data.exists;
+        console.log("checkUserExists called with username:", username);
+        try {
+            const response = await fetch('/check_user_exists/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            });
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}`);
+                return false;
+            }
+
+            const data = await response.json();
+            console.log("User existence check response:", data);
+            return data.exists;
+        } catch (error) {
+            console.error('Error during user existence check:', error);
+            return false;
+        }
     }
 
     async function handleRegister() {
-		const nickname = nicknameInput.value.trim();
-		const password = passwordInput.value.trim();
-		const confirmPassword = confirmPasswordInput.value.trim();
+        console.log("handleRegister called");
+        const nickname = nicknameInput.value.trim();
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
 
-		// Validation du username
-		if (!nickname || nickname.length < 3) {
-			console.error("Invalid username. It must be at least 3 characters long.");
-			alert("Invalid username. It must be at least 3 characters long.");
-			return;
-		}
+        if (!nickname || nickname.length < 3) {
+            console.error("Invalid username. It must be at least 3 characters long.");
+            alert("Invalid username. It must be at least 3 characters long.");
+            return;
+        }
 
-		if (password === confirmPassword) {
-			try {
-				const result = await registerUser(nickname, password);
-				if (result) {
-					username = nickname; // Stocker le nom d'utilisateur après l'inscription
-					registerForm.style.display = 'none';
-					document.getElementById("post-form-buttons").style.display = 'block';
-					startChatWebSocket();
-				} else {
-					alert('Registration failed. Please try again.');
-				}
-			} catch (error) {
-				console.error('Error registering user:', error);
-			}
-		} else {
-			alert('Passwords do not match.');
-		}
-	}
-
+        if (password === confirmPassword) {
+            try {
+                console.log("Attempting to register user:", nickname);
+                const result = await registerUser(nickname, password);
+                if (result) {
+                    console.log("User registered successfully");
+                    username = nickname; // Stocker le nom d'utilisateur après l'inscription
+                    registerForm.style.display = 'none';
+                    document.getElementById("post-form-buttons").style.display = 'block';
+                    startChatWebSocket();
+                } else {
+                    console.error('Registration failed.');
+                    alert('Registration failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error registering user:', error);
+            }
+        } else {
+            alert('Passwords do not match.');
+            console.error('Passwords do not match.');
+        }
+    }
 
     async function registerUser(username, password) {
-		try {
-			const response = await fetch('/register_user/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ username, password })
-			});
+        console.log("registerUser called with username:", username);
+        try {
+            const response = await fetch('/register_user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
 
-			if (!response.ok) {
-				console.error(`HTTP error! Status: ${response.status}`);
-				return null;  // Retournez null en cas d'erreur HTTP
-			}
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}`);
+                return null;  // Retournez null en cas d'erreur HTTP
+            }
 
-			let data;
-			try {
-				data = await response.json();
-			} catch (error) {
-				console.error('La réponse reçue n\'est pas un JSON valide:', error);
-				return null;
-			}
+            let data;
+            try {
+                data = await response.json();
+            } catch (error) {
+                console.error('Invalid JSON response:', error);
+                return null;
+            }
 
-			if (data.registered) {
-				console.log('User registered successfully:', data);
-				return data.token;
-			} else {
-				console.error('Registration failed:', data.error);
-				return null;  // Retournez null si l'enregistrement échoue
-			}
-		} catch (error) {
-			console.error('Error during registration request:', error);
-			return null;
-		}
-	}
+            console.log("Registration response data:", data);
+            if (data.registered) {
+                console.log('User registered successfully:', data);
+                return data.token;
+            } else {
+                console.error('Registration failed:', data.error);
+                return null;  // Retournez null si l'enregistrement échoue
+            }
+        } catch (error) {
+            console.error('Error during registration request:', error);
+            return null;
+        }
+    }
 
     async function handleLogin() {
+        console.log("handleLogin called");
         const nickname = nicknameInput.value.trim();
         const password = loginPasswordInput.value.trim();
         try {
+            console.log("Attempting to authenticate user:", nickname);
             const result = await authenticateUser(nickname, password);
             if (result) {
-				username = nickname; // Stocker le nom d'utilisateur après la connexion
+                console.log("User authenticated successfully");
+                username = nickname; // Stocker le nom d'utilisateur après la connexion
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
             } else {
+                console.error('Authentication failed.');
                 alert('Authentication failed. Please try again.');
             }
         } catch (error) {
@@ -202,18 +233,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function authenticateUser(username, password) {
-        const response = await fetch('/authenticate_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.authenticated) {
-            token = data.token;
+        console.log("authenticateUser called with username:", username);
+        try {
+            const response = await fetch('/authenticate_user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}`);
+                return false;
+            }
+
+            const data = await response.json();
+            console.log("Authentication response data:", data);
+            if (data.authenticated) {
+                token = data.token;
+            }
+            return data.authenticated;
+        } catch (error) {
+            console.error('Error during authentication request:', error);
+            return false;
         }
-        return data.authenticated;
     }
 
 
@@ -257,137 +301,238 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function checkUserExists2(username) {
-        const response = await fetch('/check_user_exists/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username })
-        });
-        const data = await response.json();
-        return data.exists;
-    }
+		console.log("checkUserExists2 called with username:", username);
+		try {
+			const response = await fetch('/check_user_exists/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ username })
+			});
 
-    async function handleRegister2() {
-        const nickname2 = nicknameInput2.value.trim();
-        const password2 = passwordInput2.value.trim();
-        const confirmPassword2 = confirmPasswordInput2.value.trim();
+			if (!response.ok) {
+				console.error(`HTTP error! Status: ${response.status}`);
+				return false;
+			}
 
-        if (password2 === confirmPassword2) {
-            try {
-                const result = await registerUser2(nickname2, password2);
-                if (result) {
-                    registerForm2.style.display = 'none';
-                    startLocalGame2();
-                } else {
-                    alert('Registration failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error registering user:', error);
-            }
-        } else {
-            alert('Passwords do not match.');
-        }
-    }
+			const data = await response.json();
+			console.log("User existence check response (checkUserExists2):", data);
+			return data.exists;
+		} catch (error) {
+			console.error('Error during user existence check (checkUserExists2):', error);
+			return false;
+		}
+	}
 
-    async function registerUser2(username, password) {
-        const response = await fetch('/register_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.registered) {
-            token2 = data.token;
-        }
-        return data.registered;
-    }
+	async function handleRegister2() {
+		console.log("handleRegister2 called");
+		const nickname2 = nicknameInput2.value.trim();
+		const password2 = passwordInput2.value.trim();
+		const confirmPassword2 = confirmPasswordInput2.value.trim();
 
-    async function handleLogin2() {
-        const nickname2 = nicknameInput2.value.trim();
-        const password2 = loginPasswordInput2.value.trim();
-        try {
-            const result = await authenticateUser2(nickname2, password2);
-            if (result) {
-                loginForm2.style.display = 'none';
-                startLocalGame2();
-            } else {
-                alert('Authentication failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error authenticating user:', error);
-        }
-    }
+		if (!nickname2 || nickname2.length < 3) {
+			console.error("Invalid username (handleRegister2). It must be at least 3 characters long.");
+			alert("Invalid username. It must be at least 3 characters long.");
+			return;
+		}
 
-    async function authenticateUser2(username, password) {
-        const response = await fetch('/authenticate_user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (data.authenticated) {
-            token2 = data.token;
-        }
-        return data.authenticated;
-    }
+		if (password2 === confirmPassword2) {
+			try {
+				console.log("Attempting to register user (handleRegister2):", nickname2);
+				const result = await registerUser2(nickname2, password2);
+				if (result) {
+					console.log("User registered successfully (handleRegister2)");
+					registerForm2.style.display = 'none';
+					startLocalGame2();
+				} else {
+					console.error('Registration failed (handleRegister2).');
+					alert('Registration failed. Please try again.');
+				}
+			} catch (error) {
+				console.error('Error registering user (handleRegister2):', error);
+			}
+		} else {
+			alert('Passwords do not match.');
+			console.error('Passwords do not match (handleRegister2).');
+		}
+	}
+
+	async function registerUser2(username, password) {
+		console.log("registerUser2 called with username:", username);
+		try {
+			const response = await fetch('/register_user/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ username, password })
+			});
+
+			if (!response.ok) {
+				console.error(`HTTP error (registerUser2)! Status: ${response.status}`);
+				return null;
+			}
+
+			let data;
+			try {
+				data = await response.json();
+			} catch (error) {
+				console.error('Invalid JSON response (registerUser2):', error);
+				return null;
+			}
+
+			console.log("Registration response data (registerUser2):", data);
+			if (data.registered) {
+				console.log('User registered successfully (registerUser2):', data);
+				return data.token;
+			} else {
+				console.error('Registration failed (registerUser2):', data.error);
+				return null;
+			}
+		} catch (error) {
+			console.error('Error during registration request (registerUser2):', error);
+			return null;
+		}
+	}
+
+	async function handleLogin2() {
+		console.log("handleLogin2 called");
+		const nickname2 = nicknameInput2.value.trim();
+		const password2 = loginPasswordInput2.value.trim();
+		try {
+			console.log("Attempting to authenticate user (handleLogin2):", nickname2);
+			const result = await authenticateUser2(nickname2, password2);
+			if (result) {
+				console.log("User authenticated successfully (handleLogin2)");
+				loginForm2.style.display = 'none';
+				startLocalGame2();
+			} else {
+				console.error('Authentication failed (handleLogin2).');
+				alert('Authentication failed. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error authenticating user (handleLogin2):', error);
+		}
+	}
+
+	async function authenticateUser2(username, password) {
+		console.log("authenticateUser2 called with username:", username);
+		try {
+			const response = await fetch('/authenticate_user/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ username, password })
+			});
+
+			if (!response.ok) {
+				console.error(`HTTP error (authenticateUser2)! Status: ${response.status}`);
+				return false;
+			}
+
+			const data = await response.json();
+			console.log("Authentication response data (authenticateUser2):", data);
+			if (data.authenticated) {
+				token2 = data.token;
+			}
+			return data.authenticated;
+		} catch (error) {
+			console.error('Error during authentication request (authenticateUser2):', error);
+			return false;
+		}
+	}
 
     function startLocalGame() {
-        console.log("starting a Local Game..");
-        document.getElementById("post-form-buttons").style.display = 'none';
-        authForm2.style.display = 'block';
-        nicknameInput2.focus();
-        nicknameInput2.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                checkNicknameButton2.click();
-            }
-        });
-    }
+		console.log("Starting a Local Game...");
+
+		document.getElementById("post-form-buttons").style.display = 'none';
+		console.log("Hid post-form-buttons.");
+
+		authForm2.style.display = 'block';
+		console.log("Displayed authForm2.");
+
+		nicknameInput2.focus();
+		console.log("Focused on nicknameInput2.");
+
+		nicknameInput2.addEventListener('keypress', function (event) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				console.log("Enter key pressed on nicknameInput2.");
+				checkNicknameButton2.click();
+			}
+		});
+	}
 
     function startLocalGame2() {
-		gameContainer.style.display = 'flex';
-		logo.style.display = 'none';
-		pongElements.style.display = 'none';
-		formBlock.style.display = 'none';
+		console.log("Starting the local game (2 players)...");
 
-		// Log pour vérifier le token avant l'authentification
+		// Display the game container
+		gameContainer.style.display = 'flex';
+		console.log("Game container set to 'flex'");
+
+		// Hide the logo, pong elements, and form block
+		logo.style.display = 'none';
+		console.log("Logo hidden");
+
+		pongElements.style.display = 'none';
+		console.log("Pong elements hidden");
+
+		formBlock.style.display = 'none';
+		console.log("Form block hidden");
+
+		// Log the token before starting the WebSocket connection
 		console.log("Token before WebSocket authentication:", token);
+
+		// Check if token is defined
 		if (!token) {
 			console.error("Token is not defined or is null.");
 			return;
 		}
 
+		// Start the WebSocket connection
 		startWebSocketConnection(token, 2);
+		console.log("WebSocket connection initiated for a local game.");
 	}
 
     function startQuickMatch() {
-		gameContainer.style.display = 'flex';
-		logo.style.display = 'none';
-		pongElements.style.display = 'none';
-		formBlock.style.display = 'none';
+		console.log("Starting a Quick Match...");
 
-		// Log pour vérifier le token avant l'authentification
-		console.log("Token before WebSocket authentication:", token);
-		if (!token) {
-			console.error("Token is not defined or is null.");
-			return;
-		}
+		gameContainer.style.display = 'flex';
+		console.log("Displayed gameContainer.");
+
+		logo.style.display = 'none';
+		console.log("Hid logo.");
+
+		pongElements.style.display = 'none';
+		console.log("Hid pongElements.");
+
+		formBlock.style.display = 'none';
+		console.log("Hid formBlock.");
 
 		startWebSocketConnection(token, 1);
+		console.log("Initiated WebSocket connection for Quick Match with token:", token);
 	}
 
     function startTournament() {
-        tournamentContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
-        formBlock.style.display = 'none';
-        startWebSocketConnection(token, 42);
-    }
+		console.log("Starting a Tournament...");
+
+		tournamentContainer.style.display = 'flex';
+		console.log("Displayed tournamentContainer.");
+
+		logo.style.display = 'none';
+		console.log("Hid logo.");
+
+		pongElements.style.display = 'none';
+		console.log("Hid pongElements.");
+
+		formBlock.style.display = 'none';
+		console.log("Hid formBlock.");
+
+		startWebSocketConnection(token, 42);
+		console.log("Initiated WebSocket connection for Tournament with token:", token);
+	}
 
     function startWebSocketConnection(token, players) {
 		if (socket && socket.readyState === WebSocket.OPEN) {
@@ -446,24 +591,33 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 
+    // Gestion des événements de touche
     function handleKeyDown(event) {
+        console.log("Key pressed:", event.key);
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
+        console.log("Sending key press:", key);
         if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ type: 'key_press', key }));
+        } else {
+            console.warn("WebSocket is not open. Key press not sent.");
         }
     }
 
+    // Fonction pour mettre à jour l'état du jeu
     function updateGameState(newState) {
+        console.log("Updating game state...");
         gameState = newState;
         renderGame();
     }
 
+	// Fonction pour rendre l'état du jeu à l'écran
     function renderGame() {
+		console.log("Rendering game state...");
         document.getElementById('player1-name').textContent = `${gameState.player1_name}`;
         document.getElementById('player2-name').textContent = `${gameState.player2_name}`;
 
@@ -479,22 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('game-text').textContent = gameState.game_text;
     }
 
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 500; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.width = `${Math.random() * 3}px`;
-        star.style.height = star.style.width;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDuration = `${Math.random() * 2 + 1}s`;
-        starsContainer.appendChild(star);
-    }
 	// Initialisation du chat WebSocket
     function startChatWebSocket() {
+        console.log("Initializing chat WebSocket...");
         chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
 
-        chatSocket.onmessage = function(event) {
+        chatSocket.onmessage = function (event) {
             const data = JSON.parse(event.data);
             const message = data.message;
             const chatLog = document.getElementById('chat-log');
@@ -503,8 +647,12 @@ document.addEventListener('DOMContentLoaded', () => {
             chatLog.appendChild(messageElement);
         };
 
-        chatSocket.onclose = function(event) {
+        chatSocket.onclose = function (event) {
             console.error('Chat WebSocket closed unexpectedly');
+        };
+
+        chatSocket.onerror = function (error) {
+            console.error('Chat WebSocket error:', error);
         };
 
         const chatInput = document.getElementById('chat-input');
@@ -512,15 +660,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chatButton.addEventListener('click', () => {
             const message = chatInput.value;
-            chatSocket.send(JSON.stringify({'message': message, 'username': username}));
+            console.log("Sending chat message:", message);
+            chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
             chatInput.value = '';
         });
 
-        chatInput.addEventListener('keypress', function(event) {
+        chatInput.addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
                 chatButton.click();
             }
         });
     }
-
 });
