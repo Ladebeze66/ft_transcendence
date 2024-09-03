@@ -69,6 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	console.log("Event listeners added");
 
+	// Function to get the CSRF token from cookies
+	function getCSRFToken() {
+    	let csrfToken = null;
+    	const cookies = document.cookie.split(';');
+    	cookies.forEach(cookie => {
+        	const [name, value] = cookie.trim().split('=');
+        	if (name === 'csrftoken') {
+            	csrfToken = value;
+        	}
+    	});
+    	return csrfToken;
+	}
+
     async function handleCheckNickname() {
         console.log("handleCheckNickname called");
         const nickname = nicknameInput.value.trim();
@@ -119,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/check_user_exists/', {
                 method: 'POST',
                 headers: {
+					'X-CSRFToken': getCSRFToken(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ username })
@@ -156,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await registerUser(nickname, password);
                 if (result) {
                     console.log("User registered successfully");
-                    username = nickname; // Stocker le nom d'utilisateur après l'inscription
+                    //username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
-                    startChatWebSocket();
+                    //startChatWebSocket();
                 } else {
                     console.error('Registration failed.');
                     alert('Registration failed. Please try again.');
@@ -179,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/register_user/', {
                 method: 'POST',
                 headers: {
+					'X-CSRFToken': getCSRFToken(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ username, password })
