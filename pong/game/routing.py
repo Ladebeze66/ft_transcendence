@@ -1,6 +1,6 @@
 # /pong/game/routing.py
 from django.urls import re_path
-from pong.chat.consumerschat import ChatConsumer
+from . import consumerschat
 from . import consumers
 import logging
 

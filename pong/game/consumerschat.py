@@ -1,8 +1,13 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth.models import User
+from channels.db import database_sync_to_async
+from .matchmaking import match_maker
+from .tournament import tournament_match_maker
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
