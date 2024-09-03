@@ -148,17 +148,18 @@ class GameConsumer(AsyncWebsocketConsumer):
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
-            self.room_group_name = 'chat'
+            # Room principale pour tous les utilisateurs
+            self.room_group_name = 'main_room'
             self.user = self.scope["user"]
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
-            logger.info(f"{self.user.username} connected to chat WebSocket")
+            logger.info(f"{self.user.username} connecté au WebSocket de chat")
             await self.channel_layer.group_send(self.room_group_name, {
                 'type': 'chat_message',
-                'message': f'{self.user.username} has joined the chat'
+                'message': f'{self.user.username} a rejoint le chat'
             })
         except Exception as e:
-            logger.error(f"Error during chat WebSocket connection: {str(e)}")
+            logger.error(f"Erreur lors de la connexion WebSocket du chat: {str(e)}")
 
     async def disconnect(self, close_code):
         try:

@@ -662,7 +662,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			// Envoi du token pour authentification dès l'ouverture de la connexion
 			chatSocket.send(JSON.stringify({
 				'type': 'authenticate',
-				'token': token
+				'token': token,
+				'room': 'main_room'  // Connexion à la room principale
 			}));
 		};
 
