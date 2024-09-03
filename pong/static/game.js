@@ -175,7 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					registerForm.style.display = 'none';
 					document.getElementById("post-form-buttons").style.display = 'block';
 					username = nickname; // Stocker le nom d'utilisateur après l'inscription
-					startChatWebSocket(token);
+					roomName = "main_room"; // Nom de la room principale
+					startChatWebSocket(token, roomName); // Initialiser le chat WebSocket
 				} else {
 					console.error('Registration failed.');
 					alert('Registration failed. Please try again.');
@@ -527,8 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		formBlock.style.display = 'none';
 		console.log("Hid formBlock.");
 
-		// Initialiser la connexion WebSocket pour le chat
-		//startChatWebSocket(token);
+		const roomName = "quick_match";
+    	startChatWebSocket(token, roomName);
 
 		startWebSocketConnection(token, 1);
 		console.log("Initiated WebSocket connection for Quick Match with token:", token);
@@ -548,6 +549,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		formBlock.style.display = 'none';
 		console.log("Hid formBlock.");
+
+		const roomName = "tournament";
+    	startChatWebSocket(token, roomName);
 
 		startWebSocketConnection(token, 42);
 		console.log("Initiated WebSocket connection for Tournament with token:", token);
@@ -652,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
 	// Initialisation du chat WebSocket
-	function startChatWebSocket(token) {
+	function startChatWebSocket(token, roomName) {
 		console.log("Initializing chat WebSocket...");
 
 		chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);

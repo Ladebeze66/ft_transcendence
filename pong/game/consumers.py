@@ -148,12 +148,12 @@ class GameConsumer(AsyncWebsocketConsumer):
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
-            # Room principale pour tous les utilisateurs
-            self.room_group_name = 'main_room'
+            # Récupérer la room depuis l'URL ou les données d'initialisation
+            self.room_group_name = self.scope['url_route']['kwargs']['room_name']
             self.user = self.scope["user"]
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
-            logger.info(f"{self.user.username} connecté au WebSocket de chat")
+            logger.info(f"{self.user.username} connecté au WebSocket de chat dans la room {self.room_group_name}")
             await self.channel_layer.group_send(self.room_group_name, {
                 'type': 'chat_message',
                 'message': f'{self.user.username} a rejoint le chat'
@@ -166,11 +166,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
             await self.channel_layer.group_send(self.room_group_name, {
                 'type': 'chat_message',
-                'message': f'{self.user.username} has left the chat'
+                'message': f'{self.user.username} a quitté le chat'
             })
-            logger.info(f"{self.user.username} disconnected from chat WebSocket")
+            logger.info(f"{self.user.username} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
         except Exception as e:
-            logger.error(f"Error during chat WebSocket disconnection: {str(e)}")
+            logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
 
     async def receive(self, text_data):
         try:
