@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let socket;
 	let token;
 	let gameState;
-	let chatSocket;
+	let activeRoom = null;	// Stocker la room active
+	let roomSockets = {}; // Stocker les connexions WebSocket par room
 	let username; // Ajouter cette variable pour stocker le nom d'utilisateur
 
 	console.log("DOM elements initialized");
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					document.getElementById("post-form-buttons").style.display = 'block';
 					username = nickname; // Stocker le nom d'utilisateur après l'inscription
 					roomName = "main_room"; // Nom de la room principale
-					startChatWebSocket(token, roomName); // Initialiser le chat WebSocket
+					joinRoom(roomName); // Initialiser le chat WebSocket
 				} else {
 					console.error('Registration failed.');
 					alert('Registration failed. Please try again.');
@@ -518,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		gameContainer.style.display = 'flex';
 		console.log("Displayed gameContainer.");
-
+		joinRoom(roomName);
 		logo.style.display = 'none';
 		console.log("Hid logo.");
 
@@ -529,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log("Hid formBlock.");
 
 		const roomName = "quick_match";
-    	startChatWebSocket(token, roomName);
+    	joinRoom(roomName);	// Initialiser le chat WebSocket pour la room de Quick Match
 
 		startWebSocketConnection(token, 1);
 		console.log("Initiated WebSocket connection for Quick Match with token:", token);
@@ -551,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log("Hid formBlock.");
 
 		const roomName = "tournament";
-    	startChatWebSocket(token, roomName);
+    	joinRoom(roomName);	// Initialiser le chat WebSocket pour la room de tournoi
 
 		startWebSocketConnection(token, 42);
 		console.log("Initiated WebSocket connection for Tournament with token:", token);
@@ -656,65 +657,121 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
 	// Initialisation du chat WebSocket
+	function createRoomTab(roomName) {
+		const tabContainer = document.getElementById('room-tabs-container');
+
+		// Créer un nouvel onglet
+		const newTab = document.createElement('button');
+		newTab.classList.add('room-tab');
+		newTab.textContent = roomName;
+		newTab.onclick = () => switchRoom(roomName);
+
+		tabContainer.appendChild(newTab);
+		console.log(`Created tab for room: ${roomName}`);
+	}
+
+	function switchRoom(roomName) {
+		if (activeRoom === roomName) {
+			console.log(`Already in room: ${roomName}`);
+			return; // Si l'utilisateur est déjà dans cette room, ne rien faire
+		}
+
+		// Fermer la connexion WebSocket de la room actuelle
+		if (activeRoom && roomSockets[activeRoom]) {
+			console.log(`Closing WebSocket connection for room: ${activeRoom}`);
+			roomSockets[activeRoom].close();
+		}
+
+		console.log(`Switching to room: ${roomName}`);
+		activeRoom = roomName;
+		startChatWebSocket(token, roomName);
+	}
+
 	function startChatWebSocket(token, roomName) {
 		console.log("Initializing chat WebSocket...");
 
-		chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+		try {
+			chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+			console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
 
-		chatSocket.onopen = function () {
-			console.log('Chat WebSocket connection established');
-			// Envoi du token pour authentification dès l'ouverture de la connexion
-			chatSocket.send(JSON.stringify({
-				'type': 'authenticate',
-				'token': token,
-				'room': 'main_room'  // Connexion à la room principale
-			}));
-		};
+			chatSocket.onopen = function () {
+				console.log(`Chat WebSocket connection established in room: ${roomName}`);
+				// Envoi du token pour authentification dès l'ouverture de la connexion
+				chatSocket.send(JSON.stringify({
+					'type': 'authenticate',
+					'token': token,
+					'room': roomName  // Connexion à la room spécifique
+				}));
+				console.log(`Authentication message sent for room: ${roomName}`);
+			};
 
-		chatSocket.onmessage = function (event) {
-			const data = JSON.parse(event.data);
-			if (data.type === 'authenticated') {
-				console.log('User authenticated for chat successfully');
-			} else if (data.message) {
-				const message = data.message;
-				const chatLog = document.getElementById('chat-log');
-				const messageElement = document.createElement('div');
-				messageElement.textContent = message;
-				chatLog.appendChild(messageElement);
-			} else {
-				console.warn('Unhandled message type:', data);
-			}
-		};
+			chatSocket.onmessage = function (event) {
+				const data = JSON.parse(event.data);
+				console.log(`Message received from server in room ${roomName}:`, data);
+				if (data.type === 'authenticated') {
+					console.log(`User authenticated for chat successfully in room: ${roomName}`);
+				} else if (data.message) {
+					const message = data.message;
+					const chatLog = document.getElementById('chat-log');
+					const messageElement = document.createElement('div');
+					messageElement.textContent = `${roomName}: ${message}`;
+					chatLog.appendChild(messageElement);
+					console.log(`Message displayed in chat log for room: ${roomName}`);
+				} else {
+					console.warn('Unhandled message type:', data);
+				}
+			};
 
-		chatSocket.onclose = function (event) {
-			if (event.wasClean) {
-				console.log(`Chat WebSocket closed cleanly, code=${event.code}, reason=${event.reason}`);
-			} else {
-				console.error('Chat WebSocket closed unexpectedly');
-			}
-		};
+			chatSocket.onclose = function (event) {
+				if (event.wasClean) {
+					console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
+				} else {
+					console.error(`Chat WebSocket closed unexpectedly for room ${roomName}`);
+				}
+			};
 
-		chatSocket.onerror = function (error) {
-			console.error('Chat WebSocket error:', error);
-		};
+			chatSocket.onerror = function (error) {
+				console.error(`Chat WebSocket error in room ${roomName}:`, error);
+			};
 
-		const chatInput = document.getElementById('chat-input');
-		const chatButton = document.getElementById('chat-button');
+			const chatInput = document.getElementById('chat-input');
+			const chatButton = document.getElementById('chat-button');
 
-		chatButton.addEventListener('click', () => {
-			const message = chatInput.value.trim();
-			if (message) {
-				console.log("Sending chat message:", message);
-				chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
-				chatInput.value = '';
-			}
-		});
+			chatButton.addEventListener('click', () => {
+				const message = chatInput.value.trim();
+				if (message) {
+					console.log(`Sending chat message in room ${roomName}:`, message);
+					chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
+					chatInput.value = '';
+				} else {
+					console.warn(`Attempted to send an empty message in room ${roomName}`);
+				}
+			});
 
 			chatInput.addEventListener('keypress', function (event) {
 				if (event.key === 'Enter') {
 					chatButton.click();
 				}
 			});
+
+			roomSockets[roomName] = chatSocket;
+			switchRoom(roomName); // Changer de room immédiatement
+			console.log(`WebSocket connection stored for room: ${roomName}`);
+
+		} catch (error) {
+			console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
 		}
+	}
+
+	function joinRoom(roomName) {
+		if (!roomSockets[roomName]) {
+			console.log(`Joining new room: ${roomName}`);
+			createRoomTab(roomName);
+			startChatWebSocket(token, roomName);
+		} else {
+			console.log(`Already connected to room: ${roomName}`);
+			switchRoom(roomName);
+		}
+	}
 
 });
