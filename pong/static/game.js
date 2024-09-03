@@ -169,11 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Attempting to register user:", nickname);
                 const result = await registerUser(nickname, password);
                 if (result) {
+					token = result; // Assurez-vous que le token est bien stocké ici
+					console.log("Token stored:", token);
                     console.log("User registered successfully");
-                    //username = nickname; // Stocker le nom d'utilisateur après l'inscription
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
-                    //startChatWebSocket();
+					username = nickname; // Stocker le nom d'utilisateur après l'inscription
+                    startChatWebSocket(token);
                 } else {
                     console.error('Registration failed.');
                     alert('Registration failed. Please try again.');
@@ -235,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await authenticateUser(nickname, password);
             if (result) {
                 console.log("User authenticated successfully");
-                username = nickname; // Stocker le nom d'utilisateur après la connexion
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
             } else {
@@ -526,6 +527,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		formBlock.style.display = 'none';
 		console.log("Hid formBlock.");
 
+		// Initialiser la connexion WebSocket pour le chat
+		//startChatWebSocket(token);
+
 		startWebSocketConnection(token, 1);
 		console.log("Initiated WebSocket connection for Quick Match with token:", token);
 	}
@@ -649,41 +653,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 	// Initialisation du chat WebSocket
-    function startChatWebSocket() {
-        console.log("Initializing chat WebSocket...");
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+	function startChatWebSocket(token) {
+    	console.log("Initializing chat WebSocket...");
 
-        chatSocket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            const message = data.message;
-            const chatLog = document.getElementById('chat-log');
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            chatLog.appendChild(messageElement);
-        };
+    	chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
 
-        chatSocket.onclose = function (event) {
-            console.error('Chat WebSocket closed unexpectedly');
-        };
+    	chatSocket.onopen = function () {
+        	console.log('Chat WebSocket connection established');
+        	// Envoi du token pour authentification dès l'ouverture de la connexion
+        	chatSocket.send(JSON.stringify({
+            	'type': 'authenticate',
+            	'token': token
+        	}));
+    	};
 
-        chatSocket.onerror = function (error) {
-            console.error('Chat WebSocket error:', error);
-        };
+    	chatSocket.onmessage = function (event) {
+        	const data = JSON.parse(event.data);
+        	if (data.type === 'authenticated') {
+            	console.log('User authenticated for chat successfully');
+        	} else if (data.message) {
+            	const message = data.message;
+            	const chatLog = document.getElementById('chat-log');
+            	const messageElement = document.createElement('div');
+            	messageElement.textContent = message;
+            	chatLog.appendChild(messageElement);
+        	} else {
+            	console.warn('Unhandled message type:', data);
+        	}
+    	};
 
-        const chatInput = document.getElementById('chat-input');
-        const chatButton = document.getElementById('chat-button');
+    	chatSocket.onclose = function (event) {
+        	if (event.wasClean) {
+            	console.log(`Chat WebSocket closed cleanly, code=${event.code}, reason=${event.reason}`);
+        	} else {
+            	console.error('Chat WebSocket closed unexpectedly');
+        	}
+    	};
 
-        chatButton.addEventListener('click', () => {
-            const message = chatInput.value;
-            console.log("Sending chat message:", message);
-            chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
-            chatInput.value = '';
-        });
+    	chatSocket.onerror = function (error) {
+        	console.error('Chat WebSocket error:', error);
+    	};
 
-        chatInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                chatButton.click();
-            }
-        });
-    }
+    	const chatInput = document.getElementById('chat-input');
+    	const chatButton = document.getElementById('chat-button');
+
+    	chatButton.addEventListener('click', () => {
+        	const message = chatInput.value.trim();
+        	if (message) {
+            	console.log("Sending chat message:", message);
+            	chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
+            	chatInput.value = '';
+        	}
+    	});
+
+    	chatInput.addEventListener('keypress', function (event) {
+        	if (event.key === 'Enter') {
+            	chatButton.click();
+        	}
+    	});
+	}
+
 });
