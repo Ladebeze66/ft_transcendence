@@ -185,10 +185,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
+
+            # Vérifiez si 'message' et 'username' existent dans les données
+            if 'message' not in data or 'username' not in data:
+                logger.error(f"Format de message incorrect : {data}")
+                await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format de message incorrect'}))
+                return
+
             message = data['message']
             username = data['username']
 
-            # Broadcast du message aux autres utilisateurs de la room via Redis
+            # Envoyer le message à tous les autres utilisateurs de la room
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -196,14 +203,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message': f'{username}: {message}',
                 }
             )
+        except json.JSONDecodeError as e:
+            logger.error(f"Erreur de décodage JSON : {str(e)} - Données reçues : {text_data}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format JSON invalide'}))
         except Exception as e:
             logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
             await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
-
-    async def chat_message(self, event):
-        try:
-            message = event['message']
-            await self.send(text_data=json.dumps({'message': message}))
-            logger.debug(f"Message de chat diffusé: {message}")
-        except Exception as e:
-            logger.error(f"Erreur lors de la diffusion du message de chat: {str(e)}")
