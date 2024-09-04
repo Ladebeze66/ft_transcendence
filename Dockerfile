@@ -14,5 +14,6 @@ COPY manage.py .
 RUN python3 -m venv venv
 RUN venv/bin/pip3 install --upgrade pip
 RUN venv/bin/pip3 install --no-cache-dir -r requirements.txt
+RUN venv/bin/pip3 install channels_redis  # Installer le module Redis pour Django Channels
 
 EXPOSE 8080

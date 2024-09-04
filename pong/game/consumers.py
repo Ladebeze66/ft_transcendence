@@ -148,26 +148,36 @@ class GameConsumer(AsyncWebsocketConsumer):
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
-            # Récupérer la room depuis l'URL ou les données d'initialisation
             self.room_group_name = self.scope['url_route']['kwargs']['room_name']
             self.user = self.scope["user"]
+
+            # Ajouter l'utilisateur au groupe Redis
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
+
             logger.info(f"{self.user.username} connecté au WebSocket de chat dans la room {self.room_group_name}")
-            await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'chat_message',
-                'message': f'{self.user.username} a rejoint le chat'
-            })
+
+            # Annonce que l'utilisateur a rejoint
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': f'{self.user.username} a rejoint le chat',
+                }
+            )
         except Exception as e:
             logger.error(f"Erreur lors de la connexion WebSocket du chat: {str(e)}")
 
     async def disconnect(self, close_code):
         try:
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'chat_message',
-                'message': f'{self.user.username} a quitté le chat'
-            })
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': f'{self.user.username} a quitté le chat',
+                }
+            )
             logger.info(f"{self.user.username} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
         except Exception as e:
             logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
@@ -177,22 +187,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             data = json.loads(text_data)
             message = data['message']
             username = data['username']
-            logger.debug(f"Received message from {username}: {message}")
-            await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'chat_message',
-                'message': f'{username}: {message}'
-            })
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error in chat receive: {str(e)} - Data received: {text_data}")
-            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid JSON format'}))
+
+            # Broadcast du message aux autres utilisateurs de la room via Redis
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': f'{username}: {message}',
+                }
+            )
         except Exception as e:
-            logger.error(f"Error during chat message receive: {str(e)}")
-            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Internal server error'}))
+            logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
 
     async def chat_message(self, event):
         try:
             message = event['message']
             await self.send(text_data=json.dumps({'message': message}))
-            logger.debug(f"Broadcasting chat message: {message}")
+            logger.debug(f"Message de chat diffusé: {message}")
         except Exception as e:
-            logger.error(f"Error during chat message broadcast: {str(e)}")
+            logger.error(f"Erreur lors de la diffusion du message de chat: {str(e)}")

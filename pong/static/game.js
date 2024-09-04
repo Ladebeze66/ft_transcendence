@@ -746,20 +746,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		console.log(`Switching to room: ${roomName}`);
+		const previousRoom = activeRoom;
 		activeRoom = roomName;
 
-		// Fermer la connexion précédente si nécessaire
-		if (roomSockets[activeRoom]) {
-			console.log(`Closing WebSocket for room: ${activeRoom}`);
-			roomSockets[activeRoom].close();
-		}
+		if (roomSockets[previousRoom]) {
+			console.log(`Closing WebSocket for room: ${previousRoom}`);
 
-		// Si la room n'est pas encore connectée, appeler joinRoom
-		if (!roomSockets[roomName] || roomSockets[roomName].readyState !== WebSocket.OPEN) {
-			joinRoom(roomName);
+			// Attendre la fermeture propre du WebSocket avant de créer un nouveau
+			roomSockets[previousRoom].close();
+			roomSockets[previousRoom].onclose = function(event) {
+				console.log(`WebSocket for room ${previousRoom} closed.`);
+				joinRoom(roomName);  // Rejoindre la nouvelle room après la fermeture
+			};
+		} else {
+			joinRoom(roomName);  // Si aucune room active, rejoindre directement
 		}
 	}
-
 
 	function startChatWebSocket(token, roomName) {
 		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
@@ -768,7 +770,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		console.log("Initializing chat WebSocket...");
 		console.log(`Initializing chat WebSocket for room: ${roomName}`);
-
+		// Utilisation d'un petit délai pour permettre la fermeture propre de l'ancien WebSocket
+		setTimeout(() => {
 		try {
 			chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
 			console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
@@ -819,6 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		} catch (error) {
 			console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
 		}
+	}, 100); // Délai de 100 ms
 	}
 
 	function joinRoom(roomName) {

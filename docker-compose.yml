@@ -50,13 +50,21 @@ services:
        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
        echo "Setting kibana_system password";
        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
-       echo "All done!";      
+       echo "All done!";
       '
     healthcheck:
      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
      interval: 1s
      timeout: 5s
      retries: 120
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
 
   backend:
     build:
@@ -67,7 +75,7 @@ services:
     restart: always
     command: /bin/sh -c "sleep 5 &&
       venv/bin/python manage.py makemigrations --noinput &&
-      venv/bin/python manage.py migrate --noinput && 
+      venv/bin/python manage.py migrate --noinput &&
       venv/bin/python manage.py collectstatic --noinput &&
       venv/bin/daphne -b 0.0.0.0 -p 8080 pong.asgi:application"
     volumes:
@@ -83,8 +91,10 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis  # Ajouter cette ligne pour la configuration Redis
     depends_on:
       - db
+      - redis  # Attendre que Redis soit prêt avant de démarrer
     healthcheck:
       test: ["CMD-SHELL", "curl", "http://localhost:8080"]
       interval: 30s
@@ -175,21 +185,21 @@ services:
       - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
     healthcheck:
-      test: 
+      test:
         [
-        "CMD-SHELL", 
+        "CMD-SHELL",
         "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'"
         ]
       interval: 10s
       timeout: 10s
       retries: 120
- 
+
   logstash01:
     image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
     container_name: logstash01
     labels:
-      co.elastic.logs/module: logstash 
-    user: root 
+      co.elastic.logs/module: logstash
+    user: root
     depends_on:
       es01:
         condition: service_healthy
@@ -209,7 +219,7 @@ services:
       - ELASTIC_USER=${ELASTIC_USERNAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - xpack.monitoring.enabled=false
-      
+
 volumes:
   pong:
     driver: local

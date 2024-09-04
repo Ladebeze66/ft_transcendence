@@ -603,6 +603,8 @@ canvas {
     padding: 10px;
     border-radius: 10px;
     color: #fff;
+    font-size: 14px;  /* Taille de police ajustée pour correspondre aux onglets */
+    margin-bottom: 20px;  /* Espace pour laisser de la place aux onglets en dessous */
 }
 
 /* Styles pour le journal du chat */
@@ -616,23 +618,23 @@ canvas {
 #chat-input {
     width: calc(100% - 50px);
     padding: 5px;
+    font-size: 14px;  /* Taille de police alignée avec le reste du chat */
 }
 
 /* Styles pour le bouton du chat */
 #chat-button {
     width: 165px;
     padding: 15px;
+    font-size: 14px;  /* Taille de police alignée avec le reste */
 }
+
 /* Styles pour le conteneur des onglets de rooms */
 #room-tabs-container {
     display: flex;
-    justify-content: flex-start;
-    margin-bottom: 10px;
-    position: absolute;
-    left: 10px;
-    bottom: 150px;  /* Ajustement pour aligner sous le chat */
-    width: 300px;  /* Largeur ajustée */
-    overflow-x: auto;
+    justify-content: center;
+    margin-top: 10px;
+    width: 100%;  /* Prendre la largeur complète pour les onglets */
+    position: relative;  /* Onglets sous le chat */
 }
 
 /* Styles pour chaque onglet */
@@ -640,12 +642,13 @@ canvas {
     background-color: #000033;
     color: #00ffff;
     border: 1px solid #00ffff;
-    padding: 3px 6px;  /* Taille réduite */
+    padding: 5px 10px;  /* Taille ajustée pour les onglets */
     margin-right: 5px;
     cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    font-size: 14px;  /* Taille de police ajustée pour correspondre au chat */
 }
+
 /* Effet au survol */
 .room-tab:hover {
     background-color: #00ffff;
