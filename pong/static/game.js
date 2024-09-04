@@ -822,36 +822,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.log(`WebSocket connection stored for room: ${roomName}`);
 
 				// Gestion de l'envoi de message
-				const messageInput = document.getElementById('chat-input');
+				const chatInput = document.getElementById('chat-input');
 				const chatButton = document.getElementById('chat-button');
 
-				// Envoyer un message via le WebSocket
-				function sendMessage() {
-					const message = messageInput.value.trim();
+				chatButton.addEventListener('click', () => {
+					const message = chatInput.value.trim();
 					if (message) {
-						chatSocket.send(JSON.stringify({
-							'type': 'chat_message',
-							'message': message,
-							'username': username // Assurez-vous que le nom d'utilisateur est bien défini
-						}));
-						messageInput.value = ''; // Effacer le champ de saisie
-					} else {
-						console.warn('Cannot send an empty message.');
+						console.log("Sending chat message:", message);
+						chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
+						chatInput.value = '';
 					}
-				}
+				});
 
-				// Envoi de message en appuyant sur "Entrée"
-				messageInput.addEventListener('keypress', function (event) {
+				chatInput.addEventListener('keypress', function (event) {
 					if (event.key === 'Enter') {
-						sendMessage();
+					chatButton.click();
 					}
 				});
-
-				// Envoi de message en cliquant sur le bouton d'envoi
-				chatButton.addEventListener('click', function () {
-					sendMessage();
-				});
-
 			} catch (error) {
 				console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
 			}

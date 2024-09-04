@@ -150,6 +150,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             self.room_group_name = self.scope['url_route']['kwargs']['room_name']
             self.user = self.scope["user"]
+            if self.user.is_authenticated:
+                # Traiter l'utilisateur connecté
+                logger.info(f"User authenticated: {self.user.username}")
+            else:
+                logger.warning("Unauthenticated user tried to connect to chat")
+                await self.close(code=4001)
+
 
             # Ajouter l'utilisateur au groupe Redis
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -167,6 +174,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         except Exception as e:
             logger.error(f"Erreur lors de la connexion WebSocket du chat: {str(e)}")
+            await self.close(code=1011)  # Fermez la connexion proprement en cas d'erreur
 
     async def disconnect(self, close_code):
         try:
@@ -184,6 +192,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
+            logger.debug(f"Message reçu : {text_data}")
             data = json.loads(text_data)
 
             # Vérifiez si 'message' et 'username' existent dans les données
