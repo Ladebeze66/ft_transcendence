@@ -628,26 +628,28 @@ canvas {
     font-size: 14px;  /* Taille de police alignée avec le reste */
 }
 
-/* Styles pour le conteneur des onglets de rooms */
+/* Ajuster la position des onglets sous le chat, en bas à gauche */
 #room-tabs-container {
+    position: absolute;
+    bottom: 0;
+    left: 10px;
     display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    width: 100%;  /* Prendre la largeur complète pour les onglets */
-    position: relative;  /* Onglets sous le chat */
+    justify-content: flex-start;
+    width: auto;
+    margin-top: 0;  /* Supprime l'espacement au-dessus */
 }
 
-/* Styles pour chaque onglet */
 .room-tab {
-    background-color: #000033;
-    color: #00ffff;
-    border: 1px solid #00ffff;
-    padding: 5px 10px;  /* Taille ajustée pour les onglets */
+    font-size: 14px;
+    padding: 5px 10px;
     margin-right: 5px;
     cursor: pointer;
+    border: 1px solid #00ffff;
+    background-color: #000033;
+    color: #00ffff;
     border-radius: 5px;
-    font-size: 14px;  /* Taille de police ajustée pour correspondre au chat */
 }
+
 
 /* Effet au survol */
 .room-tab:hover {
