@@ -715,6 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.log(`Authentication message sent for room: ${roomName}`);
 			};
 
+			// Gestion des messages reçus
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
 				console.log(`Message received from server in room ${roomName}:`, data);
@@ -744,34 +745,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error(`Chat WebSocket error in room ${roomName}:`, error);
 			};
 
-			const chatInput = document.getElementById('chat-input');
-			const chatButton = document.getElementById('chat-button');
-
-			chatButton.addEventListener('click', () => {
-				const message = chatInput.value.trim();
-				if (message) {
-					console.log(`Sending chat message in room ${roomName}:`, message);
-					chatSocket.send(JSON.stringify({ 'message': message, 'username': username }));
-					chatInput.value = '';
-				} else {
-					console.warn(`Attempted to send an empty message in room ${roomName}`);
-				}
-			});
-
-			chatInput.addEventListener('keypress', function (event) {
-				if (event.key === 'Enter') {
-					chatButton.click();
-				}
-			});
-
 			roomSockets[roomName] = chatSocket;
-			switchRoom(roomName); // Changer de room immédiatement
 			console.log(`WebSocket connection stored for room: ${roomName}`);
-
 		} catch (error) {
 			console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
 		}
 	}
+
 
 	function joinRoom(roomName) {
 		if (!roomSockets[roomName]) {

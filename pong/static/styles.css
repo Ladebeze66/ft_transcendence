@@ -630,9 +630,9 @@ canvas {
     margin-bottom: 10px;
     position: absolute;
     left: 10px;
-    bottom: 200px; /* Ajuster la distance par rapport au bas de l'écran */
-    width: 300px; /* Limiter la largeur du conteneur si nécessaire */
-    overflow-x: auto; /* Permettre un défilement si trop d'onglets */
+    bottom: 150px;  /* Ajustement pour aligner sous le chat */
+    width: 300px;  /* Largeur ajustée */
+    overflow-x: auto;
 }
 
 /* Styles pour chaque onglet */
@@ -640,13 +640,12 @@ canvas {
     background-color: #000033;
     color: #00ffff;
     border: 1px solid #00ffff;
-    padding: 10px;
+    padding: 3px 6px;  /* Taille réduite */
     margin-right: 5px;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s ease;
 }
-
 /* Effet au survol */
 .room-tab:hover {
     background-color: #00ffff;
