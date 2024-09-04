@@ -656,38 +656,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
-	// Initialisation du chat WebSocket
-	function createRoomTab(roomName) {
-		const tabContainer = document.getElementById('room-tabs-container');
+	// Fonction pour créer un onglet pour chaque room
+    function createRoomTab(roomName) {
+        const tabContainer = document.getElementById('room-tabs-container');
 
-		// Créer un nouvel onglet
-		const newTab = document.createElement('button');
-		newTab.classList.add('room-tab');
-		newTab.textContent = roomName;
-		newTab.onclick = () => switchRoom(roomName);
+        // Créer un nouvel onglet
+        const newTab = document.createElement('button');
+        newTab.classList.add('room-tab');
+        newTab.textContent = roomName;
+        newTab.onclick = () => switchRoom(roomName);
 
-		tabContainer.appendChild(newTab);
-		console.log(`Created tab for room: ${roomName}`);
-	}
+        tabContainer.appendChild(newTab);
+        console.log(`Created tab for room: ${roomName}`);
+    }
 
-	function switchRoom(roomName) {
-		if (activeRoom === roomName) {
-			console.log(`Already in room: ${roomName}`);
-			return; // Si l'utilisateur est déjà dans cette room, ne rien faire
-		}
+    // Fonction pour changer de room
+    function switchRoom(roomName) {
+        if (activeRoom === roomName) {
+            console.log(`Already in room: ${roomName}`);
+            return; // Si l'utilisateur est déjà dans cette room, ne rien faire
+        }
 
-		// Fermer la connexion WebSocket de la room actuelle
-		if (activeRoom && roomSockets[activeRoom]) {
-			console.log(`Closing WebSocket connection for room: ${activeRoom}`);
-			roomSockets[activeRoom].close();
-		}
+        // Fermer la connexion WebSocket de la room actuelle
+        if (activeRoom && roomSockets[activeRoom]) {
+            console.log(`Closing WebSocket connection for room: ${activeRoom}`);
+            roomSockets[activeRoom].close();
+        }
 
-		console.log(`Switching to room: ${roomName}`);
-		activeRoom = roomName;
-		startChatWebSocket(token, roomName);
-	}
+        // Mettre à jour l'onglet actif
+        const tabs = document.querySelectorAll('.room-tab');
+        tabs.forEach(tab => tab.classList.remove('active')); // Supprimer la classe active de tous les onglets
+        const currentTab = Array.from(tabs).find(tab => tab.textContent === roomName);
+        if (currentTab) {
+            currentTab.classList.add('active'); // Ajouter la classe active à l'onglet sélectionné
+        }
+
+        console.log(`Switching to room: ${roomName}`);
+        activeRoom = roomName;
+        startChatWebSocket(token, roomName); // Initialiser le WebSocket pour la nouvelle room
+    }
 
 	function startChatWebSocket(token, roomName) {
+		console.log(`Initializing chat WebSocket for room: ${roomName}`);
 		console.log("Initializing chat WebSocket...");
 
 		try {

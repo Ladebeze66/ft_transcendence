@@ -623,13 +623,19 @@ canvas {
     width: 165px;
     padding: 15px;
 }
-/*Styles pour les onglets de rooms*/
+/* Styles pour le conteneur des onglets de rooms */
 #room-tabs-container {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 10px;
+    position: absolute;
+    left: 10px;
+    bottom: 200px; /* Ajuster la distance par rapport au bas de l'écran */
+    width: 300px; /* Limiter la largeur du conteneur si nécessaire */
+    overflow-x: auto; /* Permettre un défilement si trop d'onglets */
 }
 
+/* Styles pour chaque onglet */
 .room-tab {
     background-color: #000033;
     color: #00ffff;
@@ -641,11 +647,13 @@ canvas {
     transition: background-color 0.3s ease;
 }
 
+/* Effet au survol */
 .room-tab:hover {
     background-color: #00ffff;
     color: #000033;
 }
 
+/* Onglet actif */
 .room-tab.active {
     background-color: #00ffff;
     color: #000033;
