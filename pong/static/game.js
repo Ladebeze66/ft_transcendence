@@ -83,49 +83,65 @@ document.addEventListener('DOMContentLoaded', () => {
 		return csrfToken;
 	}
 
-	async function handleCheckNickname() {
-		console.log("handleCheckNickname called");
+	async function handleRegister() {
+		console.log("handleRegister called");
 		const nickname = nicknameInput.value.trim();
-		if (nickname) {
-			try {
-				console.log("Checking if user exists:", nickname);
-				const exists = await checkUserExists(nickname);
-				if (exists) {
-					console.log("User exists, showing login form");
-					authForm.style.display = 'none';
-					loginForm.style.display = 'block';
-					loginPasswordInput.focus();
-					loginPasswordInput.addEventListener('keypress', function (event) {
-						if (event.key === 'Enter') {
-							event.preventDefault();
-							loginButton.click();
-						}
-					});
+		const password = passwordInput.value.trim();
+		const confirmPassword = confirmPasswordInput.value.trim();
+
+		// Validation du nom d'utilisateur
+		if (!nickname || nickname.length < 3) {
+			console.error("Invalid username. It must be at least 3 characters long.");
+			alert("Invalid username. It must be at least 3 characters long.");
+			return;
+		}
+
+		// Validation des mots de passe
+		if (password !== confirmPassword) {
+			alert('Passwords do not match.');
+			console.error('Passwords do not match.');
+			return;
+		}
+
+		// Tentative d'inscription
+		try {
+			console.log("Attempting to register user:", nickname);
+			const result = await registerUser(nickname, password);
+
+			// Vérification du résultat de l'inscription
+			if (result && result.token) {
+				token = result.token; // Stocker le token de l'utilisateur
+				console.log("Token stored successfully:", token);
+				console.log("User registered successfully");
+
+				// Mise à jour de l'interface après inscription réussie
+				registerForm.style.display = 'none';
+				document.getElementById("post-form-buttons").style.display = 'block';
+				username = nickname; // Stocker le nom d'utilisateur
+
+				// Définir le nom de la room principale
+				roomName = "main_room";
+
+				// Sécuriser l'appel à `joinRoom` (initialiser le chat WebSocket)
+				if (token && roomName) {
+					console.log(`Joining room: ${roomName} with token: ${token}`);
+					joinRoom(roomName); // Initialiser le chat WebSocket
 				} else {
-					console.log("User does not exist, showing registration form");
-					authForm.style.display = 'none';
-					registerForm.style.display = 'block';
-					passwordInput.focus();
-					passwordInput.addEventListener('keypress', function (event) {
-						if (event.key === 'Enter') {
-							confirmPasswordInput.focus();
-							confirmPasswordInput.addEventListener('keypress', function (event) {
-								if (event.key === 'Enter') {
-									event.preventDefault();
-									registerButton.click();
-								}
-							});
-						}
-					});
+					console.error("Token or roomName is undefined. Cannot join room.");
+					alert("Error joining the chat room. Please try again.");
 				}
-			} catch (error) {
-				console.error('Error checking user existence:', error);
+
+			} else {
+				console.error('Registration failed. Invalid response from server.');
+				alert('Registration failed. Please try again.');
 			}
-		} else {
-			alert('Please enter a nickname.');
-			console.error('Nickname is empty.');
+
+		} catch (error) {
+			console.error('Error registering user:', error);
+			alert('An error occurred during registration. Please try again.');
 		}
 	}
+
 
 	async function checkUserExists(username) {
 		console.log("checkUserExists called with username:", username);
@@ -197,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			const response = await fetch('/register_user/', {
 				method: 'POST',
 				headers: {
-					'X-CSRFToken': getCSRFToken(),
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({ username, password })
@@ -515,48 +530,60 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function startQuickMatch() {
-		console.log("Starting a Quick Match...");
-
+		// Masquer les éléments inutiles et afficher le conteneur de jeu
 		gameContainer.style.display = 'flex';
-		console.log("Displayed gameContainer.");
+		logo.style.display = 'none';
+		pongElements.style.display = 'none';
+		formBlock.style.display = 'none';
+
+		// Log pour vérifier le token avant l'authentification WebSocket
+		console.log("Token before WebSocket authentication:", token);
+
+		if (!token) {
+			console.error("Token is not defined or is null. WebSocket connection aborted.");
+			return;
+		}
+
+		// Vérification si une connexion WebSocket est déjà active avant d'initialiser
+		if (roomSockets["quick_match"] && roomSockets["quick_match"].readyState === WebSocket.OPEN) {
+			console.warn("WebSocket for quick_match already open.");
+			return;
+		}
+		//	Rejoindre la room "quick_match"
+		roomName = 'quick_match';
 		joinRoom(roomName);
-		logo.style.display = 'none';
-		console.log("Hid logo.");
-
-		pongElements.style.display = 'none';
-		console.log("Hid pongElements.");
-
-		formBlock.style.display = 'none';
-		console.log("Hid formBlock.");
-
-		const roomName = "quick_match";
-    	joinRoom(roomName);	// Initialiser le chat WebSocket pour la room de Quick Match
-
-		startWebSocketConnection(token, 1);
-		console.log("Initiated WebSocket connection for Quick Match with token:", token);
+		console.log("Starting WebSocket connection for quick match...");
+		startWebSocketConnection(token, 1); // Le "1" pourrait être un identifiant pour le mode Quick Match
 	}
 
-	function startTournament() {
-		console.log("Starting a Tournament...");
 
+    function startTournament() {
+		// Masquer les éléments inutiles et afficher le conteneur du tournoi
 		tournamentContainer.style.display = 'flex';
-		console.log("Displayed tournamentContainer.");
-
 		logo.style.display = 'none';
-		console.log("Hid logo.");
-
 		pongElements.style.display = 'none';
-		console.log("Hid pongElements.");
-
 		formBlock.style.display = 'none';
-		console.log("Hid formBlock.");
 
-		const roomName = "tournament";
-    	joinRoom(roomName);	// Initialiser le chat WebSocket pour la room de tournoi
+		// Log pour vérifier le token avant l'authentification WebSocket
+		console.log("Token before WebSocket authentication:", token);
 
-		startWebSocketConnection(token, 42);
-		console.log("Initiated WebSocket connection for Tournament with token:", token);
+		if (!token) {
+			console.error("Token is not defined or is null. WebSocket connection aborted.");
+			return;
+		}
+
+		// Vérification si une connexion WebSocket est déjà active avant d'initialiser
+		if (roomSockets["tournament"] && roomSockets["tournament"].readyState === WebSocket.OPEN) {
+			console.warn("WebSocket for tournament already open.");
+			return;
+		}
+		//	Rejoindre la room "tournament"
+		roomName = 'tournament';
+		joinRoom(roomName);
+		console.log("Starting WebSocket connection for tournament...");
+		startWebSocketConnection(token, 42); // Le "42" pourrait être un identifiant pour le mode tournoi
 	}
+
 
 	function startWebSocketConnection(token, players) {
 		if (socket && socket.readyState === WebSocket.OPEN) {
@@ -614,7 +641,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 	}
 
-
 	// Gestion des événements de touche
 	function handleKeyDown(event) {
 		console.log("Key pressed:", event.key);
@@ -658,47 +684,51 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	// Fonction pour créer un onglet pour chaque room
     function createRoomTab(roomName) {
-        const tabContainer = document.getElementById('room-tabs-container');
+		const tabContainer = document.getElementById('room-tabs-container');
+		const existingTab = Array.from(tabContainer.children).find(tab => tab.textContent === roomName);
 
-        // Créer un nouvel onglet
-        const newTab = document.createElement('button');
-        newTab.classList.add('room-tab');
-        newTab.textContent = roomName;
-        newTab.onclick = () => switchRoom(roomName);
-
-        tabContainer.appendChild(newTab);
-        console.log(`Created tab for room: ${roomName}`);
-    }
+		if (!existingTab) {
+			const newTab = document.createElement('button');
+			newTab.classList.add('room-tab');
+			newTab.textContent = roomName;
+			newTab.onclick = () => switchRoom(roomName);
+			tabContainer.appendChild(newTab);
+			console.log(`Created tab for room: ${roomName}`);
+		} else {
+			console.log(`Tab for room ${roomName} already exists.`);
+		}
+	}
 
     // Fonction pour changer de room
     function switchRoom(roomName) {
-        if (activeRoom === roomName) {
-            console.log(`Already in room: ${roomName}`);
-            return; // Si l'utilisateur est déjà dans cette room, ne rien faire
-        }
+		if (activeRoom === roomName) {
+			console.log(`Already in room: ${roomName}`);
+			return;
+		}
 
-        // Fermer la connexion WebSocket de la room actuelle
-        if (activeRoom && roomSockets[activeRoom]) {
-            console.log(`Closing WebSocket connection for room: ${activeRoom}`);
-            roomSockets[activeRoom].close();
-        }
+		console.log(`Switching to room: ${roomName}`);
+		activeRoom = roomName;
 
-        // Mettre à jour l'onglet actif
-        const tabs = document.querySelectorAll('.room-tab');
-        tabs.forEach(tab => tab.classList.remove('active')); // Supprimer la classe active de tous les onglets
-        const currentTab = Array.from(tabs).find(tab => tab.textContent === roomName);
-        if (currentTab) {
-            currentTab.classList.add('active'); // Ajouter la classe active à l'onglet sélectionné
-        }
+		// Fermer la connexion précédente si nécessaire
+		if (roomSockets[activeRoom]) {
+			console.log(`Closing WebSocket for room: ${activeRoom}`);
+			roomSockets[activeRoom].close();
+		}
 
-        console.log(`Switching to room: ${roomName}`);
-        activeRoom = roomName;
-        startChatWebSocket(token, roomName); // Initialiser le WebSocket pour la nouvelle room
-    }
+		// Si la room n'est pas encore connectée, appeler joinRoom
+		if (!roomSockets[roomName] || roomSockets[roomName].readyState !== WebSocket.OPEN) {
+			joinRoom(roomName);
+		}
+	}
+
 
 	function startChatWebSocket(token, roomName) {
-		console.log(`Initializing chat WebSocket for room: ${roomName}`);
+		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
+			console.warn(`WebSocket for room ${roomName} already open.`);
+			return;
+		}
 		console.log("Initializing chat WebSocket...");
+		console.log(`Initializing chat WebSocket for room: ${roomName}`);
 
 		try {
 			chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
@@ -752,16 +782,19 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-
 	function joinRoom(roomName) {
+		if (activeRoom === roomName) {
+			console.log(`Already in room: ${roomName}`);
+			return;
+		}
+
 		if (!roomSockets[roomName]) {
 			console.log(`Joining new room: ${roomName}`);
 			createRoomTab(roomName);
 			startChatWebSocket(token, roomName);
-		} else {
-			console.log(`Already connected to room: ${roomName}`);
-			switchRoom(roomName);
 		}
+
+		switchRoom(roomName);
 	}
 
 });
