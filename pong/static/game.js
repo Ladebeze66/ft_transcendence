@@ -83,6 +83,45 @@ document.addEventListener('DOMContentLoaded', () => {
 		return csrfToken;
 	}
 
+	async function handleCheckNickname() {
+        const nickname = nicknameInput.value.trim();
+        if (nickname) {
+            try {
+                const exists = await checkUserExists(nickname);
+                if (exists) {
+                    authForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                    loginPasswordInput.focus();
+                    loginPasswordInput.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            loginButton.click();
+                        }
+                    });
+                } else {
+                    authForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                    passwordInput.focus();
+                    passwordInput.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            confirmPasswordInput.focus();
+                            confirmPasswordInput.addEventListener('keypress', function (event) {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    registerButton.click();
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking user existence:', error);
+            }
+        } else {
+            alert('Please enter a nickname.');
+        }
+    }
+
 	async function handleRegister() {
 		console.log("handleRegister called");
 		const nickname = nicknameInput.value.trim();
