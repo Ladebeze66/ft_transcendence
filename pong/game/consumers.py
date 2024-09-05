@@ -150,19 +150,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             self.room_group_name = self.scope['url_route']['kwargs']['room_name']
             self.user = self.scope["user"]
-            if self.user.is_authenticated:
-                # Traiter l'utilisateur connecté
-                logger.info(f"User authenticated: {self.user.username}")
-            else:
-                logger.warning("Unauthenticated user tried to connect to chat")
-                await self.close(code=4001)
 
+            logger.info(f"User {self.user.username} connecting to WebSocket in room {self.room_group_name}")
 
             # Ajouter l'utilisateur au groupe Redis
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
 
-            logger.info(f"{self.user.username} connecté au WebSocket de chat dans la room {self.room_group_name}")
+            logger.info(f"{self.user.username} connected to chat WebSocket in room {self.room_group_name}")
 
             # Annonce que l'utilisateur a rejoint
             await self.channel_layer.group_send(
@@ -173,8 +168,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
         except Exception as e:
-            logger.error(f"Erreur lors de la connexion WebSocket du chat: {str(e)}")
-            await self.close(code=1011)  # Fermez la connexion proprement en cas d'erreur
+            logger.error(f"Error during WebSocket connection: {str(e)}")
 
     async def disconnect(self, close_code):
         try:
@@ -186,35 +180,44 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message': f'{self.user.username} a quitté le chat',
                 }
             )
-            logger.info(f"{self.user.username} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
+            logger.info(f"{self.user.username} disconnected from WebSocket chat in room {self.room_group_name}")
         except Exception as e:
-            logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
+            logger.error(f"Error during WebSocket disconnection: {str(e)}")
 
     async def receive(self, text_data):
         try:
-            logger.debug(f"Message reçu : {text_data}")
             data = json.loads(text_data)
 
-            # Vérifiez si 'message' et 'username' existent dans les données
-            if 'message' not in data or 'username' not in data:
-                logger.error(f"Format de message incorrect : {data}")
-                await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format de message incorrect'}))
-                return
+            message = data.get('message')
+            username = data.get('username')
 
-            message = data['message']
-            username = data['username']
+            if message and username:
+                logger.info(f"Received message from {username}: {message}")
 
-            # Envoyer le message à tous les autres utilisateurs de la room
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': f'{username}: {message}',
-                }
-            )
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': f'{username}: {message}',
+                    }
+                )
+            else:
+                logger.warning("Message or username missing in received data")
+                await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid message format'}))
+
         except json.JSONDecodeError as e:
-            logger.error(f"Erreur de décodage JSON : {str(e)} - Données reçues : {text_data}")
-            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format JSON invalide'}))
+            logger.error(f"JSON decode error: {str(e)} - Received data: {text_data}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid JSON format'}))
+
         except Exception as e:
-            logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
-            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
+            logger.error(f"Error during message receive: {str(e)}")
+            await self.send(text_data=json.dumps({'type': 'error', 'message': 'Internal server error'}))
+
+    async def chat_message(self, event):
+        """Handler for chat messages sent via the group."""
+        try:
+            message = event['message']
+            await self.send(text_data=json.dumps({'message': message}))
+            logger.info(f"Broadcasting message: {message}")
+        except Exception as e:
+            logger.error(f"Error during message broadcast: {str(e)}")
