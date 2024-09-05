@@ -144,7 +144,6 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def set_game(self, game):
         logger.info(f"Setting game: {game}")
         self.game = game
-
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
@@ -159,12 +158,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             logger.info(f"{self.user.username} connected to chat WebSocket in room {self.room_group_name}")
 
-            # Annonce que l'utilisateur a rejoint
+            # Envoyer le message d'annonce avec le bon format (ajout de 'username' pour respecter le format attendu)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'chat_message',
                     'message': f'{self.user.username} a rejoint le chat',
+                    'username': 'System'  # Ajout d'un champ 'username'
                 }
             )
         except Exception as e:

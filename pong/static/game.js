@@ -726,13 +726,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		const tabContainer = document.getElementById('room-tabs-container');
 		const existingTab = Array.from(tabContainer.children).find(tab => tab.textContent === roomName);
 
+		// Créer un nouvel onglet s'il n'existe pas
 		if (!existingTab) {
 			const newTab = document.createElement('button');
 			newTab.classList.add('room-tab');
 			newTab.textContent = roomName;
-			newTab.onclick = () => switchRoom(roomName);
+			newTab.onclick = () => switchRoom(roomName); // Basculer vers la room au clic
 			tabContainer.appendChild(newTab);
 			console.log(`Created tab for room: ${roomName}`);
+
+			// Créer un conteneur pour le chat log de la nouvelle room
+			const chatLogContainer = document.getElementById('chat-log-container');
+			const newChatLog = document.createElement('div');
+			newChatLog.id = `chat-log-${roomName}`;
+			newChatLog.classList.add('chat-log');
+			newChatLog.style.display = 'none'; // Masquer par défaut
+			chatLogContainer.appendChild(newChatLog);
 		} else {
 			console.log(`Tab for room ${roomName} already exists.`);
 		}
@@ -749,17 +758,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		const previousRoom = activeRoom;
 		activeRoom = roomName;
 
-		if (roomSockets[previousRoom]) {
-			console.log(`Closing WebSocket for room: ${previousRoom}`);
+		// Masquer les logs de chat de la room précédente
+		if (previousRoom && document.getElementById(`chat-log-${previousRoom}`)) {
+			document.getElementById(`chat-log-${previousRoom}`).style.display = 'none';
+		}
 
-			// Attendre la fermeture propre du WebSocket avant de créer un nouveau
-			roomSockets[previousRoom].close();
-			roomSockets[previousRoom].onclose = function(event) {
-				console.log(`WebSocket for room ${previousRoom} closed.`);
-				joinRoom(roomName);  // Rejoindre la nouvelle room après la fermeture
-			};
+		// Afficher les logs de chat de la nouvelle room
+		if (document.getElementById(`chat-log-${roomName}`)) {
+			document.getElementById(`chat-log-${roomName}`).style.display = 'block';
 		} else {
-			joinRoom(roomName);  // Si aucune room active, rejoindre directement
+			console.warn(`No chat log found for room: ${roomName}`);
 		}
 	}
 
@@ -861,20 +869,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 100); // Délai de 100 ms
 	}
 
-
-
 	function joinRoom(roomName) {
+		// Vérifier si la room est déjà active
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
 		}
 
+		// Si la room n'a pas encore de WebSocket, on en crée un
 		if (!roomSockets[roomName]) {
 			console.log(`Joining new room: ${roomName}`);
-			createRoomTab(roomName);
-			startChatWebSocket(token, roomName);
+			createRoomTab(roomName); // Créer l'onglet pour la room
+			startChatWebSocket(token, roomName); // Démarrer le WebSocket de la room
 		}
 
+		// Basculer vers la room
 		switchRoom(roomName);
 	}
 
