@@ -128,56 +128,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		const password = passwordInput.value.trim();
 		const confirmPassword = confirmPasswordInput.value.trim();
 
-		// Validation du nom d'utilisateur
 		if (!nickname || nickname.length < 3) {
 			console.error("Invalid username. It must be at least 3 characters long.");
 			alert("Invalid username. It must be at least 3 characters long.");
 			return;
 		}
 
-		// Validation des mots de passe
-		if (password !== confirmPassword) {
-			alert('Passwords do not match.');
-			console.error('Passwords do not match.');
-			return;
-		}
-
-		// Tentative d'inscription
-		try {
-			console.log("Attempting to register user:", nickname);
-			const result = await registerUser(nickname, password);
-
-			// Vérification du résultat de l'inscription
-			if (result && result.token) {
-				token = result.token; // Stocker le token de l'utilisateur
-				console.log("Token stored successfully:", token);
-				console.log("User registered successfully");
-
-				// Mise à jour de l'interface après inscription réussie
-				registerForm.style.display = 'none';
-				document.getElementById("post-form-buttons").style.display = 'block';
-				username = nickname; // Stocker le nom d'utilisateur
-
-				// Définir le nom de la room principale
-				roomName = "main_room";
-
-				// Sécuriser l'appel à `joinRoom` (initialiser le chat WebSocket)
-				if (token && roomName) {
-					console.log(`Joining room: ${roomName} with token: ${token}`);
+		if (password === confirmPassword) {
+			try {
+				console.log("Attempting to register user:", nickname);
+				const result = await registerUser(nickname, password);
+				if (result) {
+					token = result; // Assurez-vous que le token est bien stocké ici
+					console.log("Token stored:", token);
+					console.log("User registered successfully");
+					registerForm.style.display = 'none';
+					document.getElementById("post-form-buttons").style.display = 'block';
+					username = nickname; // Stocker le nom d'utilisateur après l'inscription
+					roomName = "main_room"; // Nom de la room principale
 					joinRoom(roomName); // Initialiser le chat WebSocket
 				} else {
-					console.error("Token or roomName is undefined. Cannot join room.");
-					alert("Error joining the chat room. Please try again.");
+					console.error('Registration failed.');
+					alert('Registration failed. Please try again.');
 				}
-
-			} else {
-				console.error('Registration failed. Invalid response from server.');
-				alert('Registration failed. Please try again.');
+			} catch (error) {
+				console.error('Error registering user:', error);
 			}
-
-		} catch (error) {
-			console.error('Error registering user:', error);
-			alert('An error occurred during registration. Please try again.');
+		} else {
+			alert('Passwords do not match.');
+			console.error('Passwords do not match.');
 		}
 	}
 
@@ -245,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			return null;
 		}
 	}
-
 
 	async function handleLogin() {
 		console.log("handleLogin called");
