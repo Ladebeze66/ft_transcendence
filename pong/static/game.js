@@ -214,37 +214,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			const response = await fetch('/register_user/', {
 				method: 'POST',
 				headers: {
+					'X-CSRFToken': getCSRFToken(),
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({ username, password })
 			});
 
-			if (!response.ok) {
-				console.error(`HTTP error! Status: ${response.status}`);
-				return null;  // Retournez null en cas d'erreur HTTP
-			}
+			// Vérifiez le statut HTTP et affichez la réponse brute
+			console.log(`HTTP Status: ${response.status}`);
+			const rawResponse = await response.text();  // Capturer la réponse brute
+			console.log("Raw Response:", rawResponse);
 
-			let data;
-			try {
-				data = await response.json();
-			} catch (error) {
-				console.error('Invalid JSON response:', error);
-				return null;
-			}
-
-			console.log("Registration response data:", data);
-			if (data.registered) {
-				console.log('User registered successfully:', data);
-				return data.token;
+			// Tentez ensuite d'analyser le JSON
+			if (response.ok) {
+				const data = JSON.parse(rawResponse);  // Si la réponse est correcte
+				console.log("Registration response data:", data);
+				if (data.registered) {
+					console.log('User registered successfully:', data);
+					return data.token;
+				} else {
+					console.error('Registration failed:', data.error);
+					return null;
+				}
 			} else {
-				console.error('Registration failed:', data.error);
-				return null;  // Retournez null si l'enregistrement échoue
+				console.error(`HTTP error! Status: ${response.status}`);
+				return null;
 			}
 		} catch (error) {
 			console.error('Error during registration request:', error);
 			return null;
 		}
 	}
+
 
 	async function handleLogin() {
 		console.log("handleLogin called");
