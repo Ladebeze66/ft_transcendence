@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
 	// Fonction pour créer dynamiquement un onglet de room et un log de chat
-	function createRoomTab(roomName) {
+	function createRoomTab(token, roomName, username) {
 		const tabContainer = document.getElementById('room-tabs-container');
 		if (!tabContainer) {
 			console.error('Room tabs container not found.');
@@ -676,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const newTab = document.createElement('button');
 			newTab.classList.add('room-tab');
 			newTab.textContent = roomName;
-			newTab.onclick = () => switchRoom(roomName);  // Changer de room
+			newTab.onclick = () => switchRoom(token, roomName, username);  // Changer de room
 			tabContainer.appendChild(newTab);
 			console.log(`Created tab for room: ${roomName}`);
 
@@ -698,13 +698,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	// Fonction pour changer de room
-	function switchRoom(roomName) {
+	function switchRoom(token, roomName, username) {
 		if (!roomName) {
 			console.error('Room name is undefined.');
 			return;
 		}
 
-		// Si la room actuelle est déjà active, ne rien faire
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
@@ -714,12 +713,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		const previousRoom = activeRoom;
 		activeRoom = roomName;
 
-		// Masquer les logs de chat de la room précédente
 		if (previousRoom && document.getElementById(`chat-log-${previousRoom}`)) {
 			document.getElementById(`chat-log-${previousRoom}`).style.display = 'none';
 		}
 
-		// Afficher les logs de chat de la nouvelle room
 		const chatLog = document.getElementById(`chat-log-${roomName}`);
 		if (chatLog) {
 			chatLog.style.display = 'block';
@@ -727,6 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.warn(`No chat log found for room: ${roomName}`);
 		}
 	}
+
 
 	function startChatWebSocket(token, roomName, username) {
 		// Vérifier que le WebSocket de cette room n'est pas déjà ouvert
