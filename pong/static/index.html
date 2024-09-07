@@ -198,14 +198,29 @@
     <script src="{% static 'burger.js' %}"></script>
     <script src="{% static 'language.js' %}"></script>
 	<!-- Ajouter l'interface du Chat -->
+	 <script>
+		// Initialiser la page avec la room main_room active
+		window.onload = function() {
+        activeRoom = 'main_room';  // Activer la room par défaut
+        switchRoom(activeRoom);    // Afficher les logs de la room par défaut
+
+        // Exemple d'ajout d'une nouvelle room dynamiquement
+        createRoomTab('room2');  // Créer un onglet pour 'room2'
+    };
+	 </script>
 	<div id="room-tabs-container">
 		<!-- Les onglets seront dynamiquement ajoutés ici par JavaScript -->
 	</div>
-    <div id="chat-container">
-        <div id="chat-log"></div>
-        <input type="text" id="chat-input" placeholder="Tapez votre message...">
-        <button id="chat-button">➤</button>
-    </div>
+
+	<div id="chat-log-container">
+		<!-- Journaux de chat pour différentes rooms -->
+		<div id="chat-log-main_room" class="chat-log" style="display:block;"></div>
+		<div id="chat-log-room2" class="chat-log" style="display:none;"></div>
+
+		<!-- Entrée de texte et bouton d'envoi -->
+		<input type="text" id="chat-input" placeholder="Tapez votre message...">
+		<button id="chat-button">➤</button>
+	</div>
 	<script>
         const starsContainer = document.getElementById('stars');
         for (let i = 0; i < 500; i++) {

@@ -475,7 +475,7 @@ canvas {
 }
 
 /* Styles pour le conteneur du chat */
-#chat-container {
+#chat-log-container {
     position: absolute;
     left: 10px;
     bottom: 10px;
@@ -490,6 +490,12 @@ canvas {
 
 /* Styles pour le journal du chat */
 #chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-log {
     max-height: 150px;
     overflow-y: auto;
     margin-bottom: 10px;

@@ -84,43 +84,43 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	async function handleCheckNickname() {
-        const nickname = nicknameInput.value.trim();
-        if (nickname) {
-            try {
-                const exists = await checkUserExists(nickname);
-                if (exists) {
-                    authForm.style.display = 'none';
-                    loginForm.style.display = 'block';
-                    loginPasswordInput.focus();
-                    loginPasswordInput.addEventListener('keypress', function (event) {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                            loginButton.click();
-                        }
-                    });
-                } else {
-                    authForm.style.display = 'none';
-                    registerForm.style.display = 'block';
-                    passwordInput.focus();
-                    passwordInput.addEventListener('keypress', function (event) {
-                        if (event.key === 'Enter') {
-                            confirmPasswordInput.focus();
-                            confirmPasswordInput.addEventListener('keypress', function (event) {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-                                    registerButton.click();
-                                }
-                            });
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Error checking user existence:', error);
-            }
-        } else {
-            alert('Please enter a nickname.');
-        }
-    }
+		const nickname = nicknameInput.value.trim();
+		if (nickname) {
+			try {
+				const exists = await checkUserExists(nickname);
+				if (exists) {
+					authForm.style.display = 'none';
+					loginForm.style.display = 'block';
+					loginPasswordInput.focus();
+					loginPasswordInput.addEventListener('keypress', function (event) {
+						if (event.key === 'Enter') {
+							event.preventDefault();
+							loginButton.click();
+						}
+					});
+				} else {
+					authForm.style.display = 'none';
+					registerForm.style.display = 'block';
+					passwordInput.focus();
+					passwordInput.addEventListener('keypress', function (event) {
+						if (event.key === 'Enter') {
+							confirmPasswordInput.focus();
+							confirmPasswordInput.addEventListener('keypress', function (event) {
+								if (event.key === 'Enter') {
+									event.preventDefault();
+									registerButton.click();
+								}
+							});
+						}
+					});
+				}
+			} catch (error) {
+				console.error('Error checking user existence:', error);
+			}
+		} else {
+			alert('Please enter a nickname.');
+		}
+	}
 
 	async function handleRegister() {
 		console.log("handleRegister called");
@@ -146,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					document.getElementById("post-form-buttons").style.display = 'block';
 					username = nickname; // Stocker le nom d'utilisateur après l'inscription
 					roomName = "main_room"; // Nom de la room principale
-					joinRoom(roomName); // Initialiser le chat WebSocket
+					// Après avoir récupéré le token lors de l'inscription
+					joinRoom(token, roomName, username); // Initialiser le chat WebSocket
 				} else {
 					console.error('Registration failed.');
 					alert('Registration failed. Please try again.');
@@ -530,13 +531,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		//	Rejoindre la room "quick_match"
 		roomName = 'quick_match';
-		joinRoom(roomName);
+		joinRoom(token, roomName, username);
 		console.log("Starting WebSocket connection for quick match...");
 		startWebSocketConnection(token, 1); // Le "1" pourrait être un identifiant pour le mode Quick Match
 	}
 
 
-    function startTournament() {
+	function startTournament() {
 		// Masquer les éléments inutiles et afficher le conteneur du tournoi
 		tournamentContainer.style.display = 'flex';
 		logo.style.display = 'none';
@@ -558,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		//	Rejoindre la room "tournament"
 		roomName = 'tournament';
-		joinRoom(roomName);
+		joinRoom(token, roomName, username);
 		console.log("Starting WebSocket connection for tournament...");
 		startWebSocketConnection(token, 42); // Le "42" pourrait être un identifiant pour le mode tournoi
 	}
@@ -661,41 +662,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
-	// Fonction pour créer un onglet pour chaque room
-    function createRoomTab(roomName) {
+	// Fonction pour créer dynamiquement un onglet de room et un log de chat
+	function createRoomTab(roomName) {
 		const tabContainer = document.getElementById('room-tabs-container');
 		if (!tabContainer) {
 			console.error('Room tabs container not found.');
-			return; // Stop the function if the element doesn't exist
+			return;
 		}
 
+		// Vérifier si un onglet pour cette room existe déjà
 		const existingTab = Array.from(tabContainer.children).find(tab => tab.textContent === roomName);
 		if (!existingTab) {
 			const newTab = document.createElement('button');
 			newTab.classList.add('room-tab');
 			newTab.textContent = roomName;
-			newTab.onclick = () => switchRoom(roomName);
+			newTab.onclick = () => switchRoom(roomName);  // Changer de room
 			tabContainer.appendChild(newTab);
 			console.log(`Created tab for room: ${roomName}`);
 
-			// Créer un conteneur de log de chat pour chaque room
+			// Créer un conteneur de log de chat pour cette room
 			const chatLogContainer = document.getElementById('chat-log-container');
 			if (!chatLogContainer) {
 				console.error('Chat log container not found.');
 				return;
 			}
+
 			const newChatLog = document.createElement('div');
-			newChatLog.id = `chat-log-${roomName}`;
+			newChatLog.id = `chat-log-${roomName}`;  // Assigner un ID unique
 			newChatLog.classList.add('chat-log');
-			newChatLog.style.display = 'none'; // Hide initially
+			newChatLog.style.display = 'none';  // Masqué par défaut
 			chatLogContainer.appendChild(newChatLog);
 		} else {
 			console.log(`Tab for room ${roomName} already exists.`);
 		}
 	}
 
-    // Fonction pour changer de room
-    function switchRoom(roomName) {
+	// Fonction pour changer de room
+	function switchRoom(roomName) {
+		if (!roomName) {
+			console.error('Room name is undefined.');
+			return;
+		}
+
+		// Si la room actuelle est déjà active, ne rien faire
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
@@ -719,17 +728,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	function startChatWebSocket(token, roomName) {
+	function startChatWebSocket(token, roomName, username) {
+		// Vérifier que le WebSocket de cette room n'est pas déjà ouvert
 		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
-			console.warn(`WebSocket for room ${roomName} already open.`);
+			console.warn(`WebSocket for room ${roomName} is already open.`);
 			return;
 		}
 
+		// Vérification des pré-requis
 		if (!token) {
 			console.error("Token is not defined. Cannot start WebSocket.");
 			return;
 		}
+		if (!username) {
+			console.error("Username is not defined. Cannot start WebSocket.");
+			return;
+		}
 
+		// Initialisation de la connexion WebSocket
 		console.log(`Initializing chat WebSocket for room: ${roomName}`);
 		try {
 			chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
@@ -738,10 +754,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			chatSocket.onopen = function () {
 				console.log(`Chat WebSocket connection established in room: ${roomName}`);
 				try {
+					// Envoyer le message d'authentification
 					chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
 						'token': token,
-						'room': roomName
+						'room': roomName,
+						'username': username
 					}));
 					console.log(`Authentication message sent for room: ${roomName}`);
 				} catch (error) {
@@ -752,9 +770,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
 				console.log(`Message received from server in room ${roomName}:`, data);
+
 				if (data.type === 'authenticated') {
 					console.log(`User authenticated for chat successfully in room: ${roomName}`);
 				} else if (data.message) {
+					// Afficher le message dans le chat
 					const message = data.message;
 					const chatLog = document.getElementById(`chat-log-${roomName}`);
 					if (chatLog) {
@@ -780,6 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error(`Chat WebSocket error in room ${roomName}:`, error);
 			};
 
+			// Enregistrer le socket dans la liste des sockets
 			roomSockets[roomName] = chatSocket;
 
 			// Gestion de l'envoi de message
@@ -793,7 +814,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					chatSocket.send(JSON.stringify({
 						'type': 'chat_message',
 						'message': message,
-						'username': username // Assurez-vous que le nom d'utilisateur est bien défini
+						'username': username, // Assurez-vous que le nom d'utilisateur est bien défini
+						'room': roomName
 					}));
 					messageInput.value = ''; // Effacer le champ de saisie
 				} else {
@@ -818,8 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-
-	function joinRoom(roomName) {
+	function joinRoom(token, roomName, username) {
 		// Vérifier si la room est déjà active
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
@@ -829,13 +850,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Si la room n'a pas encore de WebSocket, on en crée un
 		if (!roomSockets[roomName]) {
 			console.log(`Joining new room: ${roomName}`);
-			createRoomTab(roomName); // Créer l'onglet pour la room
-			startChatWebSocket(token, roomName); // Démarrer le WebSocket de la room
+			createRoomTab(token, roomName, username); // Créer l'onglet pour la room
+			startChatWebSocket(token, roomName, username);
 		}
 
 		// Basculer vers la room
-		switchRoom(roomName);
+		switchRoom(token, roomName, username);
 	}
-
 
 });
