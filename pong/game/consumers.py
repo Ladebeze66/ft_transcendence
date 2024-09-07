@@ -16,6 +16,10 @@ class GameConsumer(AsyncWebsocketConsumer):
 			logger.info("User connected via WebSocket")
 		except Exception as e:
 			logger.error(f"Error during WebSocket connection: {str(e)}")
+		if hasattr(self.user, 'username') and self.user.username:
+			logger.info(f"User {self.user.username} connecting to WebSocket in room {self.room_group_name}")
+		else:
+			logger.warning("User has no username defined")
 
 	async def receive(self, text_data):
 		try:
@@ -144,16 +148,15 @@ class GameConsumer(AsyncWebsocketConsumer):
 	async def set_game(self, game):
 		logger.info(f"Setting game: {game}")
 		self.game = game
+
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		try:
 			self.room_group_name = self.scope['url_route']['kwargs']['room_name']
-			self.user = self.scope["user"]
+			self.user = self.scope.get("user", None)
 
-
-			if hasattr(self.user, 'username') and self.user.username:
+			if self.user and hasattr(self.user, 'username') and self.user.username:
 				logger.info(f"User {self.user.username} connecting to WebSocket in room {self.room_group_name}")
-
 
 				# Ajouter l'utilisateur au groupe Redis
 				await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -167,13 +170,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					{
 						'type': 'chat_message',
 						'message': f'{self.user.username} a rejoint le chat',
-						'username': self.user.username,  # Utilise l'username de l'utilisateur
-						'room': self.room_group_name      # Ajoute le nom de la room
+						'username': self.user.username,
+						'room': self.room_group_name
 					}
 				)
 			else:
-				logger.warning("User has no username defined")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'User has no username defined'}))
+				logger.warning("User has no username defined or user is None")
+				await self.send(text_data=json.dumps({'type': 'error', 'message': 'User has no username defined or is None'}))
 		except Exception as e:
 			logger.error(f"Error during WebSocket connection: {str(e)}")
 
@@ -209,7 +212,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					await self.send(text_data=json.dumps({'type': 'authenticated', 'message': 'User authenticated'}))
 				else:
 					logger.warning("Token or username missing in authentication")
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid authentication format'}))
+					await self.send(text_data.json.dumps({'type': 'error', 'message': 'Invalid authentication format'}))
 
 			elif message_type == 'chat_message':
 				message = data.get('message')
@@ -227,19 +230,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					)
 				else:
 					logger.warning(f"Message or username missing: message={message}, username={username}")
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid message format'}))
+					await self.send(text_data.json.dumps({'type': 'error', 'message': 'Invalid message format'}))
 
 			else:
 				logger.warning(f"Unknown message type: {message_type}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Unknown message type'}))
+				await self.send(text_data.json.dumps({'type': 'error', 'message': 'Unknown message type'}))
 
 		except json.JSONDecodeError as e:
 			logger.error(f"JSON decode error: {str(e)} - Received data: {text_data}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid JSON format'}))
+			await self.send(text_data.json.dumps({'type': 'error', 'message': 'Invalid JSON format'}))
 
 		except Exception as e:
 			logger.error(f"Error during message receive: {str(e)}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Internal server error'}))
+			await self.send(text_data.json.dumps({'type': 'error', 'message': 'Internal server error'}))
 
 	async def chat_message(self, event):
 		"""Handler for chat messages sent via the group."""

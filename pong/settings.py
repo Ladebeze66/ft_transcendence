@@ -10,6 +10,14 @@ import os
 import logging.config
 from pathlib import Path
 
+try:
+    redis_instance = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
+    redis_instance.ping()
+    print("Connexion à Redis réussie")
+except redis.ConnectionError:
+    raise ImproperlyConfigured("Échec de la connexion à Redis")
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -125,12 +133,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Channels
-# Define the channel layers for WebSockets
+# Configuration des couches de canaux
 CHANNEL_LAYERS = {
     'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+    'chat': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [("redis", 6379)],  # Configurer Redis pour être utilisé par Django Channels
+            "hosts": [('redis', 6379)],
         },
     },
 }
