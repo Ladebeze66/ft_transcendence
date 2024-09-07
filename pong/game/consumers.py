@@ -150,6 +150,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.room_group_name = self.scope['url_route']['kwargs']['room_name']
 			self.user = self.scope["user"]
 
+
 			if hasattr(self.user, 'username') and self.user.username:
 				logger.info(f"User {self.user.username} connecting to WebSocket in room {self.room_group_name}")
 

@@ -664,6 +664,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	// Fonction pour créer dynamiquement un onglet de room et un log de chat
 	function createRoomTab(token, roomName, username) {
+		console.log(`createRoomTab: ${roomName} with username: ${username} and token: ${token}`);
+
 		const tabContainer = document.getElementById('room-tabs-container');
 		if (!tabContainer) {
 			console.error('Room tabs container not found.');
@@ -701,6 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Fonction pour changer de room
 	function switchRoom(token, roomName, username) {
+		console.log(`switchRoom: ${roomName} with username: ${username} and token: ${token}`);
+
 		if (!roomName) {
 			console.error('Room name is undefined.');
 			return;
@@ -722,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const chatLog = document.getElementById(`chat-log-${roomName}`);
 		if (chatLog) {
-			console.log(`Showing chat log for room: ${roomName}`);
+
 			chatLog.style.display = 'block';
 		} else {
 			console.warn(`No chat log found for room: ${roomName}`);
@@ -750,13 +754,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Initialisation de la connexion WebSocket
 		console.log(`Initializing chat WebSocket for room: ${roomName}`);
 		try {
+			console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
 			chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
 			console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
 
 			chatSocket.onopen = function () {
 				console.log(`Chat WebSocket connection established in room: ${roomName}`);
 				try {
-					console.log(`Sending authentication message with username: ${username}, token: ${token}, room: ${roomName}`);
 					// Envoyer le message d'authentification
 					chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
@@ -772,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
-				console.log(`Received data from server:`, data);  // Ajoutez ce log pour voir la réponse complète
 				console.log(`Message received from server in room ${roomName}:`, data);
 
 				if (data.type === 'authenticated') {
@@ -846,6 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function joinRoom(token, roomName, username) {
 		// Vérifier si la room est déjà active
+		console.log(`Joining room: ${roomName} with username: ${username} and token: ${token}`);
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
@@ -857,9 +861,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			createRoomTab(token, roomName, username); // Créer l'onglet pour la room
 			startChatWebSocket(token, roomName, username);
 		}
-
+		if (roomSockets[roomName]) {		// Vérifier si le WebSocket est déjà ouvert
 		// Basculer vers la room
-		switchRoom(token, roomName, username);
+		//switchRoom(token, roomName, username);
 	}
+}
 
 });
