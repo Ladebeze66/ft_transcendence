@@ -153,6 +153,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			if hasattr(self.user, 'username') and self.user.username:
 				logger.info(f"User {self.user.username} connecting to WebSocket in room {self.room_group_name}")
 
+
 				# Ajouter l'utilisateur au groupe Redis
 				await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 				await self.accept()
@@ -171,6 +172,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				)
 			else:
 				logger.warning("User has no username defined")
+				await self.send(text_data=json.dumps({'type': 'error', 'message': 'User has no username defined'}))
 		except Exception as e:
 			logger.error(f"Error during WebSocket connection: {str(e)}")
 

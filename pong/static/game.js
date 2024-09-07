@@ -669,10 +669,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.error('Room tabs container not found.');
 			return;
 		}
-
+		console.log(`Checking if tab for room ${roomName} already exists.`);
 		// Vérifier si un onglet pour cette room existe déjà
 		const existingTab = Array.from(tabContainer.children).find(tab => tab.textContent === roomName);
 		if (!existingTab) {
+			console.log(`Creating a new tab for room: ${roomName}`);
 			const newTab = document.createElement('button');
 			newTab.classList.add('room-tab');
 			newTab.textContent = roomName;
@@ -686,12 +687,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Chat log container not found.');
 				return;
 			}
-
+			console.log(`Creating a new chat log container for room: ${roomName}`);
 			const newChatLog = document.createElement('div');
 			newChatLog.id = `chat-log-${roomName}`;  // Assigner un ID unique
 			newChatLog.classList.add('chat-log');
 			newChatLog.style.display = 'none';  // Masqué par défaut
 			chatLogContainer.appendChild(newChatLog);
+			console.log(`Chat log container for room ${roomName} created.`);
 		} else {
 			console.log(`Tab for room ${roomName} already exists.`);
 		}
@@ -703,22 +705,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.error('Room name is undefined.');
 			return;
 		}
-
+		console.log(`Attempting to switch to room: ${roomName}`);
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
 		}
 
-		console.log(`Switching to room: ${roomName}`);
+		console.log(`Switching from room ${activeRoom} to room ${roomName}`);
 		const previousRoom = activeRoom;
 		activeRoom = roomName;
 
 		if (previousRoom && document.getElementById(`chat-log-${previousRoom}`)) {
+			console.log(`Hiding chat log for previous room: ${previousRoom}`);
 			document.getElementById(`chat-log-${previousRoom}`).style.display = 'none';
 		}
 
 		const chatLog = document.getElementById(`chat-log-${roomName}`);
 		if (chatLog) {
+			console.log(`Showing chat log for room: ${roomName}`);
 			chatLog.style.display = 'block';
 		} else {
 			console.warn(`No chat log found for room: ${roomName}`);
@@ -752,6 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			chatSocket.onopen = function () {
 				console.log(`Chat WebSocket connection established in room: ${roomName}`);
 				try {
+					console.log(`Sending authentication message with username: ${username}, token: ${token}, room: ${roomName}`);
 					// Envoyer le message d'authentification
 					chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
@@ -767,6 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
+				console.log(`Received data from server:`, data);  // Ajoutez ce log pour voir la réponse complète
 				console.log(`Message received from server in room ${roomName}:`, data);
 
 				if (data.type === 'authenticated') {
