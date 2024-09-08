@@ -351,94 +351,7 @@ button:hover {
     width: 250px;
     z-index: 1000;
 }
-/* Styles pour le conteneur du chat */
-#chat-container {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    width: 300px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-}
 
-/* Styles pour le journal du chat */
-#chat-log {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-bottom: 10px;/* Styles pour le conteneur du chat */
-	#chat-container {
-		position: absolute;
-		left: 10px;
-		bottom: 10px;
-		width: 300px;
-		background-color: rgba(0, 0, 0, 0.5);
-		padding: 10px;
-		border-radius: 10px;
-		color: #fff;
-	}
-
-	/* Styles pour le journal du chat */
-	#chat-log {
-		max-height: 150px;
-		overflow-y: auto;
-		margin-bottom: 10px;
-	}
-
-	/* Styles pour l'entrée de texte du chat */
-	#chat-input {
-		width: calc(100% - 50px);
-		padding: 5px;
-	}
-
-	/* Styles pour le bouton du chat */
-	#chat-button {
-		width: 165px;
-		padding: 15px;
-	}
-}
-/* Styles pour le conteneur du chat */
-#chat-container {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    width: 300px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-}
-
-/* Styles pour le journal du chat */
-#chat-log {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-}
-
-/* Styles pour l'entrée de texte du chat */
-#chat-input {
-    width: calc(100% - 50px);
-    padding: 5px;
-}
-
-/* Styles pour le bouton du chat */
-#chat-button {
-    width: 165px;
-    padding: 15px;
-}
-/* Styles pour l'entrée de texte du chat */
-#chat-input {
-    width: calc(100% - 50px);
-    padding: 5px;
-}
-
-/* Styles pour le bouton du chat */
-#chat-button {
-    width: 165px;
-    padding: 15px;
-}
 #close-settings {
     position: absolute;
     top: 10px;
@@ -484,36 +397,7 @@ button:hover {
 .close:focus {
     color: black;
     text-decoration: none;
-    cursor: pointer;/* Styles pour le conteneur du chat */
-	#chat-container {
-		position: absolute;
-		left: 10px;
-		bottom: 10px;
-		width: 300px;
-		background-color: rgba(0, 0, 0, 0.5);
-		padding: 10px;
-		border-radius: 10px;
-		color: #fff;
-	}
-
-	/* Styles pour le journal du chat */
-	#chat-log {
-		max-height: 150px;
-		overflow-y: auto;
-		margin-bottom: 10px;
-	}
-
-	/* Styles pour l'entrée de texte du chat */
-	#chat-input {
-		width: calc(100% - 50px);
-		padding: 5px;
-	}
-
-	/* Styles pour le bouton du chat */
-	#chat-button {
-		width: 165px;
-		padding: 15px;
-	}
+    cursor: pointer;
 }
 
 pre {
@@ -533,36 +417,7 @@ pre {
 
 }
 
-.tournament-waiting-room h2 {/* Styles pour le conteneur du chat */
-	#chat-container {
-		position: absolute;
-		left: 10px;
-		bottom: 10px;
-		width: 300px;
-		background-color: rgba(0, 0, 0, 0.5);
-		padding: 10px;
-		border-radius: 10px;
-		color: #fff;
-	}
-
-	/* Styles pour le journal du chat */
-	#chat-log {
-		max-height: 150px;
-		overflow-y: auto;
-		margin-bottom: 10px;
-	}
-
-	/* Styles pour l'entrée de texte du chat */
-	#chat-input {
-		width: calc(100% - 50px);
-		padding: 5px;
-	}
-
-	/* Styles pour le bouton du chat */
-	#chat-button {
-		width: 165px;
-		padding: 15px;
-	}
+.tournament-waiting-room h2 {
     font-family: 'Arial', sans-serif;
     font-size: 2em;
     margin-bottom: 15px;
@@ -593,8 +448,34 @@ canvas {
     margin-top: 20px;
 }
 
+#game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+#game-controls button {
+    background-color: #00ffff;
+    color: #000033;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#game-controls button:hover {
+    background-color: #000033;
+    color: #00ffff;
+    box-shadow: 0 0 20px #00ffff;
+}
+
 /* Styles pour le conteneur du chat */
-#chat-container {
+#chat-log-container {
     position: absolute;
     left: 10px;
     bottom: 10px;
@@ -603,12 +484,11 @@ canvas {
     padding: 10px;
     border-radius: 10px;
     color: #fff;
-    font-size: 14px;  /* Taille de police ajustée pour correspondre aux onglets */
-    margin-bottom: 20px;  /* Espace pour laisser de la place aux onglets en dessous */
+    font-size: 14px;  /* Taille de police ajustée */
+    margin-bottom: 20px;
 }
 
-/* Styles pour le journal du chat */
-#chat-log {
+.chat-log {
     max-height: 150px;
     overflow-y: auto;
     margin-bottom: 10px;
@@ -618,17 +498,17 @@ canvas {
 #chat-input {
     width: calc(100% - 50px);
     padding: 5px;
-    font-size: 14px;  /* Taille de police alignée avec le reste du chat */
+    font-size: 14px;
 }
 
 /* Styles pour le bouton du chat */
 #chat-button {
     width: 165px;
     padding: 15px;
-    font-size: 14px;  /* Taille de police alignée avec le reste */
+    font-size: 14px;
 }
 
-/* Ajuster la position des onglets sous le chat, en bas à gauche */
+/* Styles pour les onglets de room */
 #room-tabs-container {
     position: absolute;
     bottom: 0;
@@ -636,7 +516,7 @@ canvas {
     display: flex;
     justify-content: flex-start;
     width: auto;
-    margin-top: 0;  /* Supprime l'espacement au-dessus */
+    margin-top: 0;
 }
 
 .room-tab {
@@ -650,14 +530,11 @@ canvas {
     border-radius: 5px;
 }
 
-
-/* Effet au survol */
 .room-tab:hover {
     background-color: #00ffff;
     color: #000033;
 }
 
-/* Onglet actif */
 .room-tab.active {
     background-color: #00ffff;
     color: #000033;

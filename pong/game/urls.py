@@ -2,9 +2,8 @@
 
 from django.urls import path, include
 from . import views
-from rest_framework.routers import DefaultRouter
+#from rest_framework.routers import DefaultRouter
 from .views import match_list_json, player_list_json, tournoi_list_json
-
 
 urlpatterns = [
     path('', views.index, name='index'),

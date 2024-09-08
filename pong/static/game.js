@@ -753,127 +753,132 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.error('Room name is undefined.');
 			return;
 		}
-
 		console.log(`Attempting to switch to room: ${roomName}`);
 		if (activeRoom === roomName) {
 			console.log(`Already in room: ${roomName}`);
 			return;
 		}
 
-		console.log(`Switching from room ${activeRoom} to room ${roomName}`)
+		console.log(`Switching from room ${activeRoom} to room ${roomName}`);
 		const previousRoom = activeRoom;
 		activeRoom = roomName;
 
-		if (roomSockets[previousRoom]) {
-			console.log(`Closing WebSocket for room: ${previousRoom}`);
+		if (previousRoom && document.getElementById(`chat-log-${previousRoom}`)) {
+			console.log(`Hiding chat log for previous room: ${previousRoom}`);
+			document.getElementById(`chat-log-${previousRoom}`).style.display = 'none';
+		}
 
-			// Attendre la fermeture propre du WebSocket avant de créer un nouveau
-			roomSockets[previousRoom].close();
-			roomSockets[previousRoom].onclose = function(event) {
-				console.log(`WebSocket for room ${previousRoom} closed.`);
-				joinRoom(token, roomName, username);  // Rejoindre la nouvelle room après la fermeture
-			};
+		const chatLog = document.getElementById(`chat-log-${roomName}`);
+		if (chatLog) {
+			chatLog.style.display = 'block';
 		} else {
-			joinRoom(token, roomName, username);  // Si aucune room active, rejoindre directement
+			console.warn(`No chat log found for room: ${roomName}`);
 		}
 	}
 
-	function startChatWebSocket(token, roomName, username) {
-		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
-			console.warn(`WebSocket for room ${roomName} already open.`);
-			return;
-		}
-		console.log("Initializing chat WebSocket...");
-		console.log(`Initializing chat WebSocket for room: ${roomName}`);
+function startChatWebSocket(token, roomName, username) {
+    if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
+        console.warn(`WebSocket for room ${roomName} already open.`);
+        return;
+    }
+    console.log("Initializing chat WebSocket...");
+    console.log(`Initializing chat WebSocket for room: ${roomName}`);
 
-		// Utilisation d'un délai pour permettre la fermeture propre de l'ancien WebSocket
-		setTimeout(() => {
-			try {
-				console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
-				const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-				console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
+    // Utilisation d'un délai pour permettre la fermeture propre de l'ancien WebSocket
+    setTimeout(() => {
+        try {
+            console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
+            const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+            console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
 
-				chatSocket.onopen = function () {
-					console.log(`Chat WebSocket connection established in room: ${roomName}`);
-					// Envoyer un message d'authentification dès l'ouverture de la connexion
-					chatSocket.send(JSON.stringify({
-						'type': 'chat_message',
-						'token': token,
-						'room': roomName,  // Connexion à la room spécifique
-						'username': username // Assurez-vous que le nom d'utilisateur est bien défini
-					}));
-					console.log(`Authentication message sent for room: ${roomName}`);
-				};
+            chatSocket.onopen = function () {
+                console.log(`Chat WebSocket connection established in room: ${roomName}`);
+                // Envoyer un message d'authentification dès l'ouverture de la connexion
+                chatSocket.send(JSON.stringify({
+                    'type': 'authenticate',
+                    'token': token,
+                    'room': roomName,  // Connexion à la room spécifique
+                    'username': username // Assurez-vous que le nom d'utilisateur bien défini
+                }));
+                console.log(`Authentication message sent for room: ${roomName}`);
+            };
 
-				// Gestion des messages reçus
-				chatSocket.onmessage = function (event) {
-					const data = JSON.parse(event.data);
-					console.log(`Message received from server in room ${roomName}:`, data);
-					if (data.type === 'authenticated') {
-						console.log(`User authenticated for chat successfully in room: ${roomName}`);
-					} else if (data.message) {
-						const message = data.message;
-						const chatLog = document.getElementById('chat-log');
-						const messageElement = document.createElement('div');
-						messageElement.textContent = `${roomName}: ${message}`;
-						chatLog.appendChild(messageElement);
-						console.log(`Message displayed in chat log for room: ${roomName}`);
-					} else {
-						console.warn('Unhandled message type:', data);
-					}
-				};
+            // Gestion des messages reçus
+            chatSocket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                console.log(`Message received from server in room ${roomName}:`, data);
+                if (data.type === 'authenticated') {
+                    console.log(`User authenticated for chat successfully in room: ${roomName}`);
+                } else if (data.type === 'chat_message') {
+                    const message = data.message;
+                    const chatLog = document.getElementById(`chat-log-${roomName}`);
+                    if (chatLog) {
+                        const messageElement = document.createElement('div');
+                        messageElement.textContent = `${message}`;
+                        chatLog.appendChild(messageElement);
+                        console.log(`Message displayed in chat log for room: ${roomName}`);
+                    } else {
+                        console.error('Chat log element not found');
+                    }
+                } else if (data.type === 'error') {
+                    console.error(`Error message received: ${data.message}`);
+                } else {
+                    console.warn('Unhandled message type:', data);
+                }
+            };
 
-				chatSocket.onclose = function (event) {
-					if (event.wasClean) {
-						console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
-					} else {
-						console.error(`Chat WebSocket closed unexpectedly for room ${roomName}`);
-					}
-				};
+            chatSocket.onclose = function (event) {
+                if (event.wasClean) {
+                    console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
+                } else {
+                    console.error(`Chat WebSocket closed unexpectedly for room ${roomName}`);
+                }
+            };
 
-				chatSocket.onerror = function (error) {
-					console.error(`Chat WebSocket error in room ${roomName}:`, error);
-				};
+            chatSocket.onerror = function (error) {
+                console.error(`Chat WebSocket error in room ${roomName}:`, error);
+            };
 
-				roomSockets[roomName] = chatSocket;
-				console.log(`WebSocket connection stored for room: ${roomName}`);
+            roomSockets[roomName] = chatSocket;
+            console.log(`WebSocket connection stored for room: ${roomName}`);
 
-				// Gestion de l'envoi de message
-				const messageInput = document.getElementById('chat-input');
-				const chatButton = document.getElementById('chat-button');
+            // Gestion de l'envoi de message
+            const messageInput = document.getElementById('chat-input');
+            const chatButton = document.getElementById('chat-button');
 
-				// Envoyer un message via le WebSocket
-				function sendMessage() {
-					const message = messageInput.value.trim();
-					if (message) {
-						chatSocket.send(JSON.stringify({
-							'type': 'chat_message',
-							'message': message,
-							'username': username // Assurez-vous que le nom d'utilisateur est bien défini
-						}));
-						messageInput.value = ''; // Effacer le champ de saisie
-					} else {
-						console.warn('Cannot send an empty message.');
-					}
-				}
+            // Envoyer un message via le WebSocket
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    chatSocket.send(JSON.stringify({
+                        'type': 'chat_message',
+                        'message': message,
+                        'username': username, // Assurez-vous que le nom d'utilisateur est bien défini
+						'room': roomName // Assurez-vous que le nom de la room est bien défini
+                    }));
+                    messageInput.value = ''; // Effacer le champ de saisie
+                } else {
+                    console.warn('Cannot send an empty message.');
+                }
+            }
 
-				// Envoi de message en appuyant sur "Entrée"
-				messageInput.addEventListener('keypress', function (event) {
-					if (event.key === 'Enter') {
-						sendMessage();
-					}
-				});
+            // Envoi de message en appuyant sur "Entrée"
+            messageInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
 
-				// Envoi de message en cliquant sur le bouton d'envoi
-				chatButton.addEventListener('click', function () {
-					sendMessage();
-				});
+            // Envoi de message en cliquant sur le bouton d'envoi
+            chatButton.addEventListener('click', function () {
+                sendMessage();
+            });
 
-			} catch (error) {
-				console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
-			}
-		}, 100); // Délai de 100 ms
-	}
+        } catch (error) {
+            console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
+        }
+    }, 100); // Délai de 100 ms
+}
 
 
 

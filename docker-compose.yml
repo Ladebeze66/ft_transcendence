@@ -58,14 +58,6 @@ services:
      timeout: 5s
      retries: 120
 
-  redis:
-    image: redis:alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-
   backend:
     build:
       context: .
@@ -91,10 +83,8 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      REDIS_HOST: redis  # Ajouter cette ligne pour la configuration Redis
     depends_on:
       - db
-      - redis  # Attendre que Redis soit prêt avant de démarrer
     healthcheck:
       test: ["CMD-SHELL", "curl", "http://localhost:8080"]
       interval: 30s
