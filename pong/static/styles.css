@@ -1,541 +1,601 @@
 /* General styles */
 
 html {
-    font-family: Arial, sans-serif;
-    color: #00ffff;
-    background-color: #0a0a2a;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    overflow: auto;
+	font-family: Arial, sans-serif;
+	color: #00ffff;
+	background-color: #0a0a2a;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	overflow: auto;
 }
 
 
 label {
-    margin: 10px 0 5px;
+	margin: 10px 0 5px;
 }
 
 input {
-    padding: 10px;
-    margin: 5px 0 20px;
-    width: 200px;
+	padding: 10px;
+	margin: 5px 0 20px;
+	width: 200px;
 }
 
 button {
-    background-color: #00ffff;
-    color: #000033;
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 10px;
-    margin-top: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+	background-color: #00ffff;
+	color: #000033;
+	border: none;
+	padding: 1rem 2rem;
+	font-size: 1.5rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border-radius: 10px;
+	margin-top: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 2px;
 }
 
 button:hover {
-    background-color: #000033;
-    color: #00ffff;
-    box-shadow: 0 0 20px #00ffff;
+	background-color: #000033;
+	color: #00ffff;
+	box-shadow: 0 0 20px #00ffff;
 }
 
 #game1 {
-    width: 810px;
-    height: 500px;
-    position: relative;
-    background-color: #000;
-    border: 3px solid #00ffff;
-    box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	width: 810px;
+	height: 500px;
+	position: relative;
+	background-color: #000;
+	border: 3px solid #00ffff;
+	box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .name {
-    font-size: 24px;
-    position: absolute;
-    top: 20px;
+	font-size: 24px;
+	position: absolute;
+	top: 20px;
 }
 
 #player1-name {
-    left: 10px;
-    /* Adjust player score position */
+	left: 10px;
+	/* Adjust player score position */
 }
 
 #player2-name {
-    right: 10px;
-    /* Adjust bot score position */
+	right: 10px;
+	/* Adjust bot score position */
 }
 
 #game2 {
-    top: 60px;
-    width: 800px;
-    height: 400px;
-    position: absolute;
-    background-color: #000;
-    overflow: hidden;
-    border: 2px solid white;
-    /* Add red border */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	top: 60px;
+	width: 800px;
+	height: 400px;
+	position: absolute;
+	background-color: #000;
+	overflow: hidden;
+	border: 2px solid white;
+	/* Add red border */
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .score {
-    font-size: 24px;
-    position: absolute;
-    top: 10px;
+	font-size: 24px;
+	position: absolute;
+	top: 10px;
 }
 
 #player1-score {
-    left: 50px;
-    /* Adjust player score position */
+	left: 50px;
+	/* Adjust player score position */
 }
 
 #player2-score {
-    right: 50px;
-    /* Adjust bot score position */
+	right: 50px;
+	/* Adjust bot score position */
 }
 
 .pad {
-    width: 10px;
-    height: 100px;
-    background-color: #ffffff;
-    position: absolute;
+	width: 10px;
+	height: 100px;
+	background-color: #ffffff;
+	position: absolute;
 }
 
 #player1-pad {
-    left: 10px;
-    background-color: #00ffff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #00ffff;
+	left: 10px;
+	background-color: #00ffff;
+	border-radius: 10px;
+	box-shadow: 0 0 15px #00ffff;
 }
 
 #player2-pad {
-    right: 10px;
-    background-color: #00ffff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #00ffff;
+	right: 10px;
+	background-color: #00ffff;
+	border-radius: 10px;
+	box-shadow: 0 0 15px #00ffff;
 }
 
 #ball {
-    width: 20px;
-    height: 20px;
-    background-color: #00ffff;
-    border-radius: 50%;
-    position: absolute;
+	width: 20px;
+	height: 20px;
+	background-color: #00ffff;
+	border-radius: 50%;
+	position: absolute;
 }
 
 #game-text {
-    font-size: 64px;
-    color: #00ffff;
-    position: absolute;
-    top: 150px;
+	font-size: 64px;
+	color: #00ffff;
+	position: absolute;
+	top: 150px;
 }
 
 .logo {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 20;
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	z-index: 20;
 }
 
 .logo img {
-    max-width: 100%;
-    height: auto;
+	max-width: 100%;
+	height: auto;
 }
 
 .stars {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 }
 
 .star {
-    position: absolute;
-    background-color: #ffffff;
-    border-radius: 50%;
-    animation: twinkle 2s infinite alternate;
+	position: absolute;
+	background-color: #ffffff;
+	border-radius: 50%;
+	animation: twinkle 2s infinite alternate;
 }
 
 .background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
 }
 
 .pong-elements {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    pointer-events: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+	pointer-events: none;
 }
 
 .paddle {
-    position: absolute;
-    width: 20px;
-    height: 100px;
-    background-color: #00ffff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #00ffff;
+	position: absolute;
+	width: 20px;
+	height: 100px;
+	background-color: #00ffff;
+	border-radius: 10px;
+	box-shadow: 0 0 15px #00ffff;
 }
 
 .paddle-left {
-    left: 50px;
-    animation: paddleMove 5s infinite alternate ease-in-out;
+	left: 50px;
+	animation: paddleMove 5s infinite alternate ease-in-out;
 }
 
 .paddle-right {
-    right: 50px;
-    animation: paddleMove 4s infinite alternate-reverse ease-in-out;
+	right: 50px;
+	animation: paddleMove 4s infinite alternate-reverse ease-in-out;
 }
 
 .ball_anim {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background-color: #00ffff;
-    border-radius: 50%;
-    box-shadow: 0 0 20px #00ffff;
-    left: 80px;
-    top: 50%;
-    transform-style: preserve-3d;
-    animation: ballMove 3s linear infinite;
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	background-color: #00ffff;
+	border-radius: 50%;
+	box-shadow: 0 0 20px #00ffff;
+	left: 80px;
+	top: 50%;
+	transform-style: preserve-3d;
+	animation: ballMove 3s linear infinite;
 }
 
 @keyframes paddleMove {
-    0% {
-        transform: translateY(10vh);
-    }
+	0% {
+		transform: translateY(10vh);
+	}
 
-    100% {
-        transform: translateY(70vh);
-    }
+	100% {
+		transform: translateY(70vh);
+	}
 }
 
 @keyframes ballMove {
-    0% {
-        transform: translateZ(0) scale(1);
-    }
+	0% {
+		transform: translateZ(0) scale(1);
+	}
 
-    50% {
-        transform: translateZ(-500px) scale(0.5);
-    }
+	50% {
+		transform: translateZ(-500px) scale(0.5);
+	}
 
-    100% {
-        transform: translateZ(0) scale(1);
-    }
+	100% {
+		transform: translateZ(0) scale(1);
+	}
 }
 
 .input-container {
-    margin-bottom: 2rem;
+	margin-bottom: 2rem;
 }
 
 .container {
-    text-align: center;
-    background-color: rgba(0, 0, 40, 0.8);
-    padding: 3rem;
-    border-radius: 15px;
-    border: 3px solid #00ffff;
-    box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
-    position: relative;
-    z-index: 10;
-    max-width: 80%;
-    overflow: auto;
+	text-align: center;
+	background-color: rgba(0, 0, 40, 0.8);
+	padding: 3rem;
+	border-radius: 15px;
+	border: 3px solid #00ffff;
+	box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	position: relative;
+	z-index: 10;
+	max-width: 80%;
+	overflow: auto;
 }
 
 
 .navbar {
-    position: absolute;
-    top: 30px;
-    right: 10px;
-    padding: 10px;
+	position: absolute;
+	top: 30px;
+	right: 10px;
+	padding: 10px;
 }
 
 .burger-menu {
-    font-size: 24px;
-    background: none;
-    border: none;
-    color: #00ffff;
-    cursor: pointer;
-    transition: color 0.3s ease;
+	font-size: 24px;
+	background: none;
+	border: none;
+	color: #00ffff;
+	cursor: pointer;
+	transition: color 0.3s ease;
 }
 
 .burger-menu:hover {
-    color: #ffffff;
+	color: #ffffff;
 }
 
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 10px;
-    background-color: #1a1a2e;
-    color: #ffffff;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    z-index: 1;
-    width: max-content;
+	display: none;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 10px;
+	background-color: #1a1a2e;
+	color: #ffffff;
+	box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+	border-radius: 5px;
+	z-index: 1;
+	width: max-content;
 }
 
 .dropdown-content.show {
-    display: block;
+	display: block;
 }
 
 
 .dropdown-content a {
-    color: #ffffff;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    transition: background-color 0.3s ease;
+	color: #ffffff;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	transition: background-color 0.3s ease;
 }
 
 
 .dropdown-content a:hover {
-    background-color: #333;
-    color: #00ffff;
+	background-color: #333;
+	color: #00ffff;
 }
 
 .language-switcher {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    gap: 10px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	display: flex;
+	gap: 10px;
 }
 
 .language-switcher img {
-    width: 30px;
-    height: 20px;
-    cursor: pointer;
+	width: 30px;
+	height: 20px;
+	cursor: pointer;
 }
 
 #settings-btn {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    cursor: pointer;
-    z-index: 1000;
-    border: none;
-    border-radius: 50%;
-    padding: 10px;
-    font-size: 18px;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	cursor: pointer;
+	z-index: 1000;
+	border: none;
+	border-radius: 50%;
+	padding: 10px;
+	font-size: 18px;
 }
 
 #settings-menu {
-    position: fixed;
-    bottom: 50px;
-    right: 10px;
-    padding: 20px;
-    background-color: rgb(66, 63, 63);
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 250px;
-    z-index: 1000;
+	position: fixed;
+	bottom: 50px;
+	right: 10px;
+	padding: 20px;
+	background-color: rgb(66, 63, 63);
+	border: 1px solid #ccc;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	width: 250px;
+	z-index: 1000;
 }
 
 #close-settings {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 16px;
 }
 
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.4);
-    padding-top: 60px;
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0, 0, 0);
+	background-color: rgba(0, 0, 0, 0.4);
+	padding-top: 60px;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 5px solid #888;
-    width: 80%;
-    max-height: 70vh;
-    overflow-y: auto;
+	background-color: #fefefe;
+	margin: 5% auto;
+	padding: 20px;
+	border: 5px solid #888;
+	width: 80%;
+	max-height: 70vh;
+	overflow-y: auto;
 }
 
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
 .tournament-waiting-room {
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-    border-radius: 15px;
-    color: #00ffff;
-    width: 50%;
-    margin: auto;
-    text-align: center;
-    box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	background-color: rgba(0, 0, 0, 0.6);
+	padding: 20px;
+	border-radius: 15px;
+	color: #00ffff;
+	width: 50%;
+	margin: auto;
+	text-align: center;
+	box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
 
 }
 
 .tournament-waiting-room h2 {
-    font-family: 'Arial', sans-serif;
-    font-size: 2em;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+	font-family: 'Arial', sans-serif;
+	font-size: 2em;
+	margin-bottom: 15px;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .tournament-waiting-room p {
-    font-family: 'Verdana', sans-serif;
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+	font-family: 'Verdana', sans-serif;
+	font-size: 1.2em;
+	margin-bottom: 20px;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .tournament-waiting-room ul {
-    list-style-type: none;
-    padding: 0;
+	list-style-type: none;
+	padding: 0;
 }
 
 body {
-    color: rgb(0, 255, 255); /* Valeur par défaut */
-    font-family: Arial, sans-serif;
-    font-size: 16px;
+	color: rgb(0, 255, 255); /* Valeur par défaut */
+	font-family: Arial, sans-serif;
+	font-size: 16px;
 }
 
 canvas {
-    max-width: 100%;
-    height: auto;
-    margin-top: 20px;
+	max-width: 100%;
+	height: auto;
+	margin-top: 20px;
 }
 
 #game-controls {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 10px;
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	margin-bottom: 10px;
 }
 
 #game-controls button {
-    background-color: #00ffff;
-    color: #000033;
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+	background-color: #00ffff;
+	color: #000033;
+	border: none;
+	padding: 1rem 2rem;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border-radius: 10px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
 }
 
 #game-controls button:hover {
-    background-color: #000033;
-    color: #00ffff;
-    box-shadow: 0 0 20px #00ffff;
+	background-color: #000033;
+	color: #00ffff;
+	box-shadow: 0 0 20px #00ffff;
 }
 
-/* Styles pour le conteneur du chat */
+/* Styles pour le conteneur principal du chat */
+#chat-container {
+	position: fixed;
+	bottom: 10px;
+	left: 10px;
+	width: 300px;
+	background-color: rgba(0, 0, 0, 0.7);
+	border-radius: 10px;
+	padding: 10px;
+	box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	z-index: 1000;
+	box-sizing: border-box; /* Ajouté */
+	display: flex;
+    flex-direction: column;
+}
+
+/* Styles pour le conteneur du chat log */
 #chat-log-container {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    width: 300px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;  /* Taille de police ajustée */
-    margin-bottom: 20px;
+	width: 100%;
+	background-color: transparent; /* Fond transparent */
+	padding: 10px;
+	border-radius: 10px;
+	color: #fff;
+	font-size: 14px;
+	max-height: 150px;
+	overflow-y: auto;
+	margin-bottom: 10px;
+	box-sizing: border-box; /* Ajouté */
+	flex: 1; /* Permet au conteneur de prendre tout l'espace disponible */
 }
 
 .chat-log {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-bottom: 10px;
+	max-height: 150px;
+	overflow-y: auto;
+	margin-bottom: 10px;
+	box-sizing: border-box; /* Ajouté */
+	background-color: transparent; /* Fond transparent */
 }
 
 /* Styles pour l'entrée de texte du chat */
-#chat-input {
-    width: calc(100% - 50px);
-    padding: 5px;
-    font-size: 14px;
+#chat-input-container {
+	width: 100%;
+	height: 25%;
+	display: flex;
+	flex-direction: column; /* Aligner les chat-inputs verticalement */
+	background-color: transparent; /* Fond transparent */
+	padding: 5px;
+	border-radius: 10px;
+	box-sizing: border-box; /* Ajouté */
 }
 
-/* Styles pour le bouton du chat */
-#chat-button {
-    width: 165px;
-    padding: 15px;
-    font-size: 14px;
+.chat-input {
+	flex: 1;
+	padding: 5px;
+	font-size: 13px;
+	border: none;
+	border-radius: 5px;
+	margin-right: 5px;
+	height: 28px;
+	box-sizing: border-box; /* Ajouté */
+	display: none; /* Masquer par défaut */
+}
+
+.chat-input.active {
+	display: flex; /* Afficher lorsque actif */
+}
+
+.chat-input input[type="text"] {
+	flex: 1; /* Permet à l'input de prendre tout l'espace disponible */
+	padding: 5px;
+	font-size: 13px;
+	border: none;
+	border-radius: 5px;
+	box-sizing: border-box; /* Ajouté */
+	height: 28px; /* Augmenter la hauteur de l'input */
+}
+
+.chat-button {
+	height: 28px;
+	width: 40px; /* Réduire la largeur du bouton */
+	border: none;
+	border-radius: 5px;
+	background-color: #00ffff;
+	color: #000033;
+	cursor: pointer;
+	margin-left: 202px; /* Espace entre l'input et le bouton */
+	display: flex; /* Utiliser flexbox pour centrer le contenu */
+	align-items: center; /* Centrer verticalement */
+	justify-content: center; /* Centrer horizontalement */
+	text-align: center; /* Assurer que le texte est centré */
+	font-size: 13px; /* Ajuster la taille de la police */
+	padding: 0; /* Supprimer le padding interne */
 }
 
 /* Styles pour les onglets de room */
 #room-tabs-container {
-    position: absolute;
-    bottom: 0;
-    left: 10px;
     display: flex;
-    justify-content: flex-start;
-    width: auto;
-    margin-top: 0;
+    justify-content: space-between;
+    margin-top: 10px;
 }
 
+/* Styles pour les onglets de room */
 .room-tab {
-    font-size: 14px;
-    padding: 5px 10px;
-    margin-right: 5px;
-    cursor: pointer;
-    border: 1px solid #00ffff;
-    background-color: #000033;
-    color: #00ffff;
-    border-radius: 5px;
+	font-size: 14px;
+	padding: 5px 10px;
+	margin-right: 5px;
+	cursor: pointer;
+	border: 1px solid #00ffff;
+	background-color: #000033;
+	color: #00ffff;
+	border-radius: 5px;
+	box-sizing: border-box; /* Ajouté */
+	opacity: 0.1; /* Onglets inactifs grisés */
 }
 
 .room-tab:hover {
-    background-color: #00ffff;
-    color: #000033;
+	background-color: #00ffff;
+	color: #000033;
 }
 
 .room-tab.active {
-    background-color: #00ffff;
-    color: #000033;
+	background-color: #00ffff;
+	color: #000033;
+	opacity: 1; /* Onglets actifs non grisés */
 }
