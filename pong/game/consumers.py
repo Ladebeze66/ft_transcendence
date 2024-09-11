@@ -204,6 +204,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 			if message_type == 'authenticate':
 				await self.authenticate(data.get('token'), username)
+
 			elif message_type == 'chat_message':
 				if 'message' not in data or 'username' not in data:
 					logger.error(f"Format de message incorrect : {data}")
@@ -213,7 +214,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				message = data['message']
 				username = data['username']
 
-				# Envoyer le message à tous les autres utilisateurs de la room
+				# Gestion des commandes spéciales dans le chat (blocage et invitation)
+				if message.startswith('/b '):
+					block_target = message.split(' ')[1].strip()
+					if not block_target or block_target == username:
+						await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for blocking'}))
+						return
+					logger.info(f"{username} a bloqué {block_target}")
+					# Logique pour bloquer le joueur (à implémenter)
+					return
+
+				elif message.startswith('/i '):
+					invite_target = message.split(' ')[1].strip()
+					if not invite_target or invite_target == username:
+						await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for invitation'}))
+						return
+					logger.info(f"{username} a invité {invite_target} à un quick match")
+					# Logique d'invitation à un quick match (à implémenter)
+					return
+
+				# Si ce n'est pas une commande, c'est un message de chat normal
 				await self.send_group_message(
 					self.room_group_name,
 					{
