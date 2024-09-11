@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Sécuriser l'appel à `joinRoom` (initialiser le chat WebSocket)
 				if (token && roomName) {
 					console.log(`Joining room: ${roomName} with token: ${token}`);
-					joinRoom(roomName); // Initialiser le chat WebSocket
+					joinRoom(token, roomName, username); // Initialiser le chat WebSocket
 				} else {
 					console.error("Token or roomName is undefined. Cannot join room.");
 					alert("Error joining the chat room. Please try again.");
@@ -721,6 +721,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		document.getElementById('game-text').textContent = gameState.game_text;
 	}
+
+	////////////////////////////CHAT////////////////////////////////////
 	class ChatInput {
 		constructor(roomName, username, chatSocket) {
 			this.roomName = roomName;
