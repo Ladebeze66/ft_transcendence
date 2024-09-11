@@ -1,0 +1,58 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: dede
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: dede
+game.js:250 registerUser called with username: dede
+game.js:273 Registration response data: {registered: true, token: 'd9ee6b8f-a86f-4bfa-84cc-5655f97ed762'}
+game.js:275 User registered successfully: {registered: true, token: 'd9ee6b8f-a86f-4bfa-84cc-5655f97ed762'}
+game.js:229 Token stored: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:230 User registered successfully
+game.js:977 Joining room: main_room with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:984 Joining new room: main_room
+game.js:901 createRoomTab: main_room with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:911 Tab for room main_room already exists.
+game.js:925 Showing tab for room: main_room
+game.js:810 Initializing chat WebSocket...
+game.js:811 Initializing chat WebSocket for room: main_room with username: dede
+game.js:890 WebSocket connection stored for room: main_room
+game.js:932 switchRoom: main_room with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:938 Attempting to switch to room: main_room
+game.js:944 Switching from room null to room main_room
+game.js:817 Chat WebSocket connection established in room: main_room
+game.js:825 Authentication message sent for room: main_room with username: dede
+game.js:830 Message received from server in room main_room: {type: 'authenticated', username: 'dede'}type: "authenticated"username: "dede"[[Prototype]]: Object
+game.js:845 User authenticated successfully in room: main_room
+game.js:759 Sending message from username: dede
+game.js:781 Attempting to send message: fefefef from room: main_room
+game.js:759 Sending message from username: dede
+game.js:781 Attempting to send message: fefefefef from room: main_room
+game.js:759 Sending message from username: dede
+game.js:764 Attempting to block user: dudu
+game.js:830 Message received from server in room main_room: {type: 'error', message: "Utilisateur dudu n'est pas dans le chat."}
+game.js:869 Error message received: Utilisateur dudu n'est pas dans le chat.
+chatSocket.onmessage @ game.js:869
+game.js:607 Token before WebSocket authentication: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:977 Joining room: tournament with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:984 Joining new room: tournament
+game.js:901 createRoomTab: tournament with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:911 Tab for room tournament already exists.
+game.js:925 Showing tab for room: tournament
+game.js:810 Initializing chat WebSocket...
+game.js:811 Initializing chat WebSocket for room: tournament with username: dede
+game.js:890 WebSocket connection stored for room: tournament
+game.js:932 switchRoom: tournament with username: dede and token: d9ee6b8f-a86f-4bfa-84cc-5655f97ed762
+game.js:938 Attempting to switch to room: tournament
+game.js:944 Switching from room main_room to room tournament
+game.js:949 Hiding chat log for previous room: main_room
+game.js:622 Starting WebSocket connection for tournament...
+game.js:817 Chat WebSocket connection established in room: tournament
+game.js:825 Authentication message sent for room: tournament with username: dede
+game.js:830 Message received from server in room tournament: {type: 'authenticated', username: 'dede'}
+game.js:845 User authenticated successfully in room: tournament
+game.js:635 WebSocket connection established
+game.js:643 Sending token for a tournament game
+game.js:652 Authentication successful

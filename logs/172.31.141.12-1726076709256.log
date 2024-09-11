@@ -1,0 +1,34 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: ferniou
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: ferniou
+game.js:250 registerUser called with username: ferniou
+game.js:273 Registration response data: {registered: true, token: '2c9d5a25-81e8-45f8-a782-1237c0cf326c'}
+game.js:275 User registered successfully: {registered: true, token: '2c9d5a25-81e8-45f8-a782-1237c0cf326c'}
+game.js:229 Token stored: 2c9d5a25-81e8-45f8-a782-1237c0cf326c
+game.js:230 User registered successfully
+game.js:963 Joining room: main_room with username: ferniou and token: 2c9d5a25-81e8-45f8-a782-1237c0cf326c
+game.js:970 Joining new room: main_room
+game.js:887 createRoomTab: main_room with username: ferniou and token: 2c9d5a25-81e8-45f8-a782-1237c0cf326c
+game.js:897 Tab for room main_room already exists.
+game.js:911 Showing tab for room: main_room
+game.js:806 Initializing chat WebSocket...
+game.js:807 Initializing chat WebSocket for room: main_room with username: ferniou
+game.js:877 WebSocket connection stored for room: main_room
+game.js:918 switchRoom: main_room with username: ferniou and token: 2c9d5a25-81e8-45f8-a782-1237c0cf326c
+game.js:924 Attempting to switch to room: main_room
+game.js:930 Switching from room null to room main_room
+game.js:813 Chat WebSocket connection established in room: main_room
+game.js:821 Authentication message sent for room: main_room with username: ferniou
+game.js:826 Message received from server in room main_room: {type: 'authenticated', username: 'ferniou'}
+game.js:830 User authenticated successfully in room: main_room
+game.js:826 Message received from server in room main_room: {type: 'chat_message', message: 'ferniou:  a rejoint le chat main_room', room: 'main_room'}
+game.js:841 Message displayed in chat log for room: main_room
+game.js:754 Sending message from username: ferniou
+game.js:826 Message received from server in room main_room: {type: 'error', message: 'Erreur interne du serveur'}
+game.js:857 Error message received: Erreur interne du serveur
+chatSocket.onmessage @ game.js:857

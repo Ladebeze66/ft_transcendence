@@ -730,10 +730,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.chatSocket = chatSocket;
 			this.messageInput = document.querySelector(`#chat-input-${roomName} input`);
 			this.chatButton = document.querySelector(`#chat-input-${roomName} button`);
-
+	
+			if (!this.messageInput || !this.chatButton) {
+				console.error('Message input or chat button not found for room: ' + this.roomName);
+				return;
+			}
+	
 			this.initEventListeners();
 		}
-
+	
 		initEventListeners() {
 			// Envoi de message en appuyant sur "Entrée"
 			this.messageInput.addEventListener('keypress', (event) => {
@@ -741,42 +746,64 @@ document.addEventListener('DOMContentLoaded', () => {
 					this.sendMessage();
 				}
 			});
-
+	
 			// Envoi de message en cliquant sur le bouton d'envoi
 			this.chatButton.addEventListener('click', () => {
 				this.sendMessage();
 			});
 		}
-
+	
 		sendMessage() {
 			const message = this.messageInput.value.trim();
 			if (message) {
-				console.log(`Sending message from username: ${this.username}`); // Log pour vérifier le username
-				this.chatSocket.send(JSON.stringify({
-					'type': 'chat_message',
-					'message': message,
-					'username': this.username,  // Assurez-vous que le nom d'utilisateur est bien défini
-					'room': this.roomName
-				}));
+				console.log(`Sending message from username: ${this.username}`);  // Log pour vérifier le username
+				
+				// Vérifier si le message est une commande de blocage ou d'invitation
+				if (message.startsWith('/b ')) {
+					const targetUser = message.split(' ')[1];
+					console.log(`Attempting to block user: ${targetUser}`);
+					this.chatSocket.send(JSON.stringify({
+						'type': 'chat_message',
+						'message': `/b ${targetUser}`,
+						'username': this.username,
+						'room': this.roomName
+					}));
+				} else if (message.startsWith('/i ')) {
+					const targetUser = message.split(' ')[1];
+					console.log(`Attempting to invite user: ${targetUser}`);
+					this.chatSocket.send(JSON.stringify({
+						'type': 'chat_message',
+						'message': `/i ${targetUser}`,
+						'username': this.username,
+						'room': this.roomName
+					}));
+				} else {
+					console.log(`Attempting to send message: ${message} from room: ${this.roomName}`);
+					this.chatSocket.send(JSON.stringify({
+						'type': 'chat_message',
+						'message': message,
+						'username': this.username,
+						'room': this.roomName
+					}));
+				}
+	
 				this.messageInput.value = '';  // Effacer le champ de saisie
 			} else {
 				console.warn('Cannot send an empty message.');
 			}
 		}
-		
 	}
 
+	
 	function startChatWebSocket(token, roomName, username) {
-		// Vérification de la validité du username
 		if (!username || username.trim() === '') {
 			console.error("Username is not defined or empty. WebSocket connection aborted.");
 			alert("Username is required to join the chat. Please log in.");
 			return;
 		}
 	
-		// Vérification si un WebSocket est déjà ouvert pour la room
 		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
-			console.warn(`WebSocket for room ${roomName} already open.`);
+			console.warn(`WebSocket for room ${roomName} is already open.`);
 			return;
 		}
 	
@@ -784,14 +811,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log(`Initializing chat WebSocket for room: ${roomName} with username: ${username}`);
 	
 		try {
-			console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
 			const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
 	
-			// Événement déclenché lorsque la connexion WebSocket est ouverte
 			chatSocket.onopen = function () {
 				console.log(`Chat WebSocket connection established in room: ${roomName}`);
 	
-				// Envoi d'un message d'authentification avec le token et le username
 				chatSocket.send(JSON.stringify({
 					'type': 'authenticate',
 					'token': token,
@@ -801,38 +825,55 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.log(`Authentication message sent for room: ${roomName} with username: ${username}`);
 			};
 	
-			// Gestion des messages reçus du serveur WebSocket
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
 				console.log(`Message received from server in room ${roomName}:`, data);
-	
+			
+				const senderUsername = data.username || 'Anonymous';  // Utilisation d'un fallback si le username est manquant
+				let chatLog = document.getElementById(`chat-log-${roomName}`);
+			
+				// Créer dynamiquement le chat-log si absent
+				if (!chatLog) {
+					chatLog = document.createElement('div');
+					chatLog.id = `chat-log-${roomName}`;
+					document.body.appendChild(chatLog);  // Assurez-vous de l'ajouter à l'endroit souhaité dans le DOM
+					console.warn('Chat log element was missing, created a new one.');
+				}
+			
 				switch (data.type) {
 					case 'authenticated':
 						console.log(`User authenticated successfully in room: ${roomName}`);
 						break;
+			
 					case 'chat_message':
 						const message = data.message;
-						const chatLog = document.getElementById(`chat-log-${roomName}`);
-						const username = data.username || 'Anonymous'; // Utiliser un fallback si le username est manquant
-						
-						if (chatLog) {
-							const messageElement = document.createElement('div');
-							messageElement.textContent = `${message}`;
-							chatLog.appendChild(messageElement);
-							console.log(`Message displayed in chat log for room: ${roomName}`);
-						} else {
-							console.error('Chat log element not found');
-						}
+						const messageElement = document.createElement('div');
+						messageElement.textContent = `${senderUsername}: ${message}`;
+						chatLog.appendChild(messageElement);
+						console.log(`Message from ${senderUsername} displayed in chat log for room: ${roomName}`);
 						break;
+			
+					case 'invitation':
+						const inviter = data.inviter;
+						const invitationAccepted = confirm(`${inviter} vous invite à un quick match. Acceptez-vous ?`);
+						const invitationResponse = invitationAccepted ? 'oui' : 'non'; 
+						chatSocket.send(JSON.stringify({
+							'type': 'invitation_response',
+							'response': invitationResponse,
+							'username': username
+						}));
+						console.log(`${username} a répondu à l'invitation: ${invitationResponse}`);
+						break;
+			
 					case 'error':
 						console.error(`Error message received: ${data.message}`);
 						break;
+			
 					default:
 						console.warn('Unhandled message type:', data);
 				}
 			};
 	
-			// Gestion de la fermeture du WebSocket
 			chatSocket.onclose = function (event) {
 				if (event.wasClean) {
 					console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
@@ -841,24 +882,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			};
 	
-			// Gestion des erreurs WebSocket
 			chatSocket.onerror = function (error) {
 				console.error(`Chat WebSocket error in room ${roomName}:`, error);
 			};
 	
-			// Stocker la connexion WebSocket dans roomSockets
 			roomSockets[roomName] = chatSocket;
 			console.log(`WebSocket connection stored for room: ${roomName}`);
 	
-			// Initialiser l'interface de chat pour cette room
+			// Initialise le chat après la connexion WebSocket
 			new ChatInput(roomName, username, chatSocket);
 	
 		} catch (error) {
 			console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
 		}
 	}
-	
-
 
 	function createRoomTab(token, roomName, username) {
 		console.log(`createRoomTab: ${roomName} with username: ${username} and token: ${token}`);

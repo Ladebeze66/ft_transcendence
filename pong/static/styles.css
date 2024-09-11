@@ -499,7 +499,6 @@ canvas {
 	color: #fff;
 	font-size: 14px;
 	max-height: 150px;
-	overflow-y: auto;
 	margin-bottom: 10px;
 	box-sizing: border-box; /* Ajouté */
 	flex: 1; /* Permet au conteneur de prendre tout l'espace disponible */
