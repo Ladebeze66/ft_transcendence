@@ -189,69 +189,104 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
 
 	async def receive(self, text_data):
+			try:
+				data = json.loads(text_data)
+				message_type = data.get('type')
+
+				username = data.get('username')
+				logger.info(f"Message reçu avec username: {username}")
+				if not username:
+					logger.error(f"Username missing in authenticate message: {data}")
+					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Username is missing'}))
+					return
+
+				if message_type == 'authenticate':
+					await self.authenticate(data.get('token'), username)
+
+				elif message_type == 'chat_message':
+					if 'message' not in data or 'username' not in data:
+						logger.error(f"Format de message incorrect : {data}")
+						await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format de message incorrect'}))
+						return
+
+					message = data['message']
+
+					# Logique de blocage : détecter la commande /b
+					if message.startswith('/b '):
+						block_target = message.split(' ')[1].strip()
+						if not block_target or block_target == username:
+							await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for blocking'}))
+							return
+
+						# Stocker l'utilisateur bloqué
+						if username not in self.blocked_users:
+							self.blocked_users[username] = []
+						self.blocked_users[username].append(block_target)
+						logger.info(f"{username} a bloqué {block_target}")
+						await self.send(text_data=json.dumps({'type': 'info', 'message': f'You have blocked {block_target}'}))
+						return
+
+					# Logique d'invitation à un quick match : détecter la commande /i
+					elif message.startswith('/i '):
+						invite_target = message.split(' ')[1].strip()
+						if not invite_target or invite_target == username:
+							await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for invitation'}))
+							return
+
+						# Envoi de l'invitation au joueur cible
+						await self.send_invitation(invite_target, username)
+						return
+
+					# Si l'expéditeur est bloqué, ignorer le message
+					if username in self.blocked_users.get(self.room_group_name, []):
+						logger.info(f"Message de {username} bloqué pour {self.room_group_name}")
+						return
+
+					# Envoyer le message à tous les autres utilisateurs de la room
+					await self.send_group_message(
+						self.room_group_name,
+						{
+							'type': 'chat_message',
+							'message': message,
+							'username': username,
+							'room': self.room_group_name
+						}
+					)
+				else:
+					logger.warning(f"Unhandled message type: {message_type}")
+					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Unhandled message type'}))
+			except json.JSONDecodeError as e:
+				logger.error(f"Erreur de décodage JSON : {str(e)} - Données reçues : {text_data}")
+				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format JSON invalide'}))
+			except Exception as e:
+				logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
+				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
+
+	async def send_invitation(self, invite_target, inviter):
+		# Envoie l'invitation à l'utilisateur cible pour un quick match
 		try:
-			data = json.loads(text_data)
-			message_type = data.get('type')
-
-			# Récupérer le username pour les messages de type 'authenticate' aussi
-			username = data.get('username')
-			# Log pour vérifier que le username est bien reçu
-			logger.info(f"Message reçu avec username: {username}")
-			if not username:
-				logger.error(f"Username missing in authenticate message: {data}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Username is missing'}))
-				return
-
-			if message_type == 'authenticate':
-				await self.authenticate(data.get('token'), username)
-
-			elif message_type == 'chat_message':
-				if 'message' not in data or 'username' not in data:
-					logger.error(f"Format de message incorrect : {data}")
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format de message incorrect'}))
-					return
-
-				message = data['message']
-				username = data['username']
-
-				# Gestion des commandes spéciales dans le chat (blocage et invitation)
-				if message.startswith('/b '):
-					block_target = message.split(' ')[1].strip()
-					if not block_target or block_target == username:
-						await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for blocking'}))
-						return
-					logger.info(f"{username} a bloqué {block_target}")
-					# Logique pour bloquer le joueur (à implémenter)
-					return
-
-				elif message.startswith('/i '):
-					invite_target = message.split(' ')[1].strip()
-					if not invite_target or invite_target == username:
-						await self.send(text_data=json.dumps({'type': 'error', 'message': 'Invalid username for invitation'}))
-						return
-					logger.info(f"{username} a invité {invite_target} à un quick match")
-					# Logique d'invitation à un quick match (à implémenter)
-					return
-
-				# Si ce n'est pas une commande, c'est un message de chat normal
-				await self.send_group_message(
-					self.room_group_name,
-					{
-						'type': 'chat_message',
-						'message': message,
-						'username': username,
-						'room': self.room_group_name
-					}
-				)
-			else:
-				logger.warning(f"Unhandled message type: {message_type}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Unhandled message type'}))
-		except json.JSONDecodeError as e:
-			logger.error(f"Erreur de décodage JSON : {str(e)} - Données reçues : {text_data}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format JSON invalide'}))
+			await self.send(text_data=json.dumps({
+				'type': 'invitation',
+				'message': f"{inviter} t'invite à un quick match. Acceptes-tu ? (oui/non)",
+				'inviter': inviter,
+				'invitee': invite_target
+			}))
 		except Exception as e:
-			logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
+			logger.error(f"Erreur lors de l'envoi de l'invitation: {str(e)}")
+			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur lors de l\'envoi de l\'invitation'}))
+
+	async def handle_quickmatch_response(self, response, invitee, inviter):
+		if response.lower() == "oui":
+			logger.info(f"{invitee} accepte l'invitation de {inviter} pour un quick match")
+			# Logique pour démarrer le quick match
+			await self.start_quickmatch(invitee, inviter)
+		else:
+			logger.info(f"{invitee} a refusé l'invitation de {inviter}")
+			await self.send(text_data=json.dumps({'type': 'info', 'message': 'Invitation refusée, retour au chat normal'}))
+
+	async def start_quickmatch(self, invitee, inviter):
+		# Logique pour démarrer le quick match entre invitee et inviter
+		await self.send(text_data=json.dumps({'type': 'info', 'message': f'Démarrage du quick match entre {invitee} et {inviter}'}))
 
 	async def authenticate(self, token, username):
 		if not token:
