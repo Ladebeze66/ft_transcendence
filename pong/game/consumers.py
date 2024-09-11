@@ -150,30 +150,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		try:
+			# Récupérer le nom de la room
 			self.room_group_name = self.scope['url_route']['kwargs']['room_name']
-			self.user = self.scope["user"]
+		
+			# Accepter la connexion WebSocket
+			await self.accept()
+
+			logger.info(f"Connexion au WebSocket de chat dans la room {self.room_group_name}")
 
 			# Ajouter l'utilisateur au groupe en mémoire
 			if self.room_group_name not in self.groups:
 				self.groups[self.room_group_name] = []
 			self.groups[self.room_group_name].append(self.channel_name)
-			await self.accept()
 
-			logger.info(f"{self.user.username} connecté au WebSocket de chat dans la room {self.room_group_name}")
-
-			# Annonce que l'utilisateur a rejoint
-			await self.send_group_message(
-				self.room_group_name,
-				{
-					'username': self.user.username,
-					'room': self.room_group_name,
-					'type': 'authenticate',
-					'message': 'Vous avez rejoint le chat 'f'{self.room_group_name}'
-
-				}
-			)
 		except Exception as e:
-			logger.error(f"Erreur lors de la connexion WebSocket du chat: {str(e)}")
+			logger.error(f"Erreur lors de la connexion WebSocket: {str(e)}")
+
 
 	async def disconnect(self, close_code):
 		try:
@@ -187,12 +179,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				self.room_group_name,
 				{
 					'type': 'chat_message',
-					'message': f'{self.user.username} a quitté le chat',
-					'username': self.user.username,
+					'message': f'{self.user.username if hasattr(self, "user") else "Unknown"} a quitté le chat',
+					'username': self.user.username if hasattr(self, "user") else "Unknown",
 					'room': self.room_group_name
 				}
 			)
-			logger.info(f"{self.user.username} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
+			logger.info(f"{self.user.username if hasattr(self, 'user') else 'Unknown'} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
 		except Exception as e:
 			logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
 
@@ -201,8 +193,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			data = json.loads(text_data)
 			message_type = data.get('type')
 
+			# Récupérer le username pour les messages de type 'authenticate' aussi
+			username = data.get('username')
+			# Log pour vérifier que le username est bien reçu
+			logger.info(f"Message reçu avec username: {username}")
+			if not username:
+				logger.error(f"Username missing in authenticate message: {data}")
+				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Username is missing'}))
+				return
+
 			if message_type == 'authenticate':
-				await self.authenticate(data.get('token'))
+				await self.authenticate(data.get('token'), username)
 			elif message_type == 'chat_message':
 				if 'message' not in data or 'username' not in data:
 					logger.error(f"Format de message incorrect : {data}")
@@ -232,7 +233,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
 			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
 
-	async def authenticate(self, token):
+	async def authenticate(self, token, username):
 		if not token:
 			logger.error("Token is None, authentication cannot proceed")
 			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Token is missing'}))
@@ -241,8 +242,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			user = await self.get_user_from_token(token)
 			if user:
 				self.user = user
-				await self.send(text_data=json.dumps({'type': 'authenticated'}))
-				logger.info(f"User {self.user} authenticated")
+				logger.info(f"User {username} authenticated successfully")
+			
+				# Envoyer un message d'authentification réussie au client
+				await self.send(text_data=json.dumps({'type': 'authenticated', 'username': username}))
+
+				# Envoyer le message de bienvenue après l'authentification réussie
+				await self.send_group_message(
+					self.room_group_name,
+					{
+						'username': username,
+						'room': self.room_group_name,
+						'type': 'chat_message',
+						'message': f' a rejoint le chat {self.room_group_name}',
+					}
+				)
 			else:
 				logger.warning(f"Authentication failed for token: {token}")
 				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Authentication failed'}))
@@ -266,7 +280,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				await self.channel_layer.send(channel_name, {
 					'type': 'chat_message',
 					'message': message['message'],
-					'username': message['username'],
+					'username': message['username'],  # Assurez-vous que username est bien transmis
 					'room': message['room']
 				})
 
@@ -274,6 +288,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		message = event['message']
 		username = event.get('username', 'Anonyme')
 		room = event.get('room', 'unknown')
+
+		# Log pour vérifier le username avant envoi
+		logger.info(f"Sending chat message from username: {username} in room: {room}")
 
 		# Envoyer le message au WebSocket
 		await self.send(text_data=json.dumps({

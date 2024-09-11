@@ -751,55 +751,70 @@ document.addEventListener('DOMContentLoaded', () => {
 		sendMessage() {
 			const message = this.messageInput.value.trim();
 			if (message) {
+				console.log(`Sending message from username: ${this.username}`); // Log pour vérifier le username
 				this.chatSocket.send(JSON.stringify({
 					'type': 'chat_message',
 					'message': message,
-					'username': this.username, // Assurez-vous que le nom d'utilisateur est bien défini
-					'room': this.roomName // Assurez-vous que le nom de la room est bien défini
+					'username': this.username,  // Assurez-vous que le nom d'utilisateur est bien défini
+					'room': this.roomName
 				}));
-				this.messageInput.value = ''; // Effacer le champ de saisie
+				this.messageInput.value = '';  // Effacer le champ de saisie
 			} else {
 				console.warn('Cannot send an empty message.');
 			}
 		}
+		
 	}
 
 	function startChatWebSocket(token, roomName, username) {
+		// Vérification de la validité du username
+		if (!username || username.trim() === '') {
+			console.error("Username is not defined or empty. WebSocket connection aborted.");
+			alert("Username is required to join the chat. Please log in.");
+			return;
+		}
+	
+		// Vérification si un WebSocket est déjà ouvert pour la room
 		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
 			console.warn(`WebSocket for room ${roomName} already open.`);
 			return;
 		}
+	
 		console.log("Initializing chat WebSocket...");
-		console.log(`Initializing chat WebSocket for room: ${roomName}`);
-
-		// Utilisation d'un délai pour permettre la fermeture propre de l'ancien WebSocket
-		setTimeout(() => {
-			try {
-				console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
-				const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-				console.log(`Attempting to connect to WebSocket for room: ${roomName}`);
-
-				chatSocket.onopen = function () {
-					console.log(`Chat WebSocket connection established in room: ${roomName}`);
-					// Envoyer un message d'authentification dès l'ouverture de la connexion
-					chatSocket.send(JSON.stringify({
-						'type': 'authenticate',
-						'token': token,
-						'room': roomName,  // Connexion à la room spécifique
-						'username': username // Assurez-vous que le nom d'utilisateur bien défini
-					}));
-					console.log(`Authentication message sent for room: ${roomName}`);
-				};
-
-				// Gestion des messages reçus
-				chatSocket.onmessage = function (event) {
-					const data = JSON.parse(event.data);
-					console.log(`Message received from server in room ${roomName}:`, data);
-					if (data.type === 'authenticated') {
-						console.log(`User authenticated for chat successfully in room: ${roomName}`);
-					} else if (data.type === 'chat_message') {
+		console.log(`Initializing chat WebSocket for room: ${roomName} with username: ${username}`);
+	
+		try {
+			console.log(`startChatWebSocket: ${roomName} with username: ${username} and token: ${token}`);
+			const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+	
+			// Événement déclenché lorsque la connexion WebSocket est ouverte
+			chatSocket.onopen = function () {
+				console.log(`Chat WebSocket connection established in room: ${roomName}`);
+	
+				// Envoi d'un message d'authentification avec le token et le username
+				chatSocket.send(JSON.stringify({
+					'type': 'authenticate',
+					'token': token,
+					'room': roomName,
+					'username': username
+				}));
+				console.log(`Authentication message sent for room: ${roomName} with username: ${username}`);
+			};
+	
+			// Gestion des messages reçus du serveur WebSocket
+			chatSocket.onmessage = function (event) {
+				const data = JSON.parse(event.data);
+				console.log(`Message received from server in room ${roomName}:`, data);
+	
+				switch (data.type) {
+					case 'authenticated':
+						console.log(`User authenticated successfully in room: ${roomName}`);
+						break;
+					case 'chat_message':
 						const message = data.message;
 						const chatLog = document.getElementById(`chat-log-${roomName}`);
+						const username = data.username || 'Anonymous'; // Utiliser un fallback si le username est manquant
+						
 						if (chatLog) {
 							const messageElement = document.createElement('div');
 							messageElement.textContent = `${message}`;
@@ -808,36 +823,42 @@ document.addEventListener('DOMContentLoaded', () => {
 						} else {
 							console.error('Chat log element not found');
 						}
-					} else if (data.type === 'error') {
+						break;
+					case 'error':
 						console.error(`Error message received: ${data.message}`);
-					} else {
+						break;
+					default:
 						console.warn('Unhandled message type:', data);
-					}
-				};
-
-				chatSocket.onclose = function (event) {
-					if (event.wasClean) {
-						console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
-					} else {
-						console.error(`Chat WebSocket closed unexpectedly for room ${roomName}`);
-					}
-				};
-
-				chatSocket.onerror = function (error) {
-					console.error(`Chat WebSocket error in room ${roomName}:`, error);
-				};
-
-				roomSockets[roomName] = chatSocket;
-				console.log(`WebSocket connection stored for room: ${roomName}`);
-
-				// Créer une instance de ChatInput pour gérer l'envoi de messages
-				new ChatInput(roomName, username, chatSocket);
-
-			} catch (error) {
-				console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
-			}
-		}, 100); // Délai de 100 ms
+				}
+			};
+	
+			// Gestion de la fermeture du WebSocket
+			chatSocket.onclose = function (event) {
+				if (event.wasClean) {
+					console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
+				} else {
+					console.error(`Chat WebSocket closed unexpectedly for room ${roomName}`);
+				}
+			};
+	
+			// Gestion des erreurs WebSocket
+			chatSocket.onerror = function (error) {
+				console.error(`Chat WebSocket error in room ${roomName}:`, error);
+			};
+	
+			// Stocker la connexion WebSocket dans roomSockets
+			roomSockets[roomName] = chatSocket;
+			console.log(`WebSocket connection stored for room: ${roomName}`);
+	
+			// Initialiser l'interface de chat pour cette room
+			new ChatInput(roomName, username, chatSocket);
+	
+		} catch (error) {
+			console.error(`Error initializing chat WebSocket for room ${roomName}:`, error);
+		}
 	}
+	
+
 
 	function createRoomTab(token, roomName, username) {
 		console.log(`createRoomTab: ${roomName} with username: ${username} and token: ${token}`);

@@ -1,0 +1,38 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: ferdy
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: ferdy
+game.js:250 registerUser called with username: ferdy
+game.js:273 Registration response data: {registered: true, token: '4d383e70-92b8-4e04-8efb-d7bdfc0dcfac'}
+game.js:275 User registered successfully: {registered: true, token: '4d383e70-92b8-4e04-8efb-d7bdfc0dcfac'}
+game.js:229 Token stored: 4d383e70-92b8-4e04-8efb-d7bdfc0dcfac
+game.js:230 User registered successfully
+game.js:922 Joining room: main_room with username: ferdy and token: 4d383e70-92b8-4e04-8efb-d7bdfc0dcfac
+game.js:929 Joining new room: main_room
+game.js:846 createRoomTab: main_room with username: ferdy and token: 4d383e70-92b8-4e04-8efb-d7bdfc0dcfac
+game.js:856 Tab for room main_room already exists.
+game.js:870 Showing tab for room: main_room
+game.js:778 Initializing chat WebSocket...
+game.js:779 Initializing chat WebSocket for room: main_room with username: ferdy
+game.js:877 switchRoom: main_room with username: ferdy and token: 4d383e70-92b8-4e04-8efb-d7bdfc0dcfac
+game.js:883 Attempting to switch to room: main_room
+game.js:889 Switching from room null to room main_room
+game.js:783 startChatWebSocket: main_room with username: ferdy and token: 4d383e70-92b8-4e04-8efb-d7bdfc0dcfac
+game.js:785 Attempting to connect to WebSocket for room: main_room
+game.js:835 WebSocket connection stored for room: main_room
+game.js:784 WebSocket connection to 'ws://172.31.141.12:8080/ws/chat/main_room/' failed: 
+(anonymous) @ game.js:784
+game.js:831 Chat WebSocket error in room main_room: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}isTrusted: truebubbles: falsecancelBubble: falsecancelable: falsecomposed: falsecurrentTarget: WebSocket {url: 'ws://172.31.141.12:8080/ws/chat/main_room/', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}defaultPrevented: falseeventPhase: 0returnValue: truesrcElement: WebSocket {url: 'ws://172.31.141.12:8080/ws/chat/main_room/', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}target: WebSocket {url: 'ws://172.31.141.12:8080/ws/chat/main_room/', readyState: 3, bufferedAmount: 0, onopen: ƒ, onerror: ƒ, …}timeStamp: 13273.79999999702type: "error"[[Prototype]]: Event
+chatSocket.onerror @ game.js:831
+error
+(anonymous) @ game.js:830
+setTimeout
+startChatWebSocket @ game.js:781
+joinRoom @ game.js:932
+handleRegister @ game.js:235
+game.js:826 Chat WebSocket closed unexpectedly for room main_room
+chatSocket.onclose @ game.js:826

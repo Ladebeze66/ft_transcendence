@@ -1,0 +1,40 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: gggg
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: gggg
+game.js:250 registerUser called with username: gggg
+game.js:273 Registration response data: {registered: true, token: 'a6010523-60c5-460b-ac49-39097e66a376'}
+game.js:275 User registered successfully: {registered: true, token: 'a6010523-60c5-460b-ac49-39097e66a376'}
+game.js:229 Token stored: a6010523-60c5-460b-ac49-39097e66a376
+game.js:230 User registered successfully
+game.js:926 Joining room: main_room with username: gggg and token: a6010523-60c5-460b-ac49-39097e66a376
+game.js:933 Joining new room: main_room
+game.js:850 createRoomTab: main_room with username: gggg and token: a6010523-60c5-460b-ac49-39097e66a376
+game.js:860 Tab for room main_room already exists.
+game.js:874 Showing tab for room: main_room
+game.js:780 Initializing chat WebSocket...
+game.js:781 Initializing chat WebSocket for room: main_room with username: gggg
+game.js:881 switchRoom: main_room with username: gggg and token: a6010523-60c5-460b-ac49-39097e66a376
+game.js:887 Attempting to switch to room: main_room
+game.js:893 Switching from room null to room main_room
+game.js:785 startChatWebSocket: main_room with username: gggg and token: a6010523-60c5-460b-ac49-39097e66a376
+game.js:787 Attempting to connect to WebSocket for room: main_room
+game.js:838 WebSocket connection stored for room: main_room
+game.js:839 Authentication username for chat-input: gggg
+game.js:790 Chat WebSocket connection established in room: main_room
+game.js:798 Authentication message sent with username: gggg
+game.js:799 Authentication message sent for room: main_room
+game.js:804 Message received from server in room main_room: {type: 'chat_message', message: ': Anonyme Vous avez rejoint le chat main_room', room: 'main_room'}message: ": Anonyme Vous avez rejoint le chat main_room"room: "main_room"type: "chat_message"[[Prototype]]: Object
+game.js:814 Message displayed in chat log for room: main_room
+game.js:804 Message received from server in room main_room: {type: 'authenticated', username: 'gggg'}type: "authenticated"username: "gggg"[[Prototype]]: Object
+game.js:806 User authenticated for chat successfully in room: main_room
+game.js:754 Sending message from username: gggg
+game.js:804 Message received from server in room main_room: {type: 'chat_message', message: 'gggg: hhfghfh', room: 'main_room'}
+game.js:814 Message displayed in chat log for room: main_room
+game.js:754 Sending message from username: gggg
+game.js:804 Message received from server in room main_room: {type: 'chat_message', message: 'gggg: fhfhfh', room: 'main_room'}
+game.js:814 Message displayed in chat log for room: main_room
