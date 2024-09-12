@@ -1,0 +1,33 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: ferde
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: ferde
+game.js:250 registerUser called with username: ferde
+game.js:273 Registration response data: {registered: true, token: 'cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23'}
+game.js:275 User registered successfully: {registered: true, token: 'cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23'}
+game.js:229 Token stored: cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23
+game.js:230 User registered successfully
+game.js:982 Joining room: main_room with username: ferde and token: cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23
+game.js:989 Joining new room: main_room
+game.js:901 createRoomTab: main_room with username: ferde and token: cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23
+game.js:911 Tab for room main_room already exists.
+game.js:925 Showing tab for room: main_room
+game.js:810 Initializing chat WebSocket...
+game.js:811 Initializing chat WebSocket for room: main_room with username: ferde
+game.js:890 WebSocket connection stored for room: main_room
+game.js:932 switchRoom: main_room with username: ferde and token: cf839ebe-c9b4-4783-b1ef-4fb3e8c8dc23
+game.js:938 Attempting to switch to room: main_room
+game.js:944 Switching from room null to room main_room
+game.js:960 Displaying chat-log for room: main_room
+game.js:817 Chat WebSocket connection established in room: main_room
+game.js:825 Authentication message sent for room: main_room with username: ferde
+game.js:830 Message received from server in room main_room: {type: 'authenticated', username: 'ferde'}
+game.js:845 User authenticated successfully in room: main_room
+game.js:759 Sending message from username: ferde
+game.js:781 Attempting to send message: efefefefefef from room: main_room
+game.js:881 Chat WebSocket closed unexpectedly for room main_room
+chatSocket.onclose @ game.js:881

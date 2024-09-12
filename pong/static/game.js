@@ -793,7 +793,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	}
-
 	
 	function startChatWebSocket(token, roomName, username) {
 		if (!username || username.trim() === '') {
@@ -828,6 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
 				console.log(`Message received from server in room ${roomName}:`, data);
+				console.log(`Message received from server:`, data);
 			
 				const senderUsername = data.username || 'Anonymous';  // Utilisation d'un fallback si le username est manquant
 				let chatLog = document.getElementById(`chat-log-${roomName}`);
@@ -956,7 +956,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		} else {
 			console.warn(`No chat log found for room: ${roomName}`);
 		}
-
+		if (chatLog) {
+			console.log(`Displaying chat-log for room: ${roomName}`);
+		} else {
+			console.warn(`No chat-log found for room: ${roomName}`);
+		}
+	
 		// Mettre à jour l'affichage des inputs
 		document.querySelectorAll('.chat-input').forEach(input => {
 			input.style.display = 'none';
