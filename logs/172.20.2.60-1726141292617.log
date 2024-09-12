@@ -1,0 +1,56 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: didi
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: didi
+game.js:250 registerUser called with username: didi
+game.js:273 Registration response data: {registered: true, token: '391a5261-4dac-4555-9c5f-7d1000557dc0'}
+game.js:275 User registered successfully: {registered: true, token: '391a5261-4dac-4555-9c5f-7d1000557dc0'}
+game.js:229 Token stored: 391a5261-4dac-4555-9c5f-7d1000557dc0
+game.js:230 User registered successfully
+game.js:964 Joining room: main_room with username: didi and token: 391a5261-4dac-4555-9c5f-7d1000557dc0
+game.js:971 Joining new room: main_room
+game.js:888 createRoomTab: main_room with username: didi and token: 391a5261-4dac-4555-9c5f-7d1000557dc0
+game.js:898 Tab for room main_room already exists.
+game.js:912 Showing tab for room: main_room
+game.js:807 Initializing chat WebSocket...
+game.js:808 Initializing chat WebSocket for room: main_room with username: didi
+game.js:811 startChatWebSocket: main_room with username: didi and token: 391a5261-4dac-4555-9c5f-7d1000557dc0
+game.js:875 WebSocket connection stored for room: main_room
+game.js:919 switchRoom: main_room with username: didi and token: 391a5261-4dac-4555-9c5f-7d1000557dc0
+game.js:925 Attempting to switch to room: main_room
+game.js:931 Switching from room null to room main_room
+game.js:816 Chat WebSocket connection established in room: main_room
+game.js:825 Authentication message sent for room: main_room with username: didi
+game.js:831 Message received from server in room main_room: {type: 'authenticated', username: 'didi'}
+game.js:835 User authenticated successfully in room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'didi:  a rejoint le chat main_room', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'didi: kikou', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'didi: /b', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'success', message: 'You have blocked dd'}
+game.js:855 Unhandled message type: {type: 'success', message: 'You have blocked dd'}
+chatSocket.onmessage @ game.js:855
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'fifi:  a rejoint le chat main_room', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'fifi: hello', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'didi: hello', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'didi: tu veux jouer', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'fifi: oui', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room
+game.js:831 Message received from server in room main_room: {type: 'error', message: 'Erreur interne du serveur'}
+game.js:852 Error message received: Erreur interne du serveur
+chatSocket.onmessage @ game.js:852
+game.js:831 Message received from server in room main_room: {type: 'success', message: 'You have blocked fifi'}
+game.js:855 Unhandled message type: {type: 'success', message: 'You have blocked fifi'}
+chatSocket.onmessage @ game.js:855
+game.js:831 Message received from server in room main_room: {type: 'chat_message', message: 'fifi: conard', room: 'main_room'}
+game.js:846 Message displayed in chat log for room: main_room

@@ -1,0 +1,78 @@
+172.20.2.60/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: vivi
+game.js:203 User existence check response: Object
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: vivi
+game.js:250 registerUser called with username: vivi
+game.js:273 Registration response data: Object
+game.js:275 User registered successfully: Object
+game.js:229 Token stored: 66ce0c1a-dfbc-4f0f-9ec9-a4a9d4b990fe
+game.js:230 User registered successfully
+game.js:980 Joining room: main_room with username: vivi and token: 66ce0c1a-dfbc-4f0f-9ec9-a4a9d4b990fe
+game.js:987 Joining new room: main_room
+game.js:904 createRoomTab: main_room with username: vivi and token: 66ce0c1a-dfbc-4f0f-9ec9-a4a9d4b990fe
+game.js:914 Tab for room main_room already exists.
+game.js:928 Showing tab for room: main_room
+game.js:820 Initializing chat WebSocket...
+game.js:821 Initializing chat WebSocket for room: main_room with username: vivi
+game.js:824 startChatWebSocket: main_room with username: vivi and token: 66ce0c1a-dfbc-4f0f-9ec9-a4a9d4b990fe
+game.js:893 WebSocket connection stored for room: main_room
+game.js:734 ChatInput initialized for room: main_room, username: vivi
+game.js:935 switchRoom: main_room with username: vivi and token: 66ce0c1a-dfbc-4f0f-9ec9-a4a9d4b990fe
+game.js:941 Attempting to switch to room: main_room
+game.js:947 Switching from room null to room main_room
+game.js:829 Chat WebSocket connection established in room: main_room
+game.js:838 Authentication message sent for room: main_room with username: vivi
+game.js:844 Message received from server in room main_room: Object
+game.js:848 User authenticated successfully in room: main_room
+game.js:844 Message received from server in room main_room: Object
+game.js:859 Message displayed in chat log for room: main_room
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: cscscsc
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: Object
+game.js:859 Message displayed in chat log for room: main_room
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: cscscs
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: Object
+game.js:859 Message displayed in chat log for room: main_room
+game.js:844 Message received from server in room main_room: Object
+game.js:859 Message displayed in chat log for room: main_room
+game.js:844 Message received from server in room main_room: Object
+game.js:859 Message displayed in chat log for room: main_room
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: /b sasa
+game.js:761 Detected block command for user: sasa
+game.js:784 Sending block command to WebSocket for user: sasa
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: Object
+game.js:869 Error message received: Target user sasa not found in room main_room
+chatSocket.onmessage @ game.js:869
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: /isasa
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'chat_message', message: 'vivi: /isasa', room: 'main_room'}
+game.js:859 Message displayed in chat log for room: main_room
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: /i sas
+game.js:765 Detected invite command for user: sas
+game.js:794 Sending invite command to WebSocket for user: sas
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'error', message: 'Target user sas not found in room main_room'}
+game.js:869 Error message received: Target user sas not found in room main_room
+chatSocket.onmessage @ game.js:869
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: /i sasa
+game.js:765 Detected invite command for user: sasa
+game.js:794 Sending invite command to WebSocket for user: sasa
+game.js:777 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'error', message: 'Target user sasa not found in room main_room'}
+game.js:869 Error message received: Target user sasa not found in room main_room
+chatSocket.onmessage @ game.js:869

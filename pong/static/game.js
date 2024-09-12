@@ -726,46 +726,81 @@ document.addEventListener('DOMContentLoaded', () => {
 	class ChatInput {
 		constructor(roomName, username, chatSocket) {
 			this.roomName = roomName;
-			this.username = username;
+			this.username = username.toLowerCase().trim(); // Normalisation du nom d'utilisateur
 			this.chatSocket = chatSocket;
 			this.messageInput = document.querySelector(`#chat-input-${roomName} input`);
 			this.chatButton = document.querySelector(`#chat-input-${roomName} button`);
-
+	
+			console.log(`ChatInput initialized for room: ${roomName}, username: ${this.username}`);
 			this.initEventListeners();
 		}
-
+	
 		initEventListeners() {
 			// Envoi de message en appuyant sur "Entrée"
 			this.messageInput.addEventListener('keypress', (event) => {
 				if (event.key === 'Enter') {
+					console.log("Enter key pressed, attempting to send message...");
 					this.sendMessage();
 				}
 			});
-
+	
 			// Envoi de message en cliquant sur le bouton d'envoi
 			this.chatButton.addEventListener('click', () => {
+				console.log("Send button clicked, attempting to send message...");
 				this.sendMessage();
 			});
 		}
-
+	
 		sendMessage() {
 			const message = this.messageInput.value.trim();
+			console.log(`Attempting to send message: ${message}`);
+			
 			if (message) {
-				console.log(`Sending message from username: ${this.username}`); // Log pour vérifier le username
-				this.chatSocket.send(JSON.stringify({
-					'type': 'chat_message',
-					'message': message,
-					'username': this.username,  // Assurez-vous que le nom d'utilisateur est bien défini
-					'room': this.roomName
-				}));
+				if (message.startsWith('/b ')) {
+					const targetUser = message.slice(3).trim().toLowerCase()
+					console.log(`Detected block command for user: ${targetUser}`);
+					this.sendBlockCommand(targetUser);
+				} else if (message.startsWith('/i ')) {
+					const targetUser = message.slice(3).trim().toLowerCase();
+					console.log(`Detected invite command for user: ${targetUser}`);
+					this.sendInviteCommand(targetUser);
+				} else {
+					console.log("Sending chat message to WebSocket...");
+					this.chatSocket.send(JSON.stringify({
+						'type': 'chat_message',
+						'message': message,
+						'username': this.username,
+						'room': this.roomName
+					}));
+				}
 				this.messageInput.value = '';  // Effacer le champ de saisie
+				console.log("Message input cleared.");
 			} else {
 				console.warn('Cannot send an empty message.');
 			}
 		}
-		
+	
+		sendBlockCommand(targetUser) {
+			console.log(`Sending block command to WebSocket for user: ${targetUser}`);
+			this.chatSocket.send(JSON.stringify({
+				'type': 'block_user',
+				'target_user': targetUser,
+				'username': this.username,
+				'room': this.roomName
+			}));
+		}
+	
+		sendInviteCommand(targetUser) {
+			console.log(`Sending invite command to WebSocket for user: ${targetUser}`);
+			this.chatSocket.send(JSON.stringify({
+				'type': 'invite_user',
+				'target_user': targetUser,
+				'username': this.username,
+				'room': this.roomName
+			}));
+		}
 	}
-
+	
 	function startChatWebSocket(token, roomName, username) {
 		// Vérification de la validité du username
 		if (!username || username.trim() === '') {
@@ -773,6 +808,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			alert("Username is required to join the chat. Please log in.");
 			return;
 		}
+
+		username = username.toLowerCase().trim(); // Normalisation du nom d'utilisateur
 	
 		// Vérification si un WebSocket est déjà ouvert pour la room
 		if (roomSockets[roomName] && roomSockets[roomName].readyState === WebSocket.OPEN) {
@@ -805,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			chatSocket.onmessage = function (event) {
 				const data = JSON.parse(event.data);
 				console.log(`Message received from server in room ${roomName}:`, data);
-	
+			
 				switch (data.type) {
 					case 'authenticated':
 						console.log(`User authenticated successfully in room: ${roomName}`);
@@ -813,19 +850,24 @@ document.addEventListener('DOMContentLoaded', () => {
 					case 'chat_message':
 						const message = data.message;
 						const chatLog = document.getElementById(`chat-log-${roomName}`);
-						const username = data.username || 'Anonymous'; // Utiliser un fallback si le username est manquant
+						const receivedUsername = data.username || 'Anonymous'; // Utiliser un fallback si le username est manquant
 						
 						if (chatLog) {
 							const messageElement = document.createElement('div');
-							messageElement.textContent = `${message}`;
+							messageElement.textContent = `${receivedUsername}: ${message}`;
 							chatLog.appendChild(messageElement);
 							console.log(`Message displayed in chat log for room: ${roomName}`);
 						} else {
 							console.error('Chat log element not found');
 						}
 						break;
+					case 'success':  // Nouveau cas pour traiter les messages de succès
+						console.log(`Success message received: ${data.message}`);
+						alert(`Success: ${data.message}`);  // Vous pouvez remplacer l'alerte par une notification visuelle plus adaptée
+						break;
 					case 'error':
 						console.error(`Error message received: ${data.message}`);
+						alert(`Error: ${data.message}`);  // Afficher une alerte ou un message d'erreur à l'utilisateur
 						break;
 					default:
 						console.warn('Unhandled message type:', data);
@@ -858,8 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 	
-
-
 	function createRoomTab(token, roomName, username) {
 		console.log(`createRoomTab: ${roomName} with username: ${username} and token: ${token}`);
 

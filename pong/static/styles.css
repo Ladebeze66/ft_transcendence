@@ -499,7 +499,6 @@ canvas {
 	color: #fff;
 	font-size: 14px;
 	max-height: 150px;
-	overflow-y: auto;
 	margin-bottom: 10px;
 	box-sizing: border-box; /* Ajouté */
 	flex: 1; /* Permet au conteneur de prendre tout l'espace disponible */
@@ -553,13 +552,13 @@ canvas {
 
 .chat-button {
 	height: 28px;
-	width: 40px; /* Réduire la largeur du bouton */
+	width: 150px; /* Réduire la largeur du bouton */
 	border: none;
 	border-radius: 5px;
 	background-color: #00ffff;
 	color: #000033;
 	cursor: pointer;
-	margin-left: 202px; /* Espace entre l'input et le bouton */
+	margin-left: 100px; /* Espace entre l'input et le bouton */
 	display: flex; /* Utiliser flexbox pour centrer le contenu */
 	align-items: center; /* Centrer verticalement */
 	justify-content: center; /* Centrer horizontalement */
@@ -599,3 +598,4 @@ canvas {
 	color: #000033;
 	opacity: 1; /* Onglets actifs non grisés */
 }
+
