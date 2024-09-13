@@ -1,0 +1,93 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: fre
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: fre
+game.js:250 registerUser called with username: fre
+game.js:273 Registration response data: {registered: true, token: '259aa7c4-7185-4d10-be26-1316ce6adeb4'}
+game.js:275 User registered successfully: {registered: true, token: '259aa7c4-7185-4d10-be26-1316ce6adeb4'}
+game.js:229 Token stored: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:230 User registered successfully
+game.js:986 Joining room: main_room with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:993 Joining new room: main_room
+game.js:910 createRoomTab: main_room with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:920 Tab for room main_room already exists.
+game.js:934 Showing tab for room: main_room
+game.js:818 Initializing chat WebSocket...
+game.js:819 Initializing chat WebSocket for room: main_room with username: fre
+game.js:822 startChatWebSocket: main_room with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:899 WebSocket connection stored for room: main_room
+game.js:734 ChatInput initialized for room: main_room, username: fre
+game.js:941 switchRoom: main_room with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:947 Attempting to switch to room: main_room
+game.js:953 Switching from room null to room main_room
+game.js:827 Chat WebSocket connection established in room: main_room
+game.js:836 Authentication message sent for room: main_room with username: fre
+game.js:841 Message received from server in room main_room: {type: 'authenticated', username: 'fre'}
+game.js:850 User authenticated successfully in room: main_room
+game.js:841 Message received from server in room main_room: {type: 'chat_message', message: 'fre:  a rejoint le chat main_room', room: 'main_room'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre:  a rejoint le chat main_room', room: 'main_room'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: main_room
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: fefef
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:841 Message received from server in room main_room: {type: 'chat_message', message: 'fre: fefef', room: 'main_room'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre: fefef', room: 'main_room'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: main_room
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: fefefef
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:841 Message received from server in room main_room: {type: 'chat_message', message: 'fre: fefefef', room: 'main_room'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre: fefefef', room: 'main_room'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: main_room
+game.js:607 Token before WebSocket authentication: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:986 Joining room: tournament with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:993 Joining new room: tournament
+game.js:910 createRoomTab: tournament with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:920 Tab for room tournament already exists.
+game.js:934 Showing tab for room: tournament
+game.js:818 Initializing chat WebSocket...
+game.js:819 Initializing chat WebSocket for room: tournament with username: fre
+game.js:822 startChatWebSocket: tournament with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:899 WebSocket connection stored for room: tournament
+game.js:734 ChatInput initialized for room: tournament, username: fre
+game.js:941 switchRoom: tournament with username: fre and token: 259aa7c4-7185-4d10-be26-1316ce6adeb4
+game.js:947 Attempting to switch to room: tournament
+game.js:953 Switching from room main_room to room tournament
+game.js:958 Hiding chat log for previous room: main_room
+game.js:622 Starting WebSocket connection for tournament...
+game.js:827 Chat WebSocket connection established in room: tournament
+game.js:836 Authentication message sent for room: tournament with username: fre
+game.js:841 Message received from server in room tournament: {type: 'authenticated', username: 'fre'}
+game.js:850 User authenticated successfully in room: tournament
+game.js:635 WebSocket connection established
+game.js:643 Sending token for a tournament game
+game.js:652 Authentication successful
+game.js:841 Message received from server in room tournament: {type: 'chat_message', message: 'fre:  a rejoint le chat tournament', room: 'tournament'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre:  a rejoint le chat tournament', room: 'tournament'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: tournament
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: fefefef
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:841 Message received from server in room tournament: {type: 'chat_message', message: 'fre: fefefef', room: 'tournament'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre: fefefef', room: 'tournament'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: tournament
+game.js:749 Send button clicked, attempting to send message...
+game.js:756 Attempting to send message: fefef
+game.js:768 Sending chat message to WebSocket...
+game.js:777 Message input cleared.
+game.js:841 Message received from server in room tournament: {type: 'chat_message', message: 'fre: fefef', room: 'tournament'}
+game.js:846 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'chat_message', message: 'fre: fefef', room: 'tournament'}
+chatSocket.onmessage @ game.js:846
+game.js:862 Message displayed in chat log for room: tournament

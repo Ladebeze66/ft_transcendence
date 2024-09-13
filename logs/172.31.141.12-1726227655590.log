@@ -1,0 +1,64 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:186 checkUserExists called with username: dire
+game.js:203 User existence check response: {exists: false}
+game.js:212 handleRegister called
+game.js:225 Attempting to register user: dire
+game.js:250 registerUser called with username: dire
+game.js:273 Registration response data: {registered: true, token: '8a79dfcc-f1ff-4fab-bfe9-a2881c840866'}
+game.js:275 User registered successfully: {registered: true, token: '8a79dfcc-f1ff-4fab-bfe9-a2881c840866'}
+game.js:229 Token stored: 8a79dfcc-f1ff-4fab-bfe9-a2881c840866
+game.js:230 User registered successfully
+game.js:989 Joining room: main_room with username: dire and token: 8a79dfcc-f1ff-4fab-bfe9-a2881c840866
+game.js:996 Joining new room: main_room
+game.js:913 createRoomTab: main_room with username: dire and token: 8a79dfcc-f1ff-4fab-bfe9-a2881c840866
+game.js:923 Tab for room main_room already exists.
+game.js:937 Showing tab for room: main_room
+game.js:821 Initializing chat WebSocket...
+game.js:822 Initializing chat WebSocket for room: main_room with username: dire
+game.js:825 startChatWebSocket: main_room with username: dire and token: 8a79dfcc-f1ff-4fab-bfe9-a2881c840866
+game.js:902 WebSocket connection stored for room: main_room
+game.js:734 ChatInput initialized for room: main_room, username: dire
+game.js:944 switchRoom: main_room with username: dire and token: 8a79dfcc-f1ff-4fab-bfe9-a2881c840866
+game.js:950 Attempting to switch to room: main_room
+game.js:956 Switching from room null to room main_room
+game.js:830 Chat WebSocket connection established in room: main_room
+game.js:839 Authentication message sent for room: main_room with username: dire
+game.js:844 Message received from server in room main_room: {type: 'authenticated', username: 'dire'}
+game.js:853 User authenticated successfully in room: main_room
+game.js:844 Message received from server in room main_room: {type: 'chat_message', username: 'dire', message: ' a rejoint le chat main_room', room: 'main_room'}
+game.js:865 Message displayed in chat log for room: main_room
+game.js:844 Message received from server in room main_room: {type: 'chat_message', username: 'fifi', message: ' a rejoint le chat main_room', room: 'main_room'}
+game.js:865 Message displayed in chat log for room: main_room
+game.js:844 Message received from server in room main_room: {type: 'chat_message', username: 'fifi', message: 'hello', room: 'main_room'}
+game.js:865 Message displayed in chat log for room: main_room
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: salut
+game.js:769 Sending chat message to WebSocket...
+game.js:770 Data sent: { type: 'chat_message', message: salut, username: dire, room: main_room }
+game.js:780 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'chat_message', username: 'dire', message: 'salut', room: 'main_room'}
+game.js:865 Message displayed in chat log for room: main_room
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: /b fifi
+game.js:761 Detected block command for user: fifi
+game.js:787 Sending block command to WebSocket for user: fifi
+game.js:780 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'error', message: 'Target user fifi not found in room'}
+game.js:849 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'error', message: 'Target user fifi not found in room'}message: "Target user fifi not found in room"type: "error"[[Prototype]]: Object
+chatSocket.onmessage @ game.js:849
+game.js:877 Error message received: Target user fifi not found in room
+chatSocket.onmessage @ game.js:877
+game.js:742 Enter key pressed, attempting to send message...
+game.js:756 Attempting to send message: /i fifi
+game.js:765 Detected invite command for user: fifi
+game.js:797 Sending invite command to WebSocket for user: fifi
+game.js:780 Message input cleared.
+game.js:844 Message received from server in room main_room: {type: 'success', message: 'Invitation sent to fifi'}
+game.js:849 No username provided in message. Defaulting to 'Anonymous'. Full message: {type: 'success', message: 'Invitation sent to fifi'}
+chatSocket.onmessage @ game.js:849
+game.js:872 Success message received: Invitation sent to fifi
+game.js:844 Message received from server in room main_room: {type: 'chat_message', username: 'dire', message: 'dire invited fifi to a quick match', room: 'main_room'}
+game.js:865 Message displayed in chat log for room: main_room
