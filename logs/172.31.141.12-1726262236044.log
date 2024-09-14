@@ -1,0 +1,54 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:126 checkUserExists called with username: dddd
+game.js:143 User existence check response: {exists: false}
+game.js:152 handleRegister called
+game.js:165 Attempting to register user: dddd
+game.js:190 registerUser called with username: dddd
+game.js:213 Registration response data: {registered: true, token: '5da8f565-3826-4d72-b0bd-5e4ceac9f0a5'}
+game.js:215 User registered successfully: {registered: true, token: '5da8f565-3826-4d72-b0bd-5e4ceac9f0a5'}
+game.js:169 Token stored: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:170 User registered successfully
+game.js:675 ChatManager initialized for user: dddd
+game.js:918 Joining room: main_room with username: dddd and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:925 Joining new room: main_room
+game.js:824 createRoomTab: main_room with username: dddd and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:861 Showing tab for room: main_room
+game.js:690 Initializing chat WebSocket...
+game.js:691 Initializing chat WebSocket for room: main_room with username: dddd
+game.js:696 startChatWebSocket: main_room with username: dddd and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:944 ChatInput initialized for room: main_room, username: dddd
+game.js:868 switchRoom: main_room with username: dddd and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:874 Attempting to switch to room: main_room
+game.js:880 Switching from room null to room main_room
+game.js:702 Chat WebSocket connection established in room: main_room
+game.js:710 Authentication message sent for room: main_room with username: dddd
+game.js:716 Message received from server in room main_room: {type: 'chat_message', username: 'dddd', message: 'Authentication successful', room: 'main_room'}
+game.js:733 Message displayed in chat log for room: main_room
+game.js:957 Send button clicked, attempting to send message...
+game.js:964 Attempting to send message: feeffef
+game.js:976 Sending chat message to WebSocket...
+game.js:985 Message input cleared.
+game.js:716 Message received from server in room main_room: {type: 'chat_message', username: 'dddd', message: 'feeffef', room: 'main_room'}
+game.js:733 Message displayed in chat log for room: main_room
+game.js:957 Send button clicked, attempting to send message...
+game.js:964 Attempting to send message: fefefef
+game.js:976 Sending chat message to WebSocket...
+game.js:985 Message input cleared.
+game.js:716 Message received from server in room main_room: {type: 'chat_message', username: 'dddd', message: 'fefefef', room: 'main_room'}
+game.js:733 Message displayed in chat log for room: main_room
+game.js:547 Token before WebSocket authentication: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:675 ChatManager initialized for user: [object HTMLInputElement]
+game.js:918 Joining room: tournament with username: [object HTMLInputElement] and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:925 Joining new room: tournament
+game.js:824 createRoomTab: tournament with username: [object HTMLInputElement] and token: 5da8f565-3826-4d72-b0bd-5e4ceac9f0a5
+game.js:861 Showing tab for room: tournament
+game.js:679 Uncaught TypeError: this.username.trim is not a function
+    at ChatManager.startChatWebSocket (game.js:679:40)
+    at ChatManager.joinRoom (game.js:928:10)
+    at HTMLButtonElement.startTournament (game.js:562:15)
+startChatWebSocket @ game.js:679
+joinRoom @ game.js:928
+startTournament @ game.js:562

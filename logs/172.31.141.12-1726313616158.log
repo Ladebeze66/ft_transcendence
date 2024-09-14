@@ -1,0 +1,56 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:49 DOM elements initialized
+game.js:72 Event listeners added
+game.js:127 checkUserExists called with username: hhh
+game.js:144 User existence check response: {exists: false}
+game.js:153 handleRegister called
+game.js:166 Attempting to register user: hhh
+game.js:192 registerUser called with username: hhh
+game.js:215 Registration response data: {registered: true, token: '0e57f9bf-7235-44ed-8b92-c398bbc2eda2'}
+game.js:217 User registered successfully: {registered: true, token: '0e57f9bf-7235-44ed-8b92-c398bbc2eda2'}
+game.js:170 Token stored: 0e57f9bf-7235-44ed-8b92-c398bbc2eda2
+game.js:171 User registered successfully
+game.js:676 ChatManager initialized for user: hhh
+game.js:904 Joining room: main_room with username: hhh and token: 0e57f9bf-7235-44ed-8b92-c398bbc2eda2
+game.js:912 Joining new room: main_room
+game.js:831 createRoomTab: main_room with username: hhh and token: 0e57f9bf-7235-44ed-8b92-c398bbc2eda2
+game.js:841 Tab for room main_room already exists.
+game.js:854 Showing tab for room: main_room
+game.js:691 Initializing chat WebSocket...
+game.js:692 Initializing chat WebSocket for room: main_room with username: hhh
+game.js:697 startChatWebSocket: main_room with username: hhh and token: 0e57f9bf-7235-44ed-8b92-c398bbc2eda2
+game.js:931 ChatInput initialized for room: main_room, username: hhh
+game.js:866 Attempting to switch to room: main_room
+game.js:872 Switching from room null to room main_room
+game.js:703 Chat WebSocket connection established in room: main_room
+game.js:711 Authentication message sent for room: main_room with username: hhh
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'hhh', message: 'Authentication successful', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'mmm', message: 'Authentication successful', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'mmm', message: 'kyku', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:938 Enter key pressed, attempting to send message...
+game.js:951 Attempting to send message: /b mmm
+game.js:956 Detected block command for user: mmm
+game.js:827 User mmm added to blocked list.
+game.js:980 Sending block command to WebSocket for user: mmm
+game.js:972 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'block_user', message: 'Vous avez bloqué les messages de mmm'}
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'mmm', message: 'nique mouk', room: 'main_room'}
+game.js:740 Message from blocked user mmm was filtered out.
+game.js:938 Enter key pressed, attempting to send message...
+game.js:951 Attempting to send message: / i mmm
+game.js:963 Sending chat message to WebSocket...
+game.js:972 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'hhh', message: '/ i mmm', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:938 Enter key pressed, attempting to send message...
+game.js:951 Attempting to send message: /i mmm
+game.js:960 Detected invite command for user: mmm
+game.js:990 Sending invite command to WebSocket for user: mmm
+game.js:972 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'invite_user', message: 'Vous avez invité mmm'}
+game.js:811 Chat WebSocket closed unexpectedly for room main_room
+document.addEventListener.startChatWebSocket.chatSocket.onclose @ game.js:811

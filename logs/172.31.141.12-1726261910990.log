@@ -1,0 +1,20 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:48 DOM elements initialized
+game.js:71 Event listeners added
+game.js:126 checkUserExists called with username: rrr
+game.js:143 User existence check response: {exists: false}
+game.js:152 handleRegister called
+game.js:165 Attempting to register user: rrr
+game.js:190 registerUser called with username: rrr
+game.js:213 Registration response data: {registered: true, token: 'd3e29f9f-061a-4aea-b290-ed45da5492f0'}
+game.js:215 User registered successfully: {registered: true, token: 'd3e29f9f-061a-4aea-b290-ed45da5492f0'}
+game.js:169 Token stored: d3e29f9f-061a-4aea-b290-ed45da5492f0
+game.js:170 User registered successfully
+game.js:675 ChatManager initialized for user: rrr
+game.js:918 Joining room: main_room with username: rrr and token: d3e29f9f-061a-4aea-b290-ed45da5492f0
+game.js:925 Joining new room: main_room
+game.js:181 Error registering user: ReferenceError: createRoomTab is not defined
+    at ChatManager.joinRoom (game.js:926:5)
+    at HTMLButtonElement.handleRegister (game.js:175:18)
+handleRegister @ game.js:181
