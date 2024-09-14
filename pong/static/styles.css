@@ -510,6 +510,7 @@ canvas {
 	margin-bottom: 10px;
 	box-sizing: border-box; /* Ajouté */
 	background-color: transparent; /* Fond transparent */
+	display: none; /* Masquer le chat log par défaut */
 }
 
 /* Styles pour l'entrée de texte du chat */
@@ -533,11 +534,7 @@ canvas {
 	margin-right: 5px;
 	height: 28px;
 	box-sizing: border-box; /* Ajouté */
-	display: none; /* Masquer par défaut */
-}
-
-.chat-input.active {
-	display: flex; /* Afficher lorsque actif */
+	display: none; /* Masquer l'input par défaut */
 }
 
 .chat-input input[type="text"] {

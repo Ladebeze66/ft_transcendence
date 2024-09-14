@@ -230,38 +230,46 @@
 		</div>
 	</div>
 
-	<!-- Ajout du script JavaScript pour la gestion dynamique -->
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			const tabs = document.querySelectorAll('.room-tab');
 			const chatLogs = document.querySelectorAll('.chat-log');
 			const chatInputs = document.querySelectorAll('.chat-input');
-
+	
 			tabs.forEach(tab => {
 				tab.addEventListener('click', function() {
 					const roomId = this.dataset.room;
-
+	
+					console.log(`Switching to room: ${roomId}`);
+	
 					// Afficher le journal de chat correspondant
 					chatLogs.forEach(log => {
-						log.style.display = log.id === `chat-log-${roomId}` ? 'block' : 'none';
-					});
-
-					// Afficher l'entrée de texte correspondante
-					chatInputs.forEach(input => {
-						input.classList.remove('active');
-						if (input.id === `chat-input-${roomId}`) {
-							input.classList.add('active');
+						if (log.id === `chat-log-${roomId}`) {
+							log.style.display = 'block';
+							console.log(`Displaying chat log for: ${roomId}`);
+						} else {
+							log.style.display = 'none';
 						}
 					});
-
+	
+					// Afficher l'entrée de texte correspondante
+					chatInputs.forEach(input => {
+						if (input.id === `chat-input-${roomId}`) {
+							input.style.display = 'block';
+							console.log(`Displaying chat input for: ${roomId}`);
+						} else {
+							input.style.display = 'none';
+						}
+					});
+	
 					// Mettre à jour l'onglet actif
 					tabs.forEach(t => t.classList.remove('active'));
 					this.classList.add('active');
+					console.log(`Tab for ${roomId} is now active`);
 				});
 			});
 		});
 	</script>
-
 
 	<script>
 		const starsContainer = document.getElementById('stars');
