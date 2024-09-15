@@ -770,36 +770,41 @@ document.addEventListener('DOMContentLoaded', () => {
 							break;
 						
 						case 'invite':
-							// Vérifier si un message est présent dans les données reçues
-							if (data.message) {
+							// Déclaration de `message` pour ce cas spécifique
+							const inviteMessage = data.message;
+							// Vérifie si l'invitation est destinée à cet utilisateur
+							if (data.target_user === this.username) {
+								console.log(`Invitation reçue de ${data.inviter}`);
+											
 								const messageElement = document.createElement('div');
 								messageElement.textContent = data.message;
-								chatLog.appendChild(messageElement); // Affiche le message d'invitation dans le chat-log
-								console.log(`Invitation message displayed in chat log: ${data.message}`);
+								chatLog.appendChild(messageElement);  // Affiche le message dans le chat-log
+							
+								// Demande à l'utilisateur s'il accepte ou refuse l'invitation
+								const inviteResponse = confirm(`${data.inviter} vous a invité dans la room ${data.room}. Accepter? yes/no.`);
+								const response = inviteResponse ? 'yes' : 'no';
+							
+								console.log(`Réponse à l'invitation: ${response}`);
+							
+								// Envoie la réponse (oui ou non) au serveur
+								chatSocket.send(JSON.stringify({
+									'type': 'invite_response',
+									'username': this.username,  // Utilisateur invité	
+									'response': response,
+									'inviter': data.inviter,
+									'room': data.room
+								}));
 							}
-							
-							// Demander à l'utilisateur s'il souhaite accepter ou refuser l'invitation
-							const inviteResponse = confirm(`${data.inviter} vous a invité dans la room ${data.room}. Accepter? yes/no.`);
-							const response = inviteResponse ? 'yes' : 'no';
-								
-							console.log(`Réponse à l'invitation: ${response}`);
-							
-							// Envoi de la réponse à l'invitation via WebSocket
-							chatSocket.send(JSON.stringify({
-								'type': 'invite_response',
-								'username': this.username,  // Assurez-vous que this.username est correctement défini
-								'room': data.room,
-								'response': response,
-								'inviter': data.inviter
-							}));
 							break;
-							
-						
+																	
 						case 'invite_response':
-							console.log(`Réponse à l'invitation reçue: ${data.message}`);
-							const messageElement = document.createElement('div');
-							messageElement.textContent = data.message;
-							chatLog.appendChild(messageElement);
+							// Vérifie si l'invitation concerne cet utilisateur (l'invitant)
+							if (data.inviter === this.username) {
+								const messageElement = document.createElement('div');
+								messageElement.textContent = data.message;
+								chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
+								console.log(`Réponse à l'invitation: ${data.message}`);
+							}
 							break;
 	
 						case 'success':
@@ -1001,12 +1006,26 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	
 		sendInviteCommand(targetUser) {
+			if (!targetUser) {
+				console.error("Target user is not defined. Cannot send invite.");
+				return;
+			}
+			if (!this.username) {
+				console.error("Username is not defined. Cannot send invite.");
+				return;
+			}
+			if (!this.roomName) {
+				console.error("Room name is not defined. Cannot send invite.");
+				return;
+			}
+		
 			console.log(`Sending invite command to WebSocket for user: ${targetUser}`);
+		
 			this.chatSocket.send(JSON.stringify({
 				'type': 'invite',
-				'username': this.username,
-				'target_user': targetUser,
-				'room': this.roomName
+				'username': this.username,  // Utilisateur qui envoie l'invitation
+				'target_user': targetUser,   // Utilisateur qui reçoit l'invitation
+				'room': this.roomName        // Room où l'invitation est faite
 			}));
 		}
 	}

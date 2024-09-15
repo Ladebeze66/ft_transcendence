@@ -227,18 +227,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				await self.handle_block_user(data)
 
 			elif message_type == 'invite':
-				inviter = data.get('username')  # Récupère le username à ce moment-là
-				target_user = data.get('target_user')
-				room = data.get('room')
+				await self.handle_invite_user(data)
 
-				logger.info(f"Invitation reçue : {inviter} invite {target_user} à rejoindre la room {room}")
-
-				# Appel de la méthode pour gérer l'invitation
-				await self.handle_invite_user({
-				'username': inviter,
-				'target_user': target_user,
-				'room': room
-			})
 			elif message_type == 'invite_response':
 				await self.handle_invite_response(data)
 
@@ -309,101 +299,76 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		}))
 
 	async def handle_invite_user(self, data):
-		inviter = data['username']
-		target_user = data['target_user']
+		# Récupération des informations de l'invitation
+		inviter = data.get('username')
+		target_user = data.get('target_user')
 		room = data.get('room')
 
-		logger.info(f"handle_invite_user: Début de la gestion de l'invitation. Inviter={inviter}, Target={target_user}, Room={room}")
-
-		if not inviter or not target_user or not room:
-			logger.error(f"handle_invite_user: Paramètres manquants. Inviter={inviter}, Target={target_user}, Room={room}")
-			await self.send(text_data=json.dumps({
-				'type': 'error',
-				'message': 'Données manquantes pour l\'invitation'
-			}))
+		# Validation des paramètres
+		if not inviter:
+			logger.error("Invitant manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Invitant manquant', self.room_group_name)
 			return
 
-		# Log avant l'envoi au groupe personnel
-		logger.info(f"handle_invite_user: Envoi de l'invitation à {target_user} dans le groupe user_{target_user}")
+		if not target_user:
+			logger.error("Utilisateur cible manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Utilisateur cible manquant', self.room_group_name)
+			return
 
-		try:
-			# Envoyer l'invitation à l'utilisateur cible dans son groupe personnel
-			await self.channel_layer.group_send(
-				f"user_{target_user}",
-				{
-					'type': 'invite',
-					'inviter': inviter,
-					'room': room,
-					'message': f'{inviter} vous a invité à rejoindre la room {room}. Répondez avec "yes" ou "no".'
-				}
-			)
-			logger.info(f"handle_invite_user: Message envoyé à user_{target_user} avec succès.")
-		except Exception as e:
-			logger.error(f"handle_invite_user: Erreur lors de l'envoi de l'invitation à {target_user}: {str(e)}")
-			# Envoyer une confirmation à l'invitant
-		
-		await self.send(text_data=json.dumps({
-			'type': 'invite_confirmation',
-			'message': f'Vous avez invité {target_user} dans la room {room}'
-		}))
+		if not room:
+			logger.error("Room manquante dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Room manquante', self.room_group_name)
+			return
+
+		logger.info(f"Invitation envoyée de {inviter} à {target_user} dans la room {room}")
+		await self.chat_message('chat_message', 'server', f'{inviter} a invité {target_user} à rejoindre une partie {room}', room)
+
+		# Envoi de l'invitation
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'invite',
+				'inviter': inviter,
+				'target_user': target_user,
+				'room': room,
+				'message': f'{inviter} vous a invité à rejoindre la room {room}.'
+			}
+		)
 
 	async def handle_invite_response(self, data):
-		inviter = data['inviter']
-		username = data['username']
-		response = data['response']
-		room = data['room']
+		inviter = data.get('inviter')
+		username = data.get('username')  # L'utilisateur invité qui répond
+		response = data.get('response')
+		room = data.get('room')
 
-		logger.info(f"handle_invite_response: Réception de la réponse à l'invitation. Inviter={inviter}, Username={username}, Response={response}, Room={room}")
+		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
+		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
 
-		if not inviter or not username or not response or not room:
-			logger.error(f"handle_invite_response: Paramètres manquants. Inviter={inviter}, Username={username}, Response={response}, Room={room}")
-			await self.send(text_data=json.dumps({
-				'type': 'error',
-				'message': 'Données manquantes pour la réponse à l\'invitation'
-			}))
-			return
-
-		if response == 'yes':
-			logger.info(f"handle_invite_response: {username} a accepté l'invitation de {inviter} pour la room {room}")
-
-			# Log avant l'envoi du message d'acceptation
-			logger.info(f"handle_invite_response: Envoi du message d'acceptation à {inviter}")
-
-			# Envoyer le message d'acceptation uniquement à l'invitant
-			await self.channel_layer.group_send(
-				f"user_{inviter}",
-				{
-					'type': 'invite_response',
-					'message': f'{username} a accepté l\'invitation dans la room {room}',
-				}
-			)
-		else:
-			logger.info(f"handle_invite_response: {username} a refusé l'invitation de {inviter}")
-
-			# Log avant l'envoi du message de refus
-			logger.info(f"handle_invite_response: Envoi du message de refus à {inviter}")
-
-			# Envoyer le message de refus uniquement à l'invitant
-			await self.channel_layer.group_send(
-				f"user_{inviter}",
-				{
-					'type': 'invite_response',
-					'message': f'{username} a refusé l\'invitation dans la room {room}',
-				}
-			)
+	# Envoi de la réponse directement à l'invitant dans la room
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'invite_response',
+				'inviter': inviter,
+				'username': username,
+				'room': room,
+				'message': f'{username} a répondu {response} à l\'invitation.'
+			}
+		)
 
 	# Méthode appelée pour envoyer l'invitation à l'utilisateur invité (target_user)
 	async def invite(self, event):
 		inviter = event['inviter']
 		message = event['message']
 		room = event['room']
-
+		target_user = event['target_user']
 		logger.info(f"invite: Envoi de l'invitation à l'utilisateur via WebSocket. Inviter={inviter}, Room={room}, Message={message}")
 
 		# Envoyer le message d'invitation via WebSocket
 		await self.send(text_data=json.dumps({
 			'type': 'invite',
 			'inviter': inviter,
+			'target_user': target_user,
 			'message': message,
 			'room': room
 		}))

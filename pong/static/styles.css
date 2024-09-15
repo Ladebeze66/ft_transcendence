@@ -518,7 +518,9 @@ canvas {
 	width: 100%;
 	height: 25%;
 	display: flex;
-	flex-direction: column; /* Aligner les chat-inputs verticalement */
+	flex-direction: row; /* Aligner les chat-inputs verticalement */
+	align-items: center; /* Centrer verticalement */
+    justify-content: space-between; /* Espacer les éléments */
 	background-color: transparent; /* Fond transparent */
 	padding: 5px;
 	border-radius: 10px;
@@ -531,7 +533,7 @@ canvas {
 	font-size: 13px;
 	border: none;
 	border-radius: 5px;
-	margin-right: 5px;
+	margin-right: 10px;
 	height: 28px;
 	box-sizing: border-box; /* Ajouté */
 	display: none; /* Masquer l'input par défaut */
@@ -549,19 +551,19 @@ canvas {
 
 .chat-button {
 	height: 28px;
-	width: 40px; /* Réduire la largeur du bouton */
+	width: auto; /* Réduire la largeur du bouton */
 	border: none;
 	border-radius: 5px;
 	background-color: #00ffff;
 	color: #000033;
 	cursor: pointer;
-	margin-left: 202px; /* Espace entre l'input et le bouton */
+	margin-left: 65px; /* Espace entre l'input et le bouton */
 	display: flex; /* Utiliser flexbox pour centrer le contenu */
 	align-items: center; /* Centrer verticalement */
 	justify-content: center; /* Centrer horizontalement */
 	text-align: center; /* Assurer que le texte est centré */
 	font-size: 13px; /* Ajuster la taille de la police */
-	padding: 0; /* Supprimer le padding interne */
+	padding: 0 20px; /* Supprimer le padding interne */
 }
 
 /* Styles pour les onglets de room */
