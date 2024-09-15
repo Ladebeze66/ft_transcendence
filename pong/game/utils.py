@@ -1,4 +1,3 @@
-import logging
 from .models import Player, Tournoi, Match
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -6,62 +5,53 @@ from django.db.models import Max, Sum, F
 from datetime import timedelta
 from channels.db import database_sync_to_async
 
-logger = logging.getLogger(__name__)
-
 def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
-    logger.info(f"Handling game data for players: {p1} vs {p2}")
     try:
         player_1 = get_or_create_player(p1)
         player_2 = get_or_create_player(p2)
-        logger.debug(f"Players created or retrieved: {player_1}, {player_2}")
 
         create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
-        logger.info("Match created successfully")
 
         update_player_statistics(p1)
         update_player_statistics(p2)
-        logger.info("Player statistics updated")
-
+  
     except Exception as e:
-        logger.error(f"Error in handle_game_data: {e}")
+        print(f"Error in endfortheouche: {e}")
 
 def get_player_by_name(name):
-    logger.debug(f"Checking if player exists with name: {name}")
     exists = Player.objects.filter(name=name).exists()
-    logger.debug(f"Player exists: {exists}")
     return exists
 
+
 def get_player(name):
-    logger.debug(f"Retrieving player with name: {name}")
     return Player.objects.get(name=name)
 
+
 def get_or_create_player(name):
-    logger.info(f"Getting or creating player with name: {name}")
     player_exists = get_player_by_name(name)
     if not player_exists:
         player = create_player(name)
-        logger.info(f"Player created: {player}")
         return player
     else:
         player = get_player(name)
-        logger.info(f"Player retrieved: {player}")
-        return player
+        return player 
+
 
 def create_player(
-    name,
-    total_match=0,
-    total_win=0,
-    p_win=None,
-    m_score_match=None,
-    m_score_adv_match=None,
-    best_score=0,
-    m_nbr_ball_touch=None,
-    total_duration=None,
-    m_duration=None,
-    num_participated_tournaments=0,
+    name, 
+    total_match=0, 
+    total_win=0, 
+    p_win= None, 
+    m_score_match= None, 
+    m_score_adv_match= None, 
+    best_score=0, 
+    m_nbr_ball_touch= None, 
+    total_duration= None, 
+    m_duration= None, 
+    num_participated_tournaments=0, 
     num_won_tournaments=0
 ):
-    logger.info(f"Creating player: {name}")
+    
     player = Player(
         name=name,
         total_match=total_match,
@@ -77,18 +67,14 @@ def create_player(
         num_won_tournaments=num_won_tournaments
     )
     player.save()
-    logger.info(f"Player {name} saved successfully")
     return player
 
 def create_tournoi(name, nbr_player, date, winner):
-    logger.info(f"Creating tournament: {name}")
     tournoi = Tournoi(name=name, nbr_player=nbr_player, date=date, winner=winner)
     tournoi.save()
-    logger.info(f"Tournament {name} saved successfully")
     return tournoi
 
 def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi):
-    logger.info(f"Creating match between {player1.name} and {player2.name}")
     match = Match(
         player1=player1,
         player2=player2,
@@ -107,22 +93,20 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
         match.winner = match.player2
     else:
         match.winner = None
-
+    
     match.save()
-    logger.info(f"Match saved successfully with winner: {match.winner.name if match.winner else 'None'}")
     return match
 
 def update_player_statistics(player_name):
-    logger.info(f"Updating statistics for player: {player_name}")
     player = get_object_or_404(Player, name=player_name)
 
     matches_as_player1 = Match.objects.filter(player1=player)
     matches_as_player2 = Match.objects.filter(player2=player)
 
     total_match = matches_as_player1.count() + matches_as_player2.count()
-
+    
+    # avoid dividing by 0
     if total_match == 0:
-        logger.warning(f"No matches found for player: {player_name}")
         player.total_match = total_match
         player.total_win = 0
         player.p_win = 0
@@ -135,23 +119,22 @@ def update_player_statistics(player_name):
         player.num_participated_tournaments = 0
         player.num_won_tournaments = 0
         player.save()
-        logger.info(f"Player statistics reset for {player_name}")
         return
-
+    
     won_matches = Match.objects.filter(winner=player)
     #part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
     #part_tourn_as_p2 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player2=player)
-    #won_tourn = Tournoi.objects.filter(winner=player)
+    #won_tourn = Tournoi.objects.filter(winner=player) 
 
     total_score = matches_as_player1.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
     total_score += matches_as_player2.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
-
+    
     total_score_adv = matches_as_player1.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
     total_score_adv += matches_as_player2.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
 
     total_win = won_matches.count()
     p_win = (total_win / total_match) * 100
-
+    
     m_score_match = total_score / total_match
     m_score_adv_match = total_score_adv / total_match
 
@@ -166,7 +149,7 @@ def update_player_statistics(player_name):
     #total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
     #total_win_tourn = won_tourn.count()
     #p_win_tourn = (total_win_tourn / total_tourn_p) * 100 if total_tourn_p else 0
-
+ 
     best_score_as_player1 = matches_as_player1.aggregate(Max('score_player1'))['score_player1__max'] or 0
     best_score_as_player2 = matches_as_player2.aggregate(Max('score_player2'))['score_player2__max'] or 0
     best_score = max(best_score_as_player1, best_score_as_player2)
@@ -181,12 +164,33 @@ def update_player_statistics(player_name):
     player.total_duration = total_duration
     player.m_duration = m_duration
     # player.num_participated_tournaments = total_tourn_p
-    #player.num_won_tournaments = total_win_tourn
+    #player.num_won_tournaments = total_win_tourn 
 
     player.save()
-    logger.info(f"Statistics updated for player: {player_name}")
 
 def get_player_p_win(player_name):
-    logger.debug(f"Getting win percentage for player: {player_name}")
     player = get_object_or_404(Player, name=player_name)
     return player.p_win
+
+def create_tournament(name, nbr_player):
+    print("tournoi created!!!")
+    tournoi=Tournoi(name=name, nbr_player=nbr_player, winner=None)
+    tournoi.save()
+    print(f"tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    return tournoi
+
+def update_tournament(name_tournoi, winner_name):
+    tournoi = get_object_or_404(Tournoi, name=name_tournoi)
+    winner_p = get_object_or_404(Player, name=winner_name)
+    print(f"in update tourna - tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    print(f"in update tourna - winner is : {winner_p.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+
+    tournoi.winner = winner_p
+    print(f"in update tourna - TOURNOI winner is : {tournoi.winner.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    tournoi.save()
+
+
+
+
+def getlen():
+    return Tournoi.objects.count()

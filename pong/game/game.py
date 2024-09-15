@@ -4,9 +4,9 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import handle_game_data
+from .utils import handle_game_data, getlen
 from asgiref.sync import sync_to_async
-
+from .models import Tournoi
 
 class Game:
     def __init__(self, game_id, player1, player2, localgame):
@@ -28,9 +28,10 @@ class Game:
                 'game_text': ''
             }
         else:
-            self.botgame = player2 is None
+            # Set botgame to True if either player1 or player2 is None
+            self.botgame = player1 is None or player2 is None
             self.game_state = {
-                'player1_name': player1.user.username,
+                'player1_name': player1.user.username if player1 else 'BOT',
                 'player2_name': player2.user.username if player2 else 'BOT',
                 'player1_position': 150,
                 'player2_position': 150,
@@ -47,12 +48,11 @@ class Game:
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
-        self.start_time = None
+        self.start_time = datetime.now()
 
     async def start_game(self):
-        print(f"- Game #{self.game_id} STARTED")
+        print(f"- Game #{self.game_id} STARTED ({self.game_state['player1_name']} vs {self.game_state['player2_name']}) --- ({self})")
         self.game_loop_task = asyncio.create_task(self.game_loop())
-        self.start_time = datetime.now()
         print(f"  Begin MATCH at: {self.start_time}")
 
     async def game_loop(self):
@@ -79,8 +79,10 @@ class Game:
         if player2_position < target_y < player2_position + 80:
             pass  #bot already placed
         elif player2_position < target_y:
+            #self.p2_mov = 1
             self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
         elif player2_position + 80 > target_y:
+            #self.p2_mov = -1
             self.game_state['player2_position'] = max(player2_position - (50 * self.speed), 0)
 
     def predict_ball_trajectory(self, steps=60):
@@ -92,10 +94,16 @@ class Game:
 
         for _ in range(steps):
             future_x += velocity_x
-            future_y += velocity_y
+            if future_x <= 10:
+                future_x = 10
+                velocity_x = -velocity_x
+            elif future_x >= 790:
+                future_x = 790
+            else:
+                future_y += velocity_y
 
             # Dealing with bounces off walls
-            if future_y <= 0 or future_y >= 300:
+            if future_y <= 10 or future_y >= 390:
                 velocity_y = -velocity_y  # Reverse the direction of vertical movement
 
         return {'x': future_x, 'y': future_y}
@@ -210,10 +218,10 @@ class Game:
             self.ended = True
             if self.game_loop_task:
                 self.game_loop_task.cancel()            
-            print(f"- Game #{self.game_id} ENDED")
+            print(f"- Game #{self.game_id} ENDED --- ({self})")
 
             end_time = datetime.now()
-            duration = (end_time -  self.start_time).total_seconds() / 60
+            duration = (end_time - self.start_time).total_seconds() / 60
 
             # Notify that one player left the game      
             if disconnected_player:
@@ -235,6 +243,11 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+            if hasattr(self, 'tournament'):
+               await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                           self.game_state['player1_score'], self.game_state['player2_score'],
+                           self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg)
+            else:
+                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)

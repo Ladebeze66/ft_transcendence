@@ -1,10 +1,20 @@
-<!-- templates/tournament_waiting_room.html -->
+<!-- pong/tournament_waiting_room.html -->
 <div class="tournament-waiting-room">
     <h2>Tournament Waiting Room</h2>
-    <p>Players currently waiting: {{ players|length }}</p>
+    
+    <p>Players currently waiting: {{ players_count }}</p>
+    <p>Minimum players needed to start: {{ min_players_to_start }}</p>
+    
+    <h3>Players:</h3>
     <ul>
-        {% for player in players %}
-            <li>{{ player }}</li>
-        {% endfor %}
+    {% for player in players %}
+        <li>{{ player }}</li>
+    {% endfor %}
     </ul>
+
+    {% if players_count >= min_players_to_start %}
+        <button id="start-tournament-btn">Start Tournament</button>
+    {% else %}
+        <p>Waiting for more players to join...</p>
+    {% endif %}
 </div>

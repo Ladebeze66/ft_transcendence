@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Brackets</title>
+    <style>
+        .tournament-bracket {
+            display: flex;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            overflow-x: auto;
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            margin-right: 40px;
+        }
+        .match {
+            display: flex;
+            flex-direction: column;
+        }
+        .player {
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            margin: 2px 0;
+            padding: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .player.winner {
+            background-color: #00ff3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="tournament-bracket">
+        {% for round in tournament_rounds %}
+        <div class="round">
+            {% for match in round %}
+            <div class="match">
+                <div class="player {% if match.winner == match.player1 %}winner{% endif %}">
+                    {{ match.player1 }}
+                </div>
+                <div class="player {% if match.winner == match.player2 %}winner{% endif %}">
+                    {{ match.player2|default:"BYE" }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
