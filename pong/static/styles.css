@@ -475,105 +475,60 @@ canvas {
 }
 
 /**************************CHAT*************************************/
-@keyframes buttonGlow {
-    0% {
-        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
-    }
-    50% {
-        box-shadow: 0 0 20px #0099ff, inset 0 0 10px #0099ff;
-    }
-    100% {
-        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
-    }
-}
-
-@keyframes tabGlow {
-    0% {
-        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
-    }
-    50% {
-        box-shadow: 0 0 20px #0099ff, inset 0 0 10px #0099ff;
-    }
-    100% {
-        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
-    }
-}
-
 @keyframes borderGlow {
-    0% {
-        box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
-    }
-    50% {
-        box-shadow: 0 0 60px #0099ff, inset 0 0 40px #0099ff;
-    }
-    100% {
-        box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
-    }
+	0% {
+		box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	}
+	50% {
+		box-shadow: 0 0 60px #0099ff, inset 0 0 40px #0099ff;
+	}
+	100% {
+		box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	}
 }
-/* Styles pour le conteneur principal du chat */
+
 #chat-container {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 300px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
-    z-index: 1000;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+	display: none; /* Masquer par défaut */
+	position: fixed;
+	bottom: 10px;
+	left: 10px;
+	width: 300px;
+	background-color: rgba(0, 0, 0, 0.7); /* Couleur de fond semi-transparente par défaut */
+	border-radius: 10px;
+	padding: 10px;
+	box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+	z-index: 1000;
+	box-sizing: border-box;
+	flex-direction: column;
 	animation: borderGlow 3s infinite; /* Ajouter l'animation */
 	transition: background-color 0.3s, transform 0.3s; /* Ajouter des transitions */
 }
 
-/* Styles pour le conteneur du chat log */
-#chat-log-container {
-    width: 100%;
-    background-color: transparent;
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;
-    max-height: 150px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    flex: 1;
+#chat-container:hover {
+	background-color: rgba(0, 0, 0, 1); /* Couleur de fond opaque au survol */
+	transform: scale(1.05); /* Agrandir légèrement au survol */
 }
 
 .chat-log {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    background-color: transparent;
-    display: none;
-}
-
-/* Styles pour l'entrée de texte du chat */
-#chat-input-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: transparent;
-    padding: 5px;
-    border-radius: 10px;
-    box-sizing: border-box;
-    margin-bottom: 5px;
+	max-height: 150px;
+	overflow-y: auto;
+	margin-bottom: 10px;
+	box-sizing: border-box;
+	background-color: transparent;
+	display: none;
 }
 
 .chat-input {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 5px;
-    display: none; /* Masquer par défaut */
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 5px;
+	position: relative; /* Assurez-vous que le conteneur parent est positionné */
 }
 
 .chat-input.active {
-    display: flex; /* Afficher uniquement l'élément actif */
+	display: flex; /* Afficher uniquement l'élément actif */
 }
 
 .chat-input input[type="text"] {
@@ -584,73 +539,144 @@ canvas {
     border-radius: 5px;
     box-sizing: border-box;
     height: 28px;
-	align-items: center;
+    width: 250px; /* Réduire la largeur */
+    align-items: center;
     justify-content: center;
 }
 
 .chat-button {
-    height: 50px;
-    width: 225px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #00ffff, #0099ff);
-    color: #000033;
-    cursor: pointer;
-    margin-left: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 20px;
-    padding: 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s, transform 0.3s;
-    animation: buttonGlow 3s infinite; /* Ajouter l'animation */
+	height: 50px;
+	width: 50px; /* Réduire la taille du bouton */
+	border: none;
+	border-radius: 50%;
+	background: linear-gradient(45deg, #00ffff, #0099ff);
+	color: #000033;
+	cursor: pointer;
+	position: absolute; /* Positionner le bouton de manière absolue */
+	right: 10px; /* Ajuster la position à droite */
+	top: 10%; /* Centrer verticalement */
+	transform: translateY(-50%); /* Centrer verticalement */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: 20px;
+	padding: 0;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	transition: background 0.3s, transform 0.3s;
+	animation: buttonGlow 3s infinite; /* Ajouter l'animation */
 }
 
 .chat-button:hover {
-    background: linear-gradient(45deg, #0099ff, #00ffff);
-    transform: scale(1.1);
+	background: linear-gradient(45deg, #0099ff, #00ffff);
+	transform: translateY(-50%) scale(1.1); /* Agrandir légèrement au survol */
 }
 
 .chat-button:active {
-    transform: scale(0.95);
+	transform: translateY(-50%) scale(0.95); /* Réduire légèrement à l'activation */
 }
 
-/* Styles pour les onglets de room */
+@keyframes buttonGlow {
+	0% {
+		box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+	}
+	50% {
+		box-shadow: 0 0 20px #0099ff, inset 0 0 10px #0099ff;
+	}
+	100% {
+		box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+	}
+}
+
 #room-tabs-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 5px;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 5px;
 }
 
 .room-tab {
-    font-size: 14px;
-    padding: 5px 10px;
-    margin-right: 5px;
-    cursor: pointer;
-    border: 1px solid #00ffff;
-    background-color: #000033;
-    color: #00ffff;
-    border-radius: 5px;
-    box-sizing: border-box;
-    opacity: 0.1;
-    transition: background 0.3s, transform 0.3s; /* Ajouter des transitions */
+	font-size: 14px;
+	padding: 5px 10px;
+	margin-right: 5px;
+	cursor: pointer;
+	border: 1px solid #00ffff;
+	background-color: #000033;
+	color: #00ffff;
+	border-radius: 5px;
+	box-sizing: border-box;
+	opacity: 0.1;
+	transition: background 0.3s, transform 0.3s; /* Ajouter des transitions */
 	animation: tabGlow 3s infinite; /* Ajouter l'animation */
 }
 
 .room-tab:hover {
-    background-color: #00ffff;
-    color: #000033;
-    transform: scale(1.1); /* Agrandir légèrement au survol */
+	background-color: #00ffff;
+	color: #000033;
+	transform: scale(1.1); /* Agrandir légèrement au survol */
 }
 
 .room-tab:active {
-    transform: scale(0.95); /* Réduire légèrement à l'activation */
+	transform: scale(0.95); /* Réduire légèrement à l'activation */
 }
 
 .room-tab.active {
+	background-color: #00ffff;
+	color: #000033;
+	opacity: 1;
+}
+
+@keyframes tabGlow {
+	0% {
+		box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+	}
+	50% {
+		box-shadow: 0 0 20px #0099ff, inset 0 0 10px #0099ff;
+	}
+	100% {
+		box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+	}
+}
+
+#chat-controls {
+    position: fixed;
+    bottom: 10px;
+    left: 320px; /* Ajuster la position à côté du conteneur de chat */
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espacement entre les boutons */
+}
+
+#chat-controls button {
+    width: 100px; /* Réduire la taille des boutons */
+    height: 30px; /* Réduire la taille des boutons */
+    font-size: 12px; /* Ajuster la taille de la police */
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
     background-color: #00ffff;
     color: #000033;
-    opacity: 1;
+    border: none;
+    transition: background-color 0.3s, transform 0.3s;
+    animation: buttonGlow 3s infinite; /* Ajouter l'animation */
+}
+
+#chat-controls button:hover {
+    background-color: #0099ff;
+    transform: scale(1.05);
+}
+
+#chat-controls button:active {
+    transform: scale(0.95);
+}
+
+@keyframes buttonGlow {
+    0% {
+        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+    }
+    50% {
+        box-shadow: 0 0 20px #0099ff, inset 0 0 10px #0099ff;
+    }
+    100% {
+        box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
+    }
 }

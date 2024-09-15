@@ -948,6 +948,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		
 			this.switchRoom(roomName);
+			// Activer l'affichage du conteneur de chat
+    		document.getElementById('chat-container').style.display = 'flex';
 		}
 }
 
