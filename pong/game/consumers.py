@@ -344,18 +344,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
 		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
 
-	# Envoi de la réponse directement à l'invitant dans la room
-		await self.channel_layer.group_send(
-			room,
-			{
-				'type': 'invite_response',
-				'inviter': inviter,
-				'username': username,
-				'room': room,
-				'message': f'{username} a répondu {response} à l\'invitation.'
-			}
-		)
-
+		 # Si la réponse est 'yes', informer l'invitant que l'invité a accepté
+		if response.lower() == 'yes':
+			try:
+				# Informer l'invitant que l'invitation a été acceptée
+				await self.channel_layer.group_send(
+					room,
+					{
+						'type': 'invite_response',
+						'inviter': inviter,
+						'username': username,
+						'response': response,
+						'room': room,
+						'message': f'{username} a accepté l\'invitation.'
+					}
+				)
+				 # Informer à la fois l'invité et l'invitant que le jeu va commencer
+				await self.channel_layer.group_send(
+					room,
+					{
+						'type': 'start_quick_match',
+						'inviter': inviter,
+						'username': username,
+						'message': 'La partie va démarrer pour vous deux.',
+					}
+				)
+			except Exception as e:
+				logger.error(f"Error while sending invite response: {str(e)}")
+				await self.chat_message('error', 'server', f'Internal server error: {str(e)}', room)
+			
 	# Méthode appelée pour envoyer l'invitation à l'utilisateur invité (target_user)
 	async def invite(self, event):
 		inviter = event['inviter']
@@ -373,15 +390,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'room': room
 		}))
 
+	async def handle_invite_response(self, data):
+		inviter = data.get('inviter')
+		username = data.get('username')  # L'utilisateur invité qui répond
+		response = data.get('response')
+		room = data.get('room')
+
+		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
+		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
+
+		# Envoi de la réponse directement à l'invitant dans la room
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'invite_response',  # Type de message 'invite_response'
+				'inviter': inviter,
+				'username': username,
+				'room': room,
+				'message': f'{username} a répondu {response} à l\'invitation.',
+				'response': response  # Ajout de la réponse 'yes' ou 'no'
+			}
+		)
+
 	async def invite_response(self, event):
 		message = event['message']
+		response = event.get('response')
+		inviter = event.get('inviter')  # Récupérer l'inviteur		
 
-		logger.info(f"invite_response: Envoi de la réponse à l'invitation via WebSocket. Message={message}")
+		logger.info(f"invite_response: Envoi de la réponse à l'invitation via WebSocket. Message={message}, Response={response}, Inviter={inviter}")
 
 		# Envoyer la réponse à l'invitation via WebSocket à l'invitant
 		await self.send(text_data=json.dumps({
 			'type': 'invite_response',
-			'message': message
+			'message': message,
+			'response': response,
+			'inviter': inviter
 		}))
 
 	async def authenticate(self, token, username):

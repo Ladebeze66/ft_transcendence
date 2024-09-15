@@ -664,7 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	////////////////////////////CHAT////////////////////////////////////
-	
 	class ChatManager {
 		constructor(username, token) {
 			this.username = username;
@@ -770,12 +769,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							break;
 						
 						case 'invite':
-							// Déclaration de `message` pour ce cas spécifique
-							const inviteMessage = data.message;
-							// Vérifie si l'invitation est destinée à cet utilisateur
+							// Vérifie si l'invitation est destinée à cet utilisateur (invité)
 							if (data.target_user === this.username) {
 								console.log(`Invitation reçue de ${data.inviter}`);
-											
+							
 								const messageElement = document.createElement('div');
 								messageElement.textContent = data.message;
 								chatLog.appendChild(messageElement);  // Affiche le message dans le chat-log
@@ -789,24 +786,40 @@ document.addEventListener('DOMContentLoaded', () => {
 								// Envoie la réponse (oui ou non) au serveur
 								chatSocket.send(JSON.stringify({
 									'type': 'invite_response',
-									'username': this.username,  // Utilisateur invité	
+									'username': this.username,  // Utilisateur invité
 									'response': response,
-									'inviter': data.inviter,
+									'inviter': data.inviter,  // Le nom de l'invitant
 									'room': data.room
 								}));
+							
+								if (response === 'yes') {
+									// Si l'invitation est acceptée, lancer QuickMatch pour l'invité
+									console.log(`L'invité ${this.username} va démarrer le QuickMatch...`);
+									// Si l'invitation est acceptée, lancer QuickMatch pour l'invité après un délai
+									console.log("Invitation acceptée, démarrage du QuickMatch pour l'invité après un délai...");
+									setTimeout(() => {
+										startQuickMatch();  // Lancer le jeu après 2 secondes
+									}, 2000);  // 2000 millisecondes = 2 secondes
+								}
 							}
 							break;
-																	
-						case 'invite_response':
-							// Vérifie si l'invitation concerne cet utilisateur (l'invitant)
-							if (data.inviter === this.username) {
-								const messageElement = document.createElement('div');
-								messageElement.textContent = data.message;
-								chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
-								console.log(`Réponse à l'invitation: ${data.message}`);
-							}
-							break;
-	
+																								
+							case 'invite_response':
+    							// Vérifie si l'invitation concerne cet utilisateur (l'invitant)
+   								if (data.inviter === this.username) {
+        							const messageElement = document.createElement('div');
+        							messageElement.textContent = data.message;
+        							chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
+        							console.log(`Réponse à l'invitation: ${data.message}`);
+
+        						if (data.response && data.response.toLowerCase() === 'yes') {
+            						console.log("Invitation acceptée, démarrage du QuickMatch pour l'invitant...");
+            						startQuickMatch();
+        						}
+    						}
+    						break;
+
+							
 						case 'success':
 							console.log(`Success message received: ${data.message}`);
 							alert('Success: ' + data.message);
