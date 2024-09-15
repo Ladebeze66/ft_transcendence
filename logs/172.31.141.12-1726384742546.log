@@ -1,0 +1,116 @@
+172.31.141.12/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:49 DOM elements initialized
+game.js:72 Event listeners added
+game.js:127 checkUserExists called with username: dede
+game.js:144 User existence check response: Object
+game.js:153 handleRegister called
+game.js:166 Attempting to register user: dede
+game.js:192 registerUser called with username: dede
+game.js:215 Registration response data: Object
+game.js:217 User registered successfully: Object
+game.js:170 Token stored: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:171 User registered successfully
+game.js:676 ChatManager initialized for user: dede
+game.js:914 Joining room: main_room with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:922 Joining new room: main_room
+game.js:841 createRoomTab: main_room with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:851 Tab for room main_room already exists.
+game.js:864 Showing tab for room: main_room
+game.js:691 Initializing chat WebSocket...
+game.js:692 Initializing chat WebSocket for room: main_room with username: dede
+game.js:697 startChatWebSocket: main_room with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:941 ChatInput initialized for room: main_room, username: dede
+game.js:876 Attempting to switch to room: main_room
+game.js:882 Switching from room null to room main_room
+game.js:703 WebSocket ouvert pour l'utilisateur dede dans la room main_room
+game.js:711 Authentication message sent for room: main_room with username: dede
+game.js:948 Enter key pressed, attempting to send message...
+game.js:961 Attempting to send message: fefefe
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'dede', message: 'fefefe', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: fefefe
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'dede', message: 'fefefe', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:549 Token before WebSocket authentication: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:676 ChatManager initialized for user: dede
+game.js:914 Joining room: tournament with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:922 Joining new room: tournament
+game.js:841 createRoomTab: tournament with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:851 Tab for room tournament already exists.
+game.js:864 Showing tab for room: tournament
+game.js:691 Initializing chat WebSocket...
+game.js:692 Initializing chat WebSocket for room: tournament with username: dede
+game.js:697 startChatWebSocket: tournament with username: dede and token: ac49f376-8ad9-4bd1-81a7-5da6a44fe348
+game.js:941 ChatInput initialized for room: tournament, username: dede
+game.js:876 Attempting to switch to room: tournament
+game.js:882 Switching from room main_room to room tournament
+game.js:887 Hiding chat log for previous room: main_room
+game.js:563 Starting WebSocket connection for tournament...
+game.js:703 WebSocket ouvert pour l'utilisateur dede dans la room tournament
+game.js:711 Authentication message sent for room: tournament with username: dede
+game.js:576 WebSocket connection established
+game.js:584 Sending token for a tournament game
+game.js:593 Authentication successful
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: fefefe
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+(index):243 Switching to room: main_room
+(index):249 Displaying chat log for: main_room
+(index):259 Displaying chat input for: main_room
+(index):268 Tab for main_room is now active
+(index):243 Switching to room: tournament
+(index):249 Displaying chat log for: tournament
+(index):259 Displaying chat input for: tournament
+(index):268 Tab for tournament is now active
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: fefef
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:948 Enter key pressed, attempting to send message...
+game.js:961 Attempting to send message: fjdfjfgdd
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: gvsdfgsdfg
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+(index):243 Switching to room: main_room
+(index):249 Displaying chat log for: main_room
+(index):259 Displaying chat input for: main_room
+(index):268 Tab for main_room is now active
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: gzgerg
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:717 Message received from server in room tournament: {type: 'chat_message', username: 'dede', message: 'gzgerg', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: tournament
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'dede', message: 'gzgerg', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: ggezg
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:717 Message received from server in room tournament: {type: 'chat_message', username: 'dede', message: 'ggezg', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: tournament
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'dede', message: 'ggezg', room: 'main_room'}
+game.js:738 Message displayed in chat log for room: main_room
+(index):243 Switching to room: tournament
+(index):249 Displaying chat log for: tournament
+(index):259 Displaying chat input for: tournament
+(index):268 Tab for tournament is now active
+game.js:954 Send button clicked, attempting to send message...
+game.js:961 Attempting to send message: gegegge
+game.js:973 Sending chat message to WebSocket...
+game.js:982 Message input cleared.
+game.js:821 Chat WebSocket closed unexpectedly for room main_room
+chatSocket.onclose @ game.js:821
+game.js:616 WebSocket connection closed
+game.js:821 Chat WebSocket closed unexpectedly for room tournament
+chatSocket.onclose @ game.js:821

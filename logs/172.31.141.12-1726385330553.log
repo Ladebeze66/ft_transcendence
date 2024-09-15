@@ -1,0 +1,71 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:2 DOM fully loaded and parsed
+game.js:49 DOM elements initialized
+game.js:72 Event listeners added
+game.js:127 checkUserExists called with username: didier
+game.js:144 User existence check response: {exists: false}
+game.js:153 handleRegister called
+game.js:166 Attempting to register user: didier
+game.js:192 registerUser called with username: didier
+game.js:215 Registration response data: {registered: true, token: 'c04b8805-9815-44ad-9022-60501d2e6f11'}
+game.js:217 User registered successfully: {registered: true, token: 'c04b8805-9815-44ad-9022-60501d2e6f11'}
+game.js:170 Token stored: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:171 User registered successfully
+game.js:676 ChatManager initialized for user: didier
+game.js:925 Joining room: main_room with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:933 Joining new room: main_room
+game.js:852 createRoomTab: main_room with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:862 Tab for room main_room already exists.
+game.js:875 Showing tab for room: main_room
+game.js:691 Initializing chat WebSocket...
+game.js:692 Initializing chat WebSocket for room: main_room with username: didier
+game.js:697 startChatWebSocket: main_room with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:952 ChatInput initialized for room: main_room, username: didier
+game.js:887 Attempting to switch to room: main_room
+game.js:893 Switching from room null to room main_room
+game.js:703 WebSocket ouvert pour l'utilisateur didier dans la room main_room
+game.js:711 Authentication message sent for room: main_room with username: didier
+game.js:965 Send button clicked, attempting to send message...
+game.js:972 Attempting to send message: dedvdvdv
+game.js:984 Sending chat message to WebSocket...
+game.js:993 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'didier', message: 'dedvdvdv', room: 'main_room'}
+game.js:749 Message displayed in chat log for room: main_room
+game.js:965 Send button clicked, attempting to send message...
+game.js:972 Attempting to send message: vvdvdvd
+game.js:984 Sending chat message to WebSocket...
+game.js:993 Message input cleared.
+game.js:717 Message received from server in room main_room: {type: 'chat_message', username: 'didier', message: 'vvdvdvd', room: 'main_room'}
+game.js:749 Message displayed in chat log for room: main_room
+game.js:549 Token before WebSocket authentication: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:676 ChatManager initialized for user: didier
+game.js:925 Joining room: tournament with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:933 Joining new room: tournament
+game.js:852 createRoomTab: tournament with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:862 Tab for room tournament already exists.
+game.js:875 Showing tab for room: tournament
+game.js:691 Initializing chat WebSocket...
+game.js:692 Initializing chat WebSocket for room: tournament with username: didier
+game.js:697 startChatWebSocket: tournament with username: didier and token: c04b8805-9815-44ad-9022-60501d2e6f11
+game.js:952 ChatInput initialized for room: tournament, username: didier
+game.js:887 Attempting to switch to room: tournament
+game.js:893 Switching from room main_room to room tournament
+game.js:898 Hiding chat log for previous room: main_room
+game.js:563 Starting WebSocket connection for tournament...
+game.js:703 WebSocket ouvert pour l'utilisateur didier dans la room tournament
+game.js:711 Authentication message sent for room: tournament with username: didier
+game.js:576 WebSocket connection established
+game.js:584 Sending token for a tournament game
+game.js:593 Authentication successful
+game.js:965 Send button clicked, attempting to send message...
+game.js:972 Attempting to send message: vdvdv
+game.js:984 Sending chat message to WebSocket...
+game.js:993 Message input cleared.
+game.js:965 Send button clicked, attempting to send message...
+game.js:972 Attempting to send message: vdvdvd
+game.js:984 Sending chat message to WebSocket...
+game.js:993 Message input cleared.
+game.js:965 Send button clicked, attempting to send message...
+game.js:972 Attempting to send message: vdvdvdvd
+game.js:984 Sending chat message to WebSocket...
+game.js:993 Message input cleared.

@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 				// Gestion de l'ouverture du WebSocket
 				chatSocket.onopen = () => {
-					console.log(`Chat WebSocket connection established in room: ${roomName}`);
+					console.log(`WebSocket ouvert pour l'utilisateur ${this.username} dans la room ${roomName}`);
 	
 					chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
@@ -729,17 +729,21 @@ document.addEventListener('DOMContentLoaded', () => {
 							console.log(`User authenticated successfully in room: ${roomName}`);
 							break;
 	
-						case 'chat_message':
-							const message = data.message;
-							if (!this.blockedUsers.includes(receivedUsername)) {
-								const messageElement = document.createElement('div');
-								messageElement.textContent = `${receivedUsername}: ${message}`;
-								chatLog.appendChild(messageElement);
-								console.log(`Message displayed in chat log for room: ${roomName}`);
-							} else {
-								console.log(`Message from blocked user ${receivedUsername} was filtered out.`);
-							}
-							break;
+							case 'chat_message':
+								const message = data.message;
+								const receivedUsername = data.username;
+								const roomName = data.room;
+																		
+								// Si l'utilisateur n'est pas bloqué, afficher le message
+								if (!this.blockedUsers.includes(receivedUsername)) {
+									const messageElement = document.createElement('div');
+									messageElement.textContent = `${receivedUsername}: ${message}`;
+									chatLog.appendChild(messageElement);
+									console.log(`Message displayed in chat log for room: ${roomName}`);
+								} else {
+									console.log(`Message from blocked user ${receivedUsername} was filtered out.`);
+								}
+								break;
 	
 						case 'block_user':
 							if (data.message) {
@@ -753,38 +757,49 @@ document.addEventListener('DOMContentLoaded', () => {
 							break;
 
 						case 'invite_confirmation':
-							// Afficher la confirmation de l'invitation
+							console.log(`Confirmation de l'invitation reçue: ${data.message}`);
 							if (data.message) {
 								const messageElement = document.createElement('div');
 								messageElement.textContent = data.message;
-								chatLog.appendChild(messageElement); // Ajoute le message au chat-log
+								chatLog.appendChild(messageElement);
 								console.log(`Invitation confirmation message displayed in chat log: ${data.message}`);
 							} else {
-								console.error(`Failed to send invitation: ${data.message}`);
+								console.error(`Échec de l'envoi de l'invitation: ${data.message}`);
 								alert(`Error: Failed to invite user. ${data.message}`);
 							}
 							break;
-	
+						
 						case 'invite':
-							// Affichage de l'invitation et demande de réponse à l'utilisateur
+							// Vérifier si un message est présent dans les données reçues
+							if (data.message) {
+								const messageElement = document.createElement('div');
+								messageElement.textContent = data.message;
+								chatLog.appendChild(messageElement); // Affiche le message d'invitation dans le chat-log
+								console.log(`Invitation message displayed in chat log: ${data.message}`);
+							}
+							
+							// Demander à l'utilisateur s'il souhaite accepter ou refuser l'invitation
 							const inviteResponse = confirm(`${data.inviter} vous a invité dans la room ${data.room}. Accepter? yes/no.`);
 							const response = inviteResponse ? 'yes' : 'no';
-				
+								
+							console.log(`Réponse à l'invitation: ${response}`);
+							
 							// Envoi de la réponse à l'invitation via WebSocket
 							chatSocket.send(JSON.stringify({
 								'type': 'invite_response',
-								'username': this.username,
+								'username': this.username,  // Assurez-vous que this.username est correctement défini
 								'room': data.room,
 								'response': response,
 								'inviter': data.inviter
 							}));
 							break;
-					
+							
+						
 						case 'invite_response':
-							// Affichage de la réponse à l'invitation pour l'invitant
+							console.log(`Réponse à l'invitation reçue: ${data.message}`);
 							const messageElement = document.createElement('div');
 							messageElement.textContent = data.message;
-							chatLog.appendChild(messageElement); // Ajoute le message au chat-log
+							chatLog.appendChild(messageElement);
 							break;
 	
 						case 'success':
@@ -990,8 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.chatSocket.send(JSON.stringify({
 				'type': 'invite',
 				'username': this.username,
-				'inviter': this.username,
-				'invitee': targetUser,
+				'target_user': targetUser,
 				'room': this.roomName
 			}));
 		}
