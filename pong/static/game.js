@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let saveData = null;
 	let roomName = null;
 	let chatManager = null;
+	
 
 	async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -206,20 +207,31 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	async function handleLogin() {
-        const nickname = nicknameInput.value.trim();
-        const password = loginPasswordInput.value.trim();
-        try {
-            const result = await authenticateUser(nickname, password);
-            if (result) {
-                loginForm.style.display = 'none';
-                document.getElementById("post-form-buttons").style.display = 'block';
-            } else {
-                alert('Authentication failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error authenticating user:', error);
-        }
-    }
+		const nickname = nicknameInput.value.trim();
+		const password = loginPasswordInput.value.trim();
+		try {
+			const result = await authenticateUser(nickname, password);
+			if (result) {
+				loginForm.style.display = 'none';
+				document.getElementById("post-form-buttons").style.display = 'block';
+				
+				// Gérer la connexion WebSocket de chat
+				if (chatManager && chatManager.roomSockets['main_room'] && chatManager.roomSockets['main_room'].readyState !== WebSocket.OPEN) {
+					console.log('Rejoining chat room...');
+					chatManager.startChatWebSocket('main_room');  // Relance la connexion WebSocket si nécessaire
+				} else if (!chatManager) {
+					username = nickname;
+					console.log('Initializing ChatManager...');
+					chatManager = new ChatManager(username, token); // Réinitialisation du ChatManager si nécessaire
+					chatManager.joinRoom('main_room');
+				}
+			} else {
+				alert('Authentication failed. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error authenticating user:', error);
+		}
+	}
 
 	async function authenticateUser(username, password) {
         const response = await fetch('/authenticate_user/', {
@@ -305,13 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const nickname2 = nicknameInput2.value.trim();
 		const password2 = passwordInput2.value.trim();
 		const confirmPassword2 = confirmPasswordInput2.value.trim();
-
-		if (!nickname2 || nickname2.length < 3) {
-			console.error("Invalid username (handleRegister2). It must be at least 3 characters long.");
-			alert("Invalid username. It must be at least 3 characters long.");
-			return;
-		}
-
+		
 		if (password2 === confirmPassword2) {
 			try {
 				console.log("Attempting to register user (handleRegister2):", nickname2);
@@ -408,6 +414,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 	
 	function startQuickMatch() {
+		saveData = {
+            type: 'quick'
+        }
 		console.log("Starting quick match...(fonction startquickmatch)");
 		// Masquer les éléments inutiles et afficher le conteneur de jeu
 		gameContainer.style.display = 'flex';
@@ -437,6 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 	function startTournament() {
+		saveData = {
+            type: 'tournoi'
+        }
 		// Masquer les éléments inutiles et afficher le conteneur du tournoi
 		tournamentContainer.style.display = 'flex';
 		logo.style.display = 'none';
@@ -522,10 +534,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('tournament-bracket').innerHTML = data.html;
             } else if (data.type === 'tournament_end') {
                 console.log('Tournament ended, the winner is:', data.winner);
-            } else {
-                console.log('Message from server:', data.type, data.message);
-            }
-        };
+             // Nouveau cas pour gérer les prochains matchs du tournoi
+			} else if (data.type === 'tournament_match') {
+        		console.log('Prochain match du tournoi:', data.message);
+        		// Transmettre le message au chat via WebSocket du chat
+        		if (chatManager.chatSocket && chatManager.chatSocket.readyState === WebSocket.OPEN) {
+            		chatManager.chatSocket.send(JSON.stringify({
+                		type: 'chat_message',
+                		message: data.message,
+                		username: 'Server',  // Ou le nom d'utilisateur si pertinent
+                		room: 'tournament'  // Ou la room appropriée
+            	}));
+        	}
+    	} else {
+        	console.log('Message from server:', data.type, data.message);
+    	}
+    };
 
 		// Gestion des fermetures de connexion
 		socket.onclose = function (event) {
@@ -639,6 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.roomSockets = {}; // Stockage des WebSockets par room
 			this.blockedUsers = []; // Liste des utilisateurs bloqués
 			this.activeRoom = null; // La room actuellement active
+			this.chatSocket = null; // Le WebSocket de chat actif
 	
 			console.log(`ChatManager initialized for user: ${username}`);
 		}
@@ -659,17 +684,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.log(`Initializing chat WebSocket for room: ${roomName} with username: ${this.username}`);
 	
 			try {
-				const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-				this.roomSockets[roomName] = chatSocket; // Stockage du WebSocket
+				this.chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+				this.roomSockets[roomName] = this.chatSocket; // Stockage du WebSocket
 				console.log(`startChatWebSocket: ${roomName} with username: ${this.username} and token: ${this.token}`);
 	
-				const chatInputInstance = new ChatInput(roomName, this.username, chatSocket, this); // On passe l'instance du manager
+				const chatInputInstance = new ChatInput(roomName, this.username, this.chatSocket, this); // On passe l'instance du manager
 	
 				// Gestion de l'ouverture du WebSocket
-				chatSocket.onopen = () => {
+				this.chatSocket.onopen = () => {
 					console.log(`WebSocket ouvert pour l'utilisateur ${this.username} dans la room ${roomName}`);
 	
-					chatSocket.send(JSON.stringify({
+					this.chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
 						'username': this.username,
 						'token': this.token,
@@ -679,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				};
 	
 				// Gestion des messages WebSocket
-				chatSocket.onmessage = (event) => {
+				this.chatSocket.onmessage = (event) => {
 					const data = JSON.parse(event.data);
 					console.log(`Message received from server in room ${roomName}:`, data);
 					const receivedUsername = data.username || this.username;
@@ -752,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								console.log(`Réponse à l'invitation: ${response}`);
 							
 								// Envoie la réponse (oui ou non) au serveur
-								chatSocket.send(JSON.stringify({
+								this.chatSocket.send(JSON.stringify({
 									'type': 'invite_response',
 									'username': this.username,  // Utilisateur invité
 									'response': response,
@@ -774,29 +799,22 @@ document.addEventListener('DOMContentLoaded', () => {
 							}
 							break;
 																								
-							case 'invite_response':
-    							// Vérifie si l'invitation concerne cet utilisateur (l'invitant)
-   								if (data.inviter === this.username) {
-        							const messageElement = document.createElement('div');
-        							messageElement.textContent = data.message;
-        							chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
-        							console.log(`Réponse à l'invitation: ${data.message}`);
+						case 'invite_response':
+    						// Vérifie si l'invitation concerne cet utilisateur (l'invitant)
+   							if (data.inviter === this.username) {
+        						const messageElement = document.createElement('div');
+        						messageElement.textContent = data.message;
+        						chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
+        						console.log(`Réponse à l'invitation: ${data.message}`);
 
-								if (data.response && data.response.toLowerCase() === 'yes') {
-									console.log("Invitation acceptée, démarrage du QuickMatch pour l'invitant...");
-									console.log("Appel de startQuickMatch...(invite response)");
-									startQuickMatch();
-									console.log("startQuickMatch appelé.");
-								}
-    						}
-    						break;
-
-							
-						case 'success':
-							console.log(`Success message received: ${data.message}`);
-							alert('Success: ' + data.message);
-							break;
-	
+							if (data.response && data.response.toLowerCase() === 'yes') {
+								console.log("Invitation acceptée, démarrage du QuickMatch pour l'invitant...");
+								console.log("Appel de startQuickMatch...(invite response)");
+								startQuickMatch();
+								console.log("startQuickMatch appelé.");
+							}
+    					}
+    					break;
 						case 'error':
 							console.error('Error message received:', data.message);
 							alert('Error: ' + data.message);
@@ -808,7 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				};
 	
 				// Gestion de la fermeture du WebSocket
-				chatSocket.onclose = (event) => {
+				this.chatSocket.onclose = (event) => {
 					if (event.wasClean) {
 						console.log(`Chat WebSocket closed cleanly for room ${roomName}, code=${event.code}, reason=${event.reason}`);
 					} else {
@@ -817,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				};
 	
 				// Gestion des erreurs WebSocket
-				chatSocket.onerror = (error) => {
+				this.chatSocket.onerror = (error) => {
 					console.error(`Chat WebSocket error in room ${roomName}:`, error);
 				};
 	
