@@ -1,14 +1,4 @@
 
-	let socket;
-	let gameState;
-	let activeRoom = null;	// Stocker la room active
-	let roomSockets = {}; // Stocker les connexions WebSocket par room
-	let token = null;
-	let username = null;
-	let saveData = null;
-	let roomName = null;
-	let chatManager = null;
-
 document.addEventListener('DOMContentLoaded', () => {
 	console.log("DOM fully loaded and parsed");
 	const formBlock = document.getElementById('block-form');
@@ -72,6 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	localGameButton.addEventListener('click', startLocalGame);
 	quickMatchButton.addEventListener('click', startQuickMatch);
 	tournamentButton.addEventListener('click', startTournament);
+	
+	let socket;
+	let gameState;
+	let activeRoom = null;	// Stocker la room active
+	let roomSockets = {}; // Stocker les connexions WebSocket par room
+	let token = null;
+	let username = null;
+	let saveData = null;
+	let roomName = null;
+	let chatManager = null;
 
 	async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -630,8 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-})		
-
 
 ////////////////////////////CHAT////////////////////////////////////
 	class ChatManager {
@@ -1018,3 +1016,4 @@ document.addEventListener('DOMContentLoaded', () => {
 			}));
 		}
 	}
+});

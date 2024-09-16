@@ -637,16 +637,16 @@ canvas {
 #chat-controls {
     position: fixed;
     bottom: 10px;
-    left: 320px; /* Ajuster la position à côté du conteneur de chat */
+    left: 320px; /* Correspondre à la position à côté du conteneur de chat */
     display: flex;
     flex-direction: column;
     gap: 5px; /* Espacement entre les boutons */
 }
 
 #chat-controls button {
-    width: 100px; /* Réduire la taille des boutons */
-    height: 30px; /* Réduire la taille des boutons */
-    font-size: 12px; /* Ajuster la taille de la police */
+    width: 100px; /* Correspondre à la taille des boutons */
+    height: 30px; /* Correspondre à la taille des boutons */
+    font-size: 12px; /* Correspondre à la taille de la police */
     padding: 5px;
     border-radius: 5px;
     cursor: pointer;
