@@ -677,3 +677,28 @@ canvas {
         box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff;
     }
 }
+
+.player-stats-popup {
+    position: fixed;
+    bottom: 20px;
+    left: 320px; /* Adjust to appear above the chat */
+    width: 300px;
+    background-color: rgba(0, 0, 40, 0.9);
+    color: #00ffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff;
+    z-index: 2000;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.player-stats-popup.show {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.player-stats-popup.hide {
+    transform: translateY(20px);
+    opacity: 0;
+}

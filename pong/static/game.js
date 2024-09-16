@@ -655,6 +655,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+	// Function to display player stats
+	function displayPlayerStats(stats) {
+    	const statsPopup = document.getElementById('player-stats');
+    	document.getElementById('stats-username').innerText = `Username: ${stats.username}`;
+    	document.getElementById('stats-total-matches').innerText = `Total Matches: ${stats.total_matches}`;
+    	document.getElementById('stats-total-wins').innerText = `Total Wins: ${stats.total_wins}`;
+    	document.getElementById('stats-win-percentage').innerText = `Win Percentage: ${stats.win_percentage}%`;
+    	document.getElementById('stats-best-score').innerText = `Best Score: ${stats.best_score}`;
+
+    	// Show the stats popup
+    	statsPopup.classList.add('show');
+    
+    	// Hide the stats popup after 5 seconds
+    	setTimeout(() => {
+        	statsPopup.classList.remove('show');
+    	}, 5000);
+	}
+
 ////////////////////////////CHAT////////////////////////////////////
 	class ChatManager {
 		constructor(username, token) {
@@ -815,6 +833,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							}
     					}
     					break;
+
+						case 'player_stats':
+							console.log('Player stats received:', data);
+							displayPlayerStats(data.stats);
+							break;
+
 						case 'error':
 							console.error('Error message received:', data.message);
 							alert('Error: ' + data.message);
@@ -983,6 +1007,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					const targetUser = message.slice(3).trim();
 					console.log(`Detected invite command for user: ${targetUser}`);
 					this.sendInviteCommand(targetUser);
+				} else if (message.startsWith('/s ')) {
+					const targetUser = message.slice(3).trim();
+					console.log(`Detected stats command for user: ${targetUser}`);
+					this.sendStatsCommand(targetUser);
 				} else {
 					console.log(`Sending chat message to WebSocket...`);
 					this.chatSocket.send(JSON.stringify({
@@ -1032,6 +1060,17 @@ document.addEventListener('DOMContentLoaded', () => {
 				'target_user': targetUser,   // Utilisateur qui reçoit l'invitation
 				'room': this.roomName        // Room où l'invitation est faite
 			}));
+			}
+
+			// Nouvelle méthode pour envoyer la commande de statistiques
+			sendStatsCommand(targetUser) {
+				console.log(`Sending stats request for user: ${targetUser}`);
+				this.chatSocket.send(JSON.stringify({
+					'type': 'get_player_stats',
+					'username': this.username,
+					'target_user': targetUser,
+					'room': this.roomName
+				}));
+			}
 		}
-	}
-});
+	});
