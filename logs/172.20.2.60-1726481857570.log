@@ -1,0 +1,56 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:13 DOM fully loaded and parsed
+game.js:53 DOM elements initialized
+game.js:117 checkUserExists called with username: ty
+game.js:133 User existence check response: {exists: false}
+game.js:142 handleRegister called
+game.js:147 Nickname: ty
+game.js:148 Password: y
+game.js:149 Confirm Password: y
+game.js:153 Attempting to register user: ty
+game.js:155 Register result: {registered: true, token: '87e38441-8c21-424d-a109-fe7e488e4b6b'}
+game.js:159 Token stored: 87e38441-8c21-424d-a109-fe7e488e4b6b
+game.js:160 User registered successfully
+game.js:165 ChatManager initialized: null
+game.js:167 Initializing ChatManager with username: ty and token: 87e38441-8c21-424d-a109-fe7e488e4b6b
+game.js:645 ChatManager initialized for user: ty
+game.js:169 ChatManager initialized: ChatManager {username: 'ty', token: '87e38441-8c21-424d-a109-fe7e488e4b6b', roomSockets: {…}, blockedUsers: Array(0), activeRoom: null}
+game.js:172 chatManager is defined: ChatManager {username: 'ty', token: '87e38441-8c21-424d-a109-fe7e488e4b6b', roomSockets: {…}, blockedUsers: Array(0), activeRoom: null}
+game.js:177 Joining room: main_room
+game.js:910 Joining room: main_room with username: ty and token: 87e38441-8c21-424d-a109-fe7e488e4b6b
+game.js:918 Joining new room: main_room
+game.js:837 createRoomTab: main_room with username: ty and token: 87e38441-8c21-424d-a109-fe7e488e4b6b
+game.js:847 Tab for room main_room already exists.
+game.js:860 Showing tab for room: main_room
+game.js:660 Initializing chat WebSocket...
+game.js:661 Initializing chat WebSocket for room: main_room with username: ty
+game.js:666 startChatWebSocket: main_room with username: ty and token: 87e38441-8c21-424d-a109-fe7e488e4b6b
+game.js:939 ChatInput initialized for room: main_room, username: ty
+game.js:872 Attempting to switch to room: main_room
+game.js:878 Switching from room null to room main_room
+game.js:672 WebSocket ouvert pour l'utilisateur ty dans la room main_room
+game.js:680 Authentication message sent for room: main_room with username: ty
+game.js:686 Message received from server in room main_room: {type: 'chat_message', username: 'ty', message: 'Authentication successful', room: 'main_room'}
+game.js:711 Message displayed in chat log for room: main_room
+game.js:952 Send button clicked, attempting to send message...
+game.js:959 Attempting to send message: yyy
+game.js:971 Sending chat message to WebSocket...
+game.js:980 Message input cleared.
+game.js:686 Message received from server in room main_room: {type: 'chat_message', username: 'ty', message: 'yyy', room: 'main_room'}
+game.js:711 Message displayed in chat log for room: main_room
+game.js:686 Message received from server in room main_room: {type: 'chat_message', username: 'server', message: 'o a invité ty à rejoindre une partie main_room', room: 'main_room'}
+game.js:711 Message displayed in chat log for room: main_room
+game.js:686 Message received from server in room main_room: {type: 'invite', inviter: 'o', target_user: 'ty', message: 'o vous a invité à rejoindre la room main_room.', room: 'main_room'}
+game.js:744 Invitation reçue de o
+game.js:754 Réponse à l'invitation: yes
+game.js:767 L'invité ty va démarrer le QuickMatch...
+game.js:769 Invitation acceptée, démarrage du QuickMatch pour l'invité après un délai...
+game.js:686 Message received from server in room main_room: {type: 'chat_message', username: 'server', message: "ty a répondu yes à l'invitation.", room: 'main_room'}
+game.js:711 Message displayed in chat log for room: main_room
+game.js:686 Message received from server in room main_room: {type: 'invite_response', message: "ty a répondu yes à l'invitation.", response: 'yes', inviter: 'o'}
+game.js:771 Appel de startQuickMatch(invite)...
+game.js:772 Uncaught ReferenceError: startQuickMatch is not defined
+    at game.js:772:11
+(anonymous) @ game.js:772
+setTimeout
+chatSocket.onmessage @ game.js:770

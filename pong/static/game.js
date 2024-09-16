@@ -1,9 +1,4 @@
-	
-	// Déclaration globale de startQuickMatch
-function startQuickMatch() {
-    console.log("Starting quick match...");
-    // Logique pour démarrer un match rapide
-}
+
 	let socket;
 	let gameState;
 	let activeRoom = null;	// Stocker la room active
@@ -413,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 	
 	function startQuickMatch() {
+		console.log("Starting quick match...(fonction startquickmatch)");
 		// Masquer les éléments inutiles et afficher le conteneur de jeu
 		gameContainer.style.display = 'flex';
 		logo.style.display = 'none';
@@ -634,8 +630,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+})		
 
-});
 
 ////////////////////////////CHAT////////////////////////////////////
 	class ChatManager {
@@ -772,7 +768,9 @@ document.addEventListener('DOMContentLoaded', () => {
 									// Si l'invitation est acceptée, lancer QuickMatch pour l'invité après un délai
 									console.log("Invitation acceptée, démarrage du QuickMatch pour l'invité après un délai...");
 									setTimeout(() => {
+										console.log("Appel de startQuickMatch(invite)...");
 										startQuickMatch();  // Lancer le jeu après 2 secondes
+										console.log("startQuickMatch appelé.");
 									}, 2000);  // 2000 millisecondes = 2 secondes
 								}
 							}
@@ -786,10 +784,12 @@ document.addEventListener('DOMContentLoaded', () => {
         							chatLog.appendChild(messageElement);  // Affiche la réponse dans le chat-log
         							console.log(`Réponse à l'invitation: ${data.message}`);
 
-        						if (data.response && data.response.toLowerCase() === 'yes') {
-            						console.log("Invitation acceptée, démarrage du QuickMatch pour l'invitant...");
-            						startQuickMatch();
-        						}
+								if (data.response && data.response.toLowerCase() === 'yes') {
+									console.log("Invitation acceptée, démarrage du QuickMatch pour l'invitant...");
+									console.log("Appel de startQuickMatch...(invite response)");
+									startQuickMatch();
+									console.log("startQuickMatch appelé.");
+								}
     						}
     						break;
 
@@ -1018,4 +1018,3 @@ document.addEventListener('DOMContentLoaded', () => {
 			}));
 		}
 	}
-	////////////////////////////CHAT////////////////////////////////////
