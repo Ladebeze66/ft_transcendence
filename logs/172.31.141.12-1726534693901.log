@@ -1,0 +1,41 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:3 DOM fully loaded and parsed
+game.js:43 DOM elements initialized
+game.js:118 checkUserExists called with username: g
+game.js:134 User existence check response: {exists: true}
+game.js:224 Initializing ChatManager...
+game.js:732 ChatManager initialized for user: g
+game.js:983 Joining room: main_room with username: g and token: 458f5428-2c48-4dbe-b126-815da541e7fb
+game.js:991 Joining new room: main_room
+game.js:910 createRoomTab: main_room with username: g and token: 458f5428-2c48-4dbe-b126-815da541e7fb
+game.js:920 Tab for room main_room already exists.
+game.js:933 Showing tab for room: main_room
+game.js:747 Initializing chat WebSocket...
+game.js:748 Initializing chat WebSocket for room: main_room with username: g
+game.js:753 startChatWebSocket: main_room with username: g and token: 458f5428-2c48-4dbe-b126-815da541e7fb
+game.js:1012 ChatInput initialized for room: main_room, username: g
+game.js:945 Attempting to switch to room: main_room
+game.js:951 Switching from room null to room main_room
+game.js:759 WebSocket ouvert pour l'utilisateur g dans la room main_room
+game.js:767 Authentication message sent for room: main_room with username: g
+game.js:773 Message received from server in room main_room: {type: 'chat_message', username: 'g', message: 'Authentication successful', room: 'main_room'}
+game.js:798 Message displayed in chat log for room: main_room
+game.js:773 Message received from server in room main_room: {type: 'chat_message', username: 'h', message: 'Authentication successful', room: 'main_room'}
+game.js:798 Message displayed in chat log for room: main_room
+game.js:1019 Enter key pressed, attempting to send message...
+game.js:1032 Attempting to send message: /s h
+game.js:1045 Detected stats command for user: h
+game.js:677 Fetching stats for user: h
+game.js:1057 Message input cleared.
+game.js:680 
+        
+        
+       POST http://172.31.141.12:8080/get_player_stats/ 404 (Not Found)
+fetchPlayerStatsFromGameServer @ game.js:680
+sendMessage @ game.js:1046
+(anonymous) @ game.js:1020
+game.js:689 Failed to fetch stats for h. HTTP error! Status: 404
+fetchPlayerStatsFromGameServer @ game.js:689
+await in fetchPlayerStatsFromGameServer
+sendMessage @ game.js:1046
+(anonymous) @ game.js:1020

@@ -1,0 +1,33 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:3 DOM fully loaded and parsed
+game.js:43 DOM elements initialized
+game.js:118 checkUserExists called with username: vv
+game.js:134 User existence check response: {exists: true}
+game.js:224 Initializing ChatManager...
+game.js:748 ChatManager initialized for user: vv
+game.js:999 Joining room: main_room with username: vv and token: 51edbeca-570d-4536-b81d-4eaa64051300
+game.js:1007 Joining new room: main_room
+game.js:926 createRoomTab: main_room with username: vv and token: 51edbeca-570d-4536-b81d-4eaa64051300
+game.js:936 Tab for room main_room already exists.
+game.js:949 Showing tab for room: main_room
+game.js:763 Initializing chat WebSocket...
+game.js:764 Initializing chat WebSocket for room: main_room with username: vv
+game.js:769 startChatWebSocket: main_room with username: vv and token: 51edbeca-570d-4536-b81d-4eaa64051300
+game.js:1042 ChatInput initialized for room: main_room, username: vv
+game.js:961 Attempting to switch to room: main_room
+game.js:967 Switching from room null to room main_room
+game.js:775 WebSocket ouvert pour l'utilisateur vv dans la room main_room
+game.js:783 Authentication message sent for room: main_room with username: vv
+game.js:789 Message received from server in room main_room: {type: 'chat_message', username: 'vv', message: 'Authentication successful', room: 'main_room'}
+game.js:814 Message displayed in chat log for room: main_room
+game.js:1049 Enter key pressed, attempting to send message...
+game.js:1062 Attempting to send message: /s v
+game.js:1075 Detected stats command for user: v
+game.js:721 Player stats not loaded yet. Fetching all player stats...
+game.js:1087 Message input cleared.
+game.js:708 All player stats received: {players: Array(0)}
+game.js:732 Player with username v not found.
+getPlayerStatsByUsername @ game.js:732
+await in getPlayerStatsByUsername
+sendMessage @ game.js:1076
+(anonymous) @ game.js:1050

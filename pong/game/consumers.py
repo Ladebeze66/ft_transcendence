@@ -108,36 +108,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 		print(f"({self.user}) Game set to: {game}")
 		self.game = game
 
-	# Handle the player stats request from ChatConsumer
-	async def get_player_stats(self, event):
-		username = event['username']
-		reply_channel = event['reply_channel']
-
-		# Récupérer les statistiques du joueur
-		player = await self.get_player_stats_from_db(username)
-		if player:
-			stats = {
-				'total_matches': player.total_match,
-				'total_wins': player.total_win,
-				'win_percentage': player.p_win,
-				'best_score': player.best_score,
-			}
-
-			# Renvoyer les statistiques au ChatConsumer via Channel Layers
-			await self.channel_layer.send(
-				reply_channel,
-				{
-					'type': 'player_stats',
-					'username': username,
-					'stats': stats
-				}
-			)
-
-	@database_sync_to_async
-	def get_player_stats_from_db(self, username):
-		# Supposons que les statistiques soient dans le modèle Player
-		return Player.objects.filter(name=username).first()
-
 ###################################################################CHAT###################################################################
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -293,82 +263,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'type': 'block_user',
 			'message': f'Vous avez bloqué les messages de {target_user}'
 		}))
-
-	async def handle_invite_user(self, data):
-		# Récupération des informations de l'invitation
-		inviter = data.get('username')
-		target_user = data.get('target_user')
-		room = data.get('room')
-
-		# Validation des paramètres
-		if not inviter:
-			logger.error("Invitant manquant dans le message d'invitation")
-			await self.chat_message('error', 'server', 'Invitant manquant', self.room_group_name)
-			return
-
-		if not target_user:
-			logger.error("Utilisateur cible manquant dans le message d'invitation")
-			await self.chat_message('error', 'server', 'Utilisateur cible manquant', self.room_group_name)
-			return
-
-		if not room:
-			logger.error("Room manquante dans le message d'invitation")
-			await self.chat_message('error', 'server', 'Room manquante', self.room_group_name)
-			return
-
-		logger.info(f"Invitation envoyée de {inviter} à {target_user} dans la room {room}")
-		await self.chat_message('chat_message', 'server', f'{inviter} a invité {target_user} à rejoindre une partie {room}', room)
-
-		# Envoi de l'invitation
-		await self.channel_layer.group_send(
-			room,
-			{
-				'type': 'invite',
-				'inviter': inviter,
-				'target_user': target_user,
-				'room': room,
-				'message': f'{inviter} vous a invité à rejoindre la room {room}.'
-			}
-		)
-
-	async def handle_invite_response(self, data):
-		inviter = data.get('inviter')
-		username = data.get('username')  # L'utilisateur invité qui répond
-		response = data.get('response')
-		room = data.get('room')
-
-		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
-		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
-
-		 # Si la réponse est 'yes', informer l'invitant que l'invité a accepté
-		if response.lower() == 'yes':
-			try:
-				# Informer l'invitant que l'invitation a été acceptée
-				await self.channel_layer.group_send(
-					room,
-					{
-						'type': 'invite_response',
-						'inviter': inviter,
-						'username': username,
-						'response': response,
-						'room': room,
-						'message': f'{username} a accepté l\'invitation.'
-					}
-				)
-				 # Informer à la fois l'invité et l'invitant que le jeu va commencer
-				await self.channel_layer.group_send(
-					room,
-					{
-						'type': 'start_quick_match',
-						'inviter': inviter,
-						'username': username,
-						'message': 'La partie va démarrer pour vous deux.',
-					}
-				)
-			except Exception as e:
-				logger.error(f"Error while sending invite response: {str(e)}")
-				await self.chat_message('error', 'server', f'Internal server error: {str(e)}', room)
-			
+		
 	# Méthode appelée pour envoyer l'invitation à l'utilisateur invité (target_user)
 	async def invite(self, event):
 		inviter = event['inviter']
@@ -407,51 +302,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'response': response  # Ajout de la réponse 'yes' ou 'no'
 			}
 		)
-
-	async def invite_response(self, event):
-		message = event['message']
-		response = event.get('response')
-		inviter = event.get('inviter')  # Récupérer l'inviteur		
-
-		logger.info(f"invite_response: Envoi de la réponse à l'invitation via WebSocket. Message={message}, Response={response}, Inviter={inviter}")
-
-		# Envoyer la réponse à l'invitation via WebSocket à l'invitant
-		await self.send(text_data=json.dumps({
-			'type': 'invite_response',
-			'message': message,
-			'response': response,
-			'inviter': inviter
-		}))
 	
-	# méthode pour gérer la demande de statistiques du joueur
-	async def handle_player_stats(self, data):
-		username = data.get['username']
-		target_user = data['target_user']
-
-		logger.info(f"handle_player_stats appelé avec : {data}")
-
-		# Appel à la base de données ou à l'API du GameConsumer pour récupérer les statistiques
-		player = await self.get_player_stats(target_user)
-		if player:
-			stats = {
-				'total_matches': player.total_match,
-				'total_wins': player.total_win,
-				'win_percentage': player.p_win,
-				'best_score': player.best_score,
-			}
-
-			# Envoi des statistiques au client
-			await self.send(text_data=json.dumps({
-				'type': 'player_stats',
-				'username': target_user,
-				'stats': stats
-			}))
-		else:
-			await self.send(text_data=json.dumps({
-				'type': 'error',
-				'message': f"Player {target_user} not found"
-			}))
-
 	# Handle player stats by forwarding the request to the GameConsumer
 	async def handle_player_stats(self, data):
 		target_user = data.get('target_user')
@@ -493,12 +344,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				self.user = user
 				logger.info(f"Utilisateur {username} authentifié avec succès")
 				await self.chat_message('authenticated', username, 'Authentication successful', self.room_group_name)
-				
-				await self.channel_layer.group_add(
-				f"user_{self.username}",  # Group name unique pour cet utilisateur
-				self.channel_name
-				)
-				logger.info(f"Connexion de l'utilisateur {self.username} à son groupe personnel")
+								
 			else:
 				logger.warning(f"Échec de l'authentification pour le token: {token}")
 				await self.chat_message('error', username, 'Authentication failed', self.room_group_name)

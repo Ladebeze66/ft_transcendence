@@ -1,0 +1,53 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:3 DOM fully loaded and parsed
+game.js:43 DOM elements initialized
+game.js:118 checkUserExists called with username: v
+game.js:134 User existence check response: {exists: false}
+game.js:143 handleRegister called
+game.js:148 Nickname: v
+game.js:149 Password: v
+game.js:150 Confirm Password: v
+game.js:154 Attempting to register user: v
+game.js:156 Register result: {registered: true, token: '7ab181bc-7bf7-4ac0-a562-23e1c455ca23'}
+game.js:160 Token stored: 7ab181bc-7bf7-4ac0-a562-23e1c455ca23
+game.js:161 User registered successfully
+game.js:166 ChatManager initialized: null
+game.js:168 Initializing ChatManager with username: v and token: 7ab181bc-7bf7-4ac0-a562-23e1c455ca23
+game.js:732 ChatManager initialized for user: v
+game.js:170 ChatManager initialized: ChatManager {username: 'v', token: '7ab181bc-7bf7-4ac0-a562-23e1c455ca23', roomSockets: {…}, blockedUsers: Array(0), activeRoom: null, …}
+game.js:173 chatManager is defined: ChatManager {username: 'v', token: '7ab181bc-7bf7-4ac0-a562-23e1c455ca23', roomSockets: {…}, blockedUsers: Array(0), activeRoom: null, …}
+game.js:178 Joining room: main_room
+game.js:983 Joining room: main_room with username: v and token: 7ab181bc-7bf7-4ac0-a562-23e1c455ca23
+game.js:991 Joining new room: main_room
+game.js:910 createRoomTab: main_room with username: v and token: 7ab181bc-7bf7-4ac0-a562-23e1c455ca23
+game.js:920 Tab for room main_room already exists.
+game.js:933 Showing tab for room: main_room
+game.js:747 Initializing chat WebSocket...
+game.js:748 Initializing chat WebSocket for room: main_room with username: v
+game.js:753 startChatWebSocket: main_room with username: v and token: 7ab181bc-7bf7-4ac0-a562-23e1c455ca23
+game.js:1012 ChatInput initialized for room: main_room, username: v
+game.js:945 Attempting to switch to room: main_room
+game.js:951 Switching from room null to room main_room
+game.js:759 WebSocket ouvert pour l'utilisateur v dans la room main_room
+game.js:767 Authentication message sent for room: main_room with username: v
+game.js:773 Message received from server in room main_room: {type: 'chat_message', username: 'v', message: 'Authentication successful', room: 'main_room'}
+game.js:798 Message displayed in chat log for room: main_room
+game.js:773 Message received from server in room main_room: {type: 'chat_message', username: 'f', message: 'Authentication successful', room: 'main_room'}
+game.js:798 Message displayed in chat log for room: main_room
+game.js:1019 Enter key pressed, attempting to send message...
+game.js:1032 Attempting to send message: /s f
+game.js:1045 Detected stats command for user: f
+game.js:677 Fetching stats for user: f
+game.js:1057 Message input cleared.
+game.js:680 
+        
+        
+       POST http://172.31.141.12:8080/game_server/get_player_stats/ 404 (Not Found)
+fetchPlayerStatsFromGameServer @ game.js:680
+sendMessage @ game.js:1046
+(anonymous) @ game.js:1020
+game.js:689 Failed to fetch stats for f. HTTP error! Status: 404
+fetchPlayerStatsFromGameServer @ game.js:689
+await in fetchPlayerStatsFromGameServer
+sendMessage @ game.js:1046
+(anonymous) @ game.js:1020

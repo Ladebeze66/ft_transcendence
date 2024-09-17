@@ -1,0 +1,37 @@
+:8080/:1 The Cross-Origin-Opener-Policy header has been ignored, because the URL's origin was untrustworthy. It was defined either in the final response or a redirect. Please deliver the response using the HTTPS protocol. You can also use the 'localhost' origin instead. See https://www.w3.org/TR/powerful-features/#potentially-trustworthy-origin and https://html.spec.whatwg.org/#the-cross-origin-opener-policy-header.
+game.js:3 DOM fully loaded and parsed
+game.js:43 DOM elements initialized
+game.js:118 checkUserExists called with username: h
+game.js:134 User existence check response: {exists: true}
+game.js:224 Initializing ChatManager...
+game.js:753 ChatManager initialized for user: h
+game.js:1018 Joining room: main_room with username: h and token: 27cda257-bf3c-4523-82e3-28bafd5a6ad2
+game.js:1026 Joining new room: main_room
+game.js:945 createRoomTab: main_room with username: h and token: 27cda257-bf3c-4523-82e3-28bafd5a6ad2
+game.js:955 Tab for room main_room already exists.
+game.js:968 Showing tab for room: main_room
+game.js:782 Initializing chat WebSocket...
+game.js:783 Initializing chat WebSocket for room: main_room with username: h
+game.js:788 startChatWebSocket: main_room with username: h and token: 27cda257-bf3c-4523-82e3-28bafd5a6ad2
+game.js:1061 ChatInput initialized for room: main_room, username: h
+game.js:980 Attempting to switch to room: main_room
+game.js:986 Switching from room null to room main_room
+game.js:794 WebSocket ouvert pour l'utilisateur h dans la room main_room
+game.js:802 Authentication message sent for room: main_room with username: h
+game.js:808 Message received from server in room main_room: {type: 'chat_message', username: 'h', message: 'Authentication successful', room: 'main_room'}
+game.js:833 Message displayed in chat log for room: main_room
+game.js:808 Message received from server in room main_room: {type: 'chat_message', username: 't', message: 'Authentication successful', room: 'main_room'}
+game.js:833 Message displayed in chat log for room: main_room
+game.js:1068 Enter key pressed, attempting to send message...
+game.js:1081 Attempting to send message: /s t
+game.js:1094 Detected stats command for user: t
+game.js:660 Detected stats command for user: t
+burger.js:79 Fetching players...
+game.js:663 Uncaught TypeError: Cannot read properties of undefined (reading 'then')
+    at sendStatsCommand (game.js:663:20)
+    at ChatInput.sendMessage (game.js:1095:6)
+    at HTMLInputElement.<anonymous> (game.js:1069:11)
+sendStatsCommand @ game.js:663
+sendMessage @ game.js:1095
+(anonymous) @ game.js:1069
+burger.js:136 Displaying players:

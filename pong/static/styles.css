@@ -702,3 +702,20 @@ canvas {
     transform: translateY(20px);
     opacity: 0;
 }
+
+#quit-room-btn, #show-chat-btn {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+}
+
+#quit-room-btn:hover, #show-chat-btn:hover {
+    background-color: #0056b3;
+}

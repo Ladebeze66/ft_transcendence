@@ -75,18 +75,32 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchPlayers(){
+    function fetchPlayers() {
         console.log('Fetching players...');
-        fetch('/api/player_list/')
-            .then(response => response.json())
+        // Retourner la promesse pour permettre l'utilisation de .then() plus tard
+        return fetch('/api/player_list/') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.players) {
-                    displayPlayers(data.players);
+                    displayPlayers(data.players); // Affiche les joueurs récupérés
+                    return data.players; // Retourne les joueurs pour permettre de les traiter dans un .then
+                } else {
+                    throw new Error('No players found.');
                 }
             })
-            .catch(error => console.error('Error fetching match data:', error));
+            .catch(error => {
+                console.error('Error fetching match data:', error);
+                return null; // En cas d'erreur, retourne null
+            });
     }
-
+    
+    // Expose fetchPlayers globalement
+    window.fetchPlayers = fetchPlayers;
     function fetchTournois(){
         console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')

@@ -199,8 +199,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 
-    <script src="{% static 'game.js' %}"></script>
+    
     <script src="{% static 'burger.js' %}"></script>
+    <script src="{% static 'game.js' %}"></script>
     <script src="{% static 'language.js' %}"></script>
 </body>
 
@@ -214,13 +215,15 @@
         <p id="stats-best-score"></p>
     </div>
 
-	<div id="chat-controls">
-        <button id="show-chat">Afficher le Chat</button>
-        <button id="hide-chat">Masquer le Chat</button>
-    </div>
+	    <div id="chat-controls">
+             <!-- Autres éléments du chat -->
+            <button id="quit-room-btn">Quitter la room</button>
+            <button id="show-chat">Afficher le Chat</button>
+            <button id="hide-chat">Masquer le Chat</button>
+        </div>
 
     <div id="chat-container">
-        <!-- Conteneur des journaux de chat -->
+                <!-- Conteneur des journaux de chat -->
         <div id="chat-log-container">
             <div id="chat-log-main_room" class="chat-log" style="display:block;"></div>
             <div id="chat-log-tournament" class="chat-log" style="display:none;"></div>
@@ -250,6 +253,7 @@
             <div class="room-tab" data-room="quick_match">Quick Match</div>
         </div>
     </div>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

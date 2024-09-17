@@ -655,23 +655,97 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-	// Function to display player stats
-	function displayPlayerStats(stats) {
-    	const statsPopup = document.getElementById('player-stats');
-    	document.getElementById('stats-username').innerText = `Username: ${stats.username}`;
-    	document.getElementById('stats-total-matches').innerText = `Total Matches: ${stats.total_matches}`;
-    	document.getElementById('stats-total-wins').innerText = `Total Wins: ${stats.total_wins}`;
-    	document.getElementById('stats-win-percentage').innerText = `Win Percentage: ${stats.win_percentage}%`;
-    	document.getElementById('stats-best-score').innerText = `Best Score: ${stats.best_score}`;
+	// Détection de la commande /s username
+	function sendStatsCommand(targetUser) {
+    	console.log(`Detected stats command for user: ${targetUser}`);
 
-    	// Show the stats popup
-    	statsPopup.classList.add('show');
-    
-    	// Hide the stats popup after 5 seconds
-    	setTimeout(() => {
-        	statsPopup.classList.remove('show');
-    	}, 5000);
+    	// Appelle fetchPlayers et utilise .then() pour traiter les résultats
+    	fetchPlayers().then((players) => {
+        	if (!players) {
+            	console.log('No players found.');
+            	return;
+        	}
+
+        	console.log('Players received in sendStatsCommand:', players); // Affiche les joueurs récupérés
+
+        	// Filtrer et récupérer les informations du joueur spécifique
+        	const playerStats = filterPlayers(targetUser);
+        	if (playerStats) {
+            	// Si les stats sont trouvées, afficher la popup avec les données
+            	displayPlayerStats(playerStats);
+        	} else {
+            	console.log(`Player with username ${targetUser} not found.`);
+        	}
+    	}).catch(error => {
+        	console.error('Error fetching players:', error);
+    	});
 	}
+
+	// Modification de filterPlayers pour renvoyer les données du joueur trouvé
+	function filterPlayers(targetUser) {
+    	const searchValue = targetUser.toLowerCase(); // Utiliser le nom d'utilisateur comme valeur de recherche
+    	const playersListBody = document.querySelector('#player-list tbody');
+    	const rows = playersListBody.getElementsByTagName('tr');
+
+    	for (let i = 0; i < rows.length; i++) {
+        	const nameCell = rows[i].getElementsByTagName('td')[1]; // Colonne du nom de l'utilisateur
+        	if (nameCell) {
+            	const nameValue = nameCell.textContent || nameCell.innerText;
+            	if (nameValue.toLowerCase().indexOf(searchValue) > -1) {
+            	    rows[i].style.display = ''; // Affiche uniquement la ligne correspondant au joueur
+
+                	// Récupérer les statistiques du joueur à partir des cellules de la ligne
+                	const playerStats = {
+                    	username: nameValue,
+                    	total_matches: rows[i].getElementsByTagName('td')[2].textContent,
+                    	total_wins: rows[i].getElementsByTagName('td')[3].textContent,
+                    	win_percentage: rows[i].getElementsByTagName('td')[4].textContent,
+                    	best_score: rows[i].getElementsByTagName('td')[5].textContent
+                	};
+                	return playerStats; // Retourne les stats du joueur
+            	}
+        	}
+    	}
+
+    	return null; // Retourne null si le joueur n'est pas trouvé
+	}
+
+	function displayPlayerStats(stats) {
+		console.log('Displaying player stats:', stats);  // Vérifie que la fonction est bien appelée
+	
+		// Créer ou récupérer l'élément popup
+		let statsPopup = document.getElementById('player-stats-popup');
+		
+		if (!statsPopup) {
+			console.log('Creating stats popup element');  // Vérifie si l'élément est bien créé
+			statsPopup = document.createElement('div');
+			statsPopup.id = 'player-stats-popup';
+			statsPopup.classList.add('player-stats-popup');
+			document.body.appendChild(statsPopup);
+		}
+	
+		// Mettre à jour le contenu de la popup avec les statistiques
+		statsPopup.innerHTML = `
+			<h3>Player Stats</h3>
+			<p><strong>Username:</strong> ${stats.username}</p>
+			<p><strong>Total Matches:</strong> ${stats.total_matches}</p>
+			<p><strong>Total Wins:</strong> ${stats.total_wins}</p>
+			<p><strong>Win Percentage:</strong> ${stats.win_percentage}%</p>
+			<p><strong>Best Score:</strong> ${stats.best_score}</p>
+		`;
+	
+		// Afficher la popup avec une animation
+		statsPopup.classList.add('show');
+		statsPopup.classList.remove('hide');
+	
+		// Masquer la popup après 5 secondes
+		setTimeout(() => {
+			statsPopup.classList.remove('show');
+			statsPopup.classList.add('hide');
+		}, 3000);
+	}
+
+	
 
 ////////////////////////////CHAT////////////////////////////////////
 	class ChatManager {
@@ -684,6 +758,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.chatSocket = null; // Le WebSocket de chat actif
 	
 			console.log(`ChatManager initialized for user: ${username}`);
+			this.initializeEventListeners(); // Initialiser les gestionnaires d'événements
+		}
+		initializeEventListeners() {
+			const quitButton = document.getElementById('quit-room-btn');
+			if (quitButton) {
+				quitButton.addEventListener('click', () => {
+					if (this.activeRoom) {
+						this.leaveRoom(this.activeRoom);
+						console.log(`User ${this.username} has left the room ${this.activeRoom}`);
+					} else {
+						console.warn('No active room to leave.');
+					}
+				});
+			}
 		}
 	
 		startChatWebSocket(roomName) {
@@ -765,20 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								alert(`Error: Failed to block user. ${data.message}`);
 							}
 							break;
-
-						case 'invite_confirmation':
-							console.log(`Confirmation de l'invitation reçue: ${data.message}`);
-							if (data.message) {
-								const messageElement = document.createElement('div');
-								messageElement.textContent = data.message;
-								chatLog.appendChild(messageElement);
-								console.log(`Invitation confirmation message displayed in chat log: ${data.message}`);
-							} else {
-								console.error(`Échec de l'envoi de l'invitation: ${data.message}`);
-								alert(`Error: Failed to invite user. ${data.message}`);
-							}
-							break;
-						
+											
 						case 'invite':
 							// Vérifie si l'invitation est destinée à cet utilisateur (invité)
 							if (data.target_user === this.username) {
@@ -965,6 +1040,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			// Activer l'affichage du conteneur de chat
     		document.getElementById('chat-container').style.display = 'flex';
 		}
+
+		leaveRoom(roomName) {
+			if (this.roomSockets[roomName]) {
+				console.log(`Leaving room: ${roomName}`);
+				this.roomSockets[roomName].close();
+				delete this.roomSockets[roomName];
+				if (this.activeRoom === roomName) {
+					this.activeRoom = null;
+					this.chatSocket = null;
+				}
+			} else {
+				console.warn(`No active WebSocket found for room: ${roomName}`);
+			}
+		}
 }
 
 	class ChatInput {
@@ -1010,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else if (message.startsWith('/s ')) {
 					const targetUser = message.slice(3).trim();
 					console.log(`Detected stats command for user: ${targetUser}`);
-					this.sendStatsCommand(targetUser);
+					sendStatsCommand(targetUser);
 				} else {
 					console.log(`Sending chat message to WebSocket...`);
 					this.chatSocket.send(JSON.stringify({
@@ -1060,17 +1149,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'target_user': targetUser,   // Utilisateur qui reçoit l'invitation
 				'room': this.roomName        // Room où l'invitation est faite
 			}));
-			}
-
-			// Nouvelle méthode pour envoyer la commande de statistiques
-			sendStatsCommand(targetUser) {
-				console.log(`Sending stats request for user: ${targetUser}`);
-				this.chatSocket.send(JSON.stringify({
-					'type': 'get_player_stats',
-					'username': this.username,
-					'target_user': targetUser,
-					'room': this.roomName
-				}));
 			}
 		}
 	});
